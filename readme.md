@@ -6,7 +6,7 @@
 
 **Türkiye'nin 1 Numaralı AI Destekli Albion Online Platformu**
 
-AoT-PNASF, Albion Online oyuncuları için geliştirilmiş kapsamlı bir companion (yardımcı) uygulamadır. Yapay zeka destekli build önerileri, piyasa arbitrajı, etkinlik takibi ve daha birçok özelliği tek bir平台上da sunar.
+AoT-PNASF, Albion Online oyuncuları için geliştirilmiş kapsamlı bir companion (yardımcı) uygulamadır. Yapay zeka destekli build önerileri, piyasa arbitrajı, etkinlik takibi ve daha birçok özelliği tek bir panelde sunar.
 
 ## 🌟 Özellikler
 
