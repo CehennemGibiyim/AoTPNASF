@@ -12,7 +12,7 @@ async function downloadProjectAsZip() {
   
   const status = document.createElement('div');
   status.innerText = 'Tüm dosyalar ve klasörler toplanıyor...';
-  status.style.cssText = 'margin-bottom:20px;color:#a3a3a3;font-size:14px;';
+  status.style.cssText = 'margin-bottom:20px;color:#a3a3a3;font-size:14px;text-align:center;max-width:80%;';
   
   const pContainer = document.createElement('div');
   pContainer.style.cssText = 'width:300px;height:12px;background:#262626;border-radius:6px;overflow:hidden;border:1px solid #333;';
@@ -59,7 +59,6 @@ async function downloadProjectAsZip() {
       "js/ai-build.js",
       "js/arbitrage.js",
       "js/avalon.js",
-      "js/chat-widget.js",
       "js/crafting-new.js",
       "js/crafting.js",
       "js/events.js",
@@ -77,6 +76,7 @@ async function downloadProjectAsZip() {
       "js/settings-panel.js",
       "js/silver-calculator.js",
       "js/smart-scanner.js",
+      "js/social-hub.js",
       "js/sync-button.js",
       "js/zipper.js",
       "license",
@@ -107,32 +107,22 @@ async function downloadProjectAsZip() {
       try {
         let fetchUrl = path;
         
-        // ÖNEMLİ: index.html platformda kök adreste ("/") servis edilir
-        if (path === 'index.html') {
-          fetchUrl = window.location.href.split('?')[0]; // Root URL'i alıyoruz
-        }
-
         // Cache bypass parametresi ekle
         fetchUrl += (fetchUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
 
         const res = await fetch(fetchUrl);
         if (res.ok) {
           let blob = await res.blob();
-          
-          // Eğer index.html ağ üzerinden tam indirilemezse, DOM üzerinden temiz bir kopyasını al
-          if (path === 'index.html' && blob.size < 1000) {
-              const htmlContent = "<!DOCTYPE html>\\n" + document.documentElement.outerHTML;
-              blob = new Blob([htmlContent], {type: "text/html"});
-          }
-          
           zip.file(path, blob);
           success++;
         } else {
           console.warn("Dosya çekilemedi:", path, "HTTP:", res.status);
-          // Fallback for index.html
-          if (path === 'index.html') {
-             const htmlContent = "<!DOCTYPE html>\\n" + document.documentElement.outerHTML;
-             zip.file(path, new Blob([htmlContent], {type: "text/html"}));
+          
+          // index.html için ekstra fallback
+          if (path === 'index.html' || path === 'index.html?t=' + Date.now()) {
+             // Sunucudan çekemediysek sayfanın anlık DOM yedeğini al
+             const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+             zip.file('index.html', new Blob([htmlContent], {type: "text/html"}));
              success++;
           }
         }

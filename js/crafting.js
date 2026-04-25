@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         <div class="bg-albion-800 border border-gray-700 p-6 rounded-xl mb-6 shadow-lg">
           <h3 class="text-2xl font-bold text-white mb-2"><i class="fa-solid fa-crosshairs text-albion-accent mr-2"></i> <span>${window.t('crafting-plannerTitle', 'Hideout Yerleşim Planlayıcısı')}</span></h3>
-          <p class="text-gray-400 mb-4\"><span>${window.t('crafting-plannerDesc', 'Eşya veya harita adıyla arama yapın. (Hangi eşyanın hangi bölgedeki sığınakta bonus aldığını gösterir)')}</span></p>
+          <p class="text-gray-400 mb-4"><span>${window.t('crafting-plannerDesc', 'Eşya veya harita adıyla arama yapın. (Hangi eşyanın hangi bölgedeki sığınakta bonus aldığını gösterir)')}</span></p>
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-500"></i>
             <input type="text" id="outlandSearch" class="w-full bg-albion-900 border border-gray-600 rounded-lg py-3 pl-12 pr-4 text-white focus:ring-2 focus:ring-albion-accent outline-none" placeholder="Ne üretmek istiyorsun veya hangi haritadasın?">
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="flex flex-wrap gap-1 mb-1">
                   ${b.maps.map(m => `<span class="bg-albion-900 border border-gray-600 text-[10px] px-1.5 py-0.5 rounded text-gray-300">${m}</span>`).join('')}
                 </div>
-                <div class="text-[9px] text-gray-500 italic\">*Ve bu biyomdaki diğer haritalar</div>
+                <div class="text-[9px] text-gray-500 italic">*Ve bu biyomdaki diğer haritalar</div>
               </div>
             </div>
           `).join('')}
@@ -400,8 +400,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let rule = RECIPE_RULES.find(r => r.match.test(baseId));
         if (rule) {
           let rawName = item.tr || item.en;
-          // Ehil, Usta, Novice's vb. tier prefixlerini isimden temizliyoruz!
-          let cleanName = rawName.replace(/^(Çırak|Kalfa|Ehil|Uzman|Usta|Büyük Usta|Üstat|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's)\s+/i, '').trim();
+          // Tüm tier ön eklerini (Acemi, Ehil, Tecrübesiz vb.) temizleyelim ki net eşya adı kalsın.
+          let cleanName = rawName.replace(/^(Beginner's|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's|Tecrübesiz|Acemi|Çırak|Kalfa|Ehil|Uzman|Büyük Usta|Usta|Üstat|Yüce)\s+/i, '').trim();
 
           ALL_CRAFT_RECIPES[baseId] = {
             name: cleanName,
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Find turkish name for artifact if available
         let artObj = window.AO_ITEMS.find(i => i.id === recipe.art);
         let artName = artObj ? (artObj.tr || artObj.en) : "Artifact";
-        let cleanArtName = artName.replace(/^(Çırak|Kalfa|Ehil|Uzman|Usta|Büyük Usta|Üstat|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's)\s+/i, '').trim();
+        let cleanArtName = artName.replace(/^(Beginner's|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's|Tecrübesiz|Acemi|Çırak|Kalfa|Ehil|Uzman|Büyük Usta|Usta|Üstat|Yüce)\s+/i, '').trim();
 
         htmlContent += `
           <div class="flex items-center justify-between bg-purple-900/20 border border-purple-800/50 p-3 rounded-lg hover:border-purple-500 transition-colors">

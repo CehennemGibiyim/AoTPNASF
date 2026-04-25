@@ -1,4 +1,3 @@
-
 const MODEL_ID = 'ba695aee-f2ec-497f-9335-1c796cb0c30d'; // RolePlay v1 (Ücretsiz)
 
 // --- MOCK AI SERVICE (Local Testing İçin) ---
@@ -10,17 +9,13 @@ if (!window.miniappsAI) {
     callModel: async (params) => {
       console.log('🤖 Mock AI çağrısı:', params);
       
-      // Basit bir mock yanıt döndür
       const isPersonalBuild = params.messages.some(m => m.content.includes('pve') && m.content.includes('pvp'));
       
       if (isPersonalBuild) {
-        // Seçilen silahı prompt'tan çıkar
         const userMessage = params.messages.find(m => m.role === 'user');
-        const weaponMatch = userMessage.content.match(/"([^"]+)" \((T[^)]+)\)/);
+        const weaponMatch = userMessage.content.match(/"([^"]+)" \(T[^)]+\)/);
         const selectedWeaponName = weaponMatch ? weaponMatch[1] : "Broadsword";
         const selectedWeaponId = weaponMatch ? weaponMatch[2] : "T8_MAIN_SWORD";
-        
-        console.log(`🎯 Seçilen silah: ${selectedWeaponName} (${selectedWeaponId})`);
         
         return {
           result: JSON.stringify({
@@ -29,12 +24,12 @@ if (!window.miniappsAI) {
               description: `Efficient mob farming build using ${selectedWeaponName}`,
               items: {
                 weapon: {name: selectedWeaponName, id: selectedWeaponId, skills: ["Q1: Active Skill 1", "W1: Active Skill 2", "E: Ultimate", "P2: Passive 2"]},
-                head: {name: "Scholar Cowl", id: "T8_HEAD_LEATHER_SET1", skills: ["D: Escape", "P1: Arcane Insight"]},
-                chest: {name: "Mercenary Jacket", id: "T8_ARMOR_PLATE_SET2", skills: ["R: Taunt", "P1: Iron Will"]},
-                shoes: {name: "Scholar Sandals", id: "T8_SHOES_LEATHER_SET1", skills: ["F: Sprint", "P1: Quick Step"]},
+                head: {name: "Scholar Cowl", id: "T8_HEAD_CLOTH_SET1", skills: ["D: Escape", "P1: Arcane Insight"]},
+                chest: {name: "Mercenary Jacket", id: "T8_ARMOR_LEATHER_SET1", skills: ["R: Taunt", "P1: Iron Will"]},
+                shoes: {name: "Scholar Sandals", id: "T8_SHOES_CLOTH_SET1", skills: ["F: Sprint", "P1: Quick Step"]},
                 cape: {name: "Thetford Cape", id: "T8_CAPEITEM_FW_THETFORD", skills: ["P1: Elemental Shield"]},
                 food: {name: "Omelette", id: "T8_MEAL_OMELETTE", skills: []},
-                potion: {name: "Poison Potion", id: "T8_POTION_POISON", skills: []}
+                potion: {name: "Poison Potion", id: "T6_POTION_POISON", skills: []}
               }
             },
             pvp: {
@@ -42,71 +37,29 @@ if (!window.miniappsAI) {
               description: `Aggressive dueling build using ${selectedWeaponName}`,
               items: {
                 weapon: {name: selectedWeaponName, id: selectedWeaponId, skills: ["Q1: Active Skill 1", "W1: Active Skill 2", "E: Ultimate", "P2: Passive 2"]},
-                head: {name: "Hellfire Mask", id: "T8_HEAD_LEATHER_HELL", skills: ["D: Smoke Shield", "P1: Fiery Resolve"]},
-                chest: {name: "Stalker Jacket", id: "T8_ARMOR_LEATHER_SET3", skills: ["R: Ambush", "P1: Assassin"]},
-                shoes: {name: "Hellfire Shoes", id: "T8_SHOES_LEATHER_HELL", skills: ["F: Dash", "P1: Burning Steps"]},
-                cape: {name: "Caerleon Cape", id: "T8_CAPEITEM_CAERLEON", skills: ["P1: Energy Shield"]},
-                food: {name: "Pork Roast", id: "T8_MEAL_ROASTED_MEAT", skills: []},
-                potion: {name: "Invisibility Potion", id: "T8_POTION_INVISIBILITY", skills: []}
+                head: {name: "Hellion Hood", id: "T8_HEAD_LEATHER_HELL", skills: ["D: Smoke Shield", "P1: Fiery Resolve"]},
+                chest: {name: "Stalker Jacket", id: "T8_ARMOR_LEATHER_MORGANA", skills: ["R: Ambush", "P1: Assassin"]},
+                shoes: {name: "Hellion Shoes", id: "T8_SHOES_LEATHER_HELL", skills: ["F: Dash", "P1: Burning Steps"]},
+                cape: {name: "Caerleon Cape", id: "T8_CAPEITEM_FW_CAERLEON", skills: ["P1: Energy Shield"]},
+                food: {name: "Roast Pork", id: "T8_MEAL_ROAST", skills: []},
+                potion: {name: "Invisibility Potion", id: "T8_POTION_CLEANSE", skills: []}
               }
             }
           })
         };
       } else {
-        // Group build mock
         return {
           result: JSON.stringify({
-            groupSize: 5,
-            content: "Standard 5-man Group",
+            title: "Standard 5-man Group",
+            strategy: "Basic tank and spank.",
             roles: [
               {
                 roleName: "Main Tank",
-                player: "Player 1",
                 items: {
-                  weapon: {name: "Tower Shield", id: "T8_2H_TOWER_UNDEAD", skills: ["Q1: Shield Bash", "W1: Wall", "E: Undead Armor", "P2: Spectral Defense"]},
-                  head: {name: "Guardian Helmet", id: "T8_HEAD_PLATE_SET2", skills: ["D: Taunt", "P1: Iron Will"]},
-                  chest: {name: "Guardian Armor", id: "T8_ARMOR_PLATE_SET1", skills: ["R: Divine Protection", "P1: Fortitude"]},
-                  shoes: {name: "Guardian Boots", id: "T8_SHOES_PLATE_SET1", skills: ["F: Charge", "P1: Heavy Foot"]}
-                }
-              },
-              {
-                roleName: "Healer",
-                player: "Player 2",
-                items: {
-                  weapon: {name: "Holy Staff", id: "T8_2H_HOLYSTAFF", skills: ["Q1: Healing Light", "W1: Purity", "E: Divine Radiance", "P2: Blessing"]},
-                  head: {name: "Cleric Cowl", id: "T8_HEAD_ROBE_SET1", skills: ["D: Cleanse", "P1: Spiritual Guidance"]},
-                  chest: {name: "Cleric Robe", id: "T8_ARMOR_ROBE_SET1", skills: ["R: Mass Healing", "P1: Meditation"]},
-                  shoes: {name: "Cleric Sandals", id: "T8_SHOES_ROBE_SET1", skills: ["F: Holy Speed", "P1: Swift Prayer"]}
-                }
-              },
-              {
-                roleName: "DPS - Ranged",
-                player: "Player 3",
-                items: {
-                  weapon: {name: "Great Arcane Staff", id: "T8_2H_ARCANESTAFF", skills: ["Q1: Arcane Blast", "W1: Meteor", "E: Energy Shield", "P2: Arcane Surge"]},
-                  head: {name: "Mage Cowl", id: "T8_HEAD_LEATHER_SET1", skills: ["D: Blink", "P1: Arcane Insight"]},
-                  chest: {name: "Mage Robe", id: "T8_ARMOR_ROBE_SET2", skills: ["R: Firestorm", "P1: Elemental Mastery"]},
-                  shoes: {name: "Mage Sandals", id: "T8_SHOES_ROBE_SET2", skills: ["F: Teleport", "P1: Quick Cast"]}
-                }
-              },
-              {
-                roleName: "DPS - Melee",
-                player: "Player 4",
-                items: {
-                  weapon: {name: "Dual Swords", id: "T8_2H_DUALSWORD", skills: ["Q1: Spinning Blades", "W1: Assault", "E: Blade Dance", "P2: Dual Wield"]},
-                  head: {name: "Assassin Hood", id: "T8_HEAD_LEATHER_SET3", skills: ["D: Smoke Bomb", "P1: Stealth"]},
-                  chest: {name: "Assassin Jacket", id: "T8_ARMOR_LEATHER_SET3", skills: ["R: Lethal Strike", "P1: Critical Eye"]},
-                  shoes: {name: "Assassin Shoes", id: "T8_SHOES_LEATHER_SET3", skills: ["F: Shadow Leap", "P1: Silent Steps"]}
-                }
-              },
-              {
-                roleName: "Support / Off-Tank",
-                player: "Player 5",
-                items: {
-                  weapon: {name: "Quarterstaff", id: "T8_2H_QSTAFF_AVALON", skills: ["Q1: Sweep", "W1: Boon", "E: Blessing of Protection", "P2: Avalonian Might"]},
-                  head: {name: "Cultist Cowl", id: "T8_HEAD_CLOTH_KEEPER", skills: ["D: Barrier", "P1: Protective Aura"]},
-                  chest: {name: "Cultist Robe", id: "T8_ARMOR_CLOTH_KEEPER", skills: ["R: Mass Barrier", "P1: Shared Fate"]},
-                  shoes: {name: "Cultist Sandals", id: "T8_SHOES_CLOTH_KEEPER", skills: ["F: Haste", "P1: Quick Recovery"]}
+                  weapon: {name: "Incubus Mace", id: "T8_MAIN_MACE_HELL", skills: ["Q1: Shield Bash", "W1: Wall", "E: Undead Armor", "P2: Spectral Defense"]},
+                  head: {name: "Guardian Helmet", id: "T8_HEAD_PLATE_SET3", skills: ["D: Taunt", "P1: Iron Will"]},
+                  chest: {name: "Guardian Armor", id: "T8_ARMOR_PLATE_SET3", skills: ["R: Divine Protection", "P1: Fortitude"]},
+                  shoes: {name: "Guardian Boots", id: "T8_SHOES_PLATE_SET3", skills: ["F: Charge", "P1: Heavy Foot"]}
                 }
               }
             ]
@@ -114,11 +67,9 @@ if (!window.miniappsAI) {
         };
       }
     },
-    
     extractText: (result) => {
       return result.result || '';
     },
-    
     storage: {
       getItem: async (key, options) => {
         const data = localStorage.getItem(key);
@@ -136,9 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnGroup = document.getElementById('btnAiGroup');
   const viewPersonal = document.getElementById('aiViewPersonal');
   const viewGroup = document.getElementById('aiViewGroup');
-  
-  const formPersonal = document.getElementById('aiPersonalForm');
-  const formGroup = document.getElementById('aiGroupForm');
   
   const resultDiv = document.getElementById('aiBuildResult');
   const loadingDiv = document.getElementById('aiBuildLoading');
@@ -171,166 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // --- COMPREHENSIVE WEAPON DATABASE ---
-  const exhaustiveWeaponDB = [
-      // Swords
-      {id: "T8_MAIN_SWORD", name: "Broadsword", subCat: "sword"},
-      {id: "T8_2H_CLAYMORE", name: "Claymore", subCat: "sword"},
-      {id: "T8_2H_DUALSWORD", name: "Dual Swords", subCat: "sword"},
-      {id: "T8_MAIN_SCIMITAR_MORGANA", name: "Clarent Blade", subCat: "sword"},
-      {id: "T8_2H_CLEAVER_HELL", name: "Carving Sword", subCat: "sword"},
-      {id: "T8_2H_DUALSCIMITAR_UNDEAD", name: "Galatine Pair", subCat: "sword"},
-      {id: "T8_2H_CLAYMORE_AVALON", name: "Kingmaker", subCat: "sword"},
-      {id: "T8_MAIN_SWORD_CRYSTAL", name: "Crystal Sword", subCat: "sword"},
-      {id: "T8_2H_SWORD_CRYSTAL", name: "Infinity Blade", subCat: "sword"},
-
-      // Axes
-      {id: "T8_MAIN_AXE", name: "Battleaxe", subCat: "axe"},
-      {id: "T8_2H_AXE", name: "Greataxe", subCat: "axe"},
-      {id: "T8_2H_HALBERD", name: "Halberd", subCat: "axe"},
-      {id: "T8_2H_HALBERD_MORGANA", name: "Carrioncaller", subCat: "axe"},
-      {id: "T8_2H_SCYTHE_HELL", name: "Infernal Scythe", subCat: "axe"},
-      {id: "T8_2H_DUALAXE_KEEPER", name: "Bear Paws", subCat: "axe"},
-      {id: "T8_2H_AXE_AVALON", name: "Realmbreaker", subCat: "axe"},
-      {id: "T8_MAIN_AXE_CRYSTAL", name: "Crystal Battleaxe", subCat: "axe"},
-
-      // Maces
-      {id: "T8_MAIN_MACE", name: "Mace", subCat: "mace"},
-      {id: "T8_2H_MACE", name: "Heavy Mace", subCat: "mace"},
-      {id: "T8_2H_FLAIL", name: "Morning Star", subCat: "mace"},
-      {id: "T8_MAIN_ROCKMACE_KEEPER", name: "Bedrock Mace", subCat: "mace"},
-      {id: "T8_MAIN_MACE_HELL", name: "Incubus Mace", subCat: "mace"},
-      {id: "T8_2H_MACE_MORGANA", name: "Camlann Mace", subCat: "mace"},
-      {id: "T8_2H_DUALMACE_AVALON", name: "Oathkeepers", subCat: "mace"},
-
-      // Hammers
-      {id: "T8_MAIN_HAMMER", name: "Hammer", subCat: "hammer"},
-      {id: "T8_2H_POLEHAMMER", name: "Polehammer", subCat: "hammer"},
-      {id: "T8_2H_HAMMER", name: "Great Hammer", subCat: "hammer"},
-      {id: "T8_2H_HAMMER_UNDEAD", name: "Tombhammer", subCat: "hammer"},
-      {id: "T8_2H_DUALHAMMER_HELL", name: "Forge Hammers", subCat: "hammer"},
-      {id: "T8_2H_RAM_KEEPER", name: "Grovekeeper", subCat: "hammer"},
-      {id: "T8_2H_HAMMER_AVALON", name: "Hand of Justice", subCat: "hammer"},
-
-      // Gloves (Knuckles)
-      {id: "T8_2H_KNUCKLES_SET1", name: "Brawler Gloves", subCat: "knuckles"},
-      {id: "T8_2H_KNUCKLES_SET2", name: "Battle Bracers", subCat: "knuckles"},
-      {id: "T8_2H_KNUCKLES_SET3", name: "Spiked Gauntlets", subCat: "knuckles"},
-      {id: "T8_2H_KNUCKLES_KEEPER", name: "Ursine Maulers", subCat: "knuckles"},
-      {id: "T8_2H_KNUCKLES_HELL", name: "Hellfire Hands", subCat: "knuckles"},
-      {id: "T8_2H_KNUCKLES_MORGANA", name: "Ravenstrike Cestus", subCat: "knuckles"},
-      {id: "T8_2H_KNUCKLES_AVALON", name: "Fists of Avalon", subCat: "knuckles"},
-
-      // Daggers
-      {id: "T8_MAIN_DAGGER", name: "Dagger", subCat: "dagger"},
-      {id: "T8_2H_DAGGERPAIR", name: "Dagger Pair", subCat: "dagger"},
-      {id: "T8_2H_CLAW", name: "Claws", subCat: "dagger"},
-      {id: "T8_MAIN_DAGGER_HELL", name: "Bloodletter", subCat: "dagger"},
-      {id: "T8_MAIN_DAGGER_MORGANA", name: "Demon Fang", subCat: "dagger"},
-      {id: "T8_2H_DAGGERPAIR_UNDEAD", name: "Deathgivers", subCat: "dagger"},
-      {id: "T8_2H_DAGGER_KATAR_AVALON", name: "Bridled Fury", subCat: "dagger"},
-
-      // Spears
-      {id: "T8_MAIN_SPEAR", name: "Spear", subCat: "spear"},
-      {id: "T8_2H_SPEAR", name: "Pike", subCat: "spear"},
-      {id: "T8_2H_GLAIVE", name: "Glaive", subCat: "spear"},
-      {id: "T8_MAIN_SPEAR_KEEPER", name: "Heron Spear", subCat: "spear"},
-      {id: "T8_2H_HARPOON_HELL", name: "Spirithunter", subCat: "spear"},
-      {id: "T8_2H_TRIDENT_UNDEAD", name: "Trinity Spear", subCat: "spear"},
-      {id: "T8_MAIN_SPEAR_AVALON", name: "Daybreaker", subCat: "spear"},
-      {id: "T8_MAIN_SPEAR_CRYSTAL", name: "Crystal Spear", subCat: "spear"},
-
-      // Bows
-      {id: "T8_2H_BOW", name: "Bow", subCat: "bow"},
-      {id: "T8_2H_WARBOW", name: "Warbow", subCat: "bow"},
-      {id: "T8_2H_LONGBOW", name: "Longbow", subCat: "bow"},
-      {id: "T8_2H_BOW_UNDEAD", name: "Whispering Bow", subCat: "bow"},
-      {id: "T8_2H_BOW_HELL", name: "Wailing Bow", subCat: "bow"},
-      {id: "T8_2H_BOW_KEEPER", name: "Mist Piercer", subCat: "bow"},
-      {id: "T8_2H_BOW_AVALON", name: "Bow of Badon", subCat: "bow"},
-
-      // Crossbows
-      {id: "T8_2H_CROSSBOW", name: "Crossbow", subCat: "crossbow"},
-      {id: "T8_MAIN_1HCROSSBOW", name: "Light Crossbow", subCat: "crossbow"},
-      {id: "T8_2H_CROSSBOWLARGE", name: "Heavy Crossbow", subCat: "crossbow"},
-      {id: "T8_2H_REPEATINGCROSSBOW_UNDEAD", name: "Weeping Repeater", subCat: "crossbow"},
-      {id: "T8_2H_DUALCROSSBOW_HELL", name: "Boltcasters", subCat: "crossbow"},
-      {id: "T8_2H_CROSSBOWLARGE_MORGANA", name: "Siegebow", subCat: "crossbow"},
-      {id: "T8_2H_CROSSBOW_AVALON", name: "Energy Shaper", subCat: "crossbow"},
-
-      // Quarterstaffs
-      {id: "T8_2H_QUARTERSTAFF", name: "Quarterstaff", subCat: "quarterstaff"},
-      {id: "T8_2H_IRONCLADEDSTAFF", name: "Iron-clad Staff", subCat: "quarterstaff"},
-      {id: "T8_2H_DOUBLEBLADEDSTAFF", name: "Double Bladed Staff", subCat: "quarterstaff"},
-      {id: "T8_2H_COMBATSTAFF_MORGANA", name: "Black Monk Stave", subCat: "quarterstaff"},
-      {id: "T8_2H_TWINSCYTHE_HELL", name: "Soulscythe", subCat: "quarterstaff"},
-      {id: "T8_2H_ROCKSTAFF_KEEPER", name: "Staff of Balance", subCat: "quarterstaff"},
-      {id: "T8_2H_QUARTERSTAFF_AVALON", name: "Grailseeker", subCat: "quarterstaff"},
-
-      // Fire Staffs
-      {id: "T8_MAIN_FIRESTAFF", name: "Fire Staff", subCat: "firestaff"},
-      {id: "T8_2H_FIRESTAFF", name: "Great Fire Staff", subCat: "firestaff"},
-      {id: "T8_2H_INFERNOSTAFF", name: "Infernal Staff", subCat: "firestaff"},
-      {id: "T8_MAIN_FIRESTAFF_KEEPER", name: "Wildfire Staff", subCat: "firestaff"},
-      {id: "T8_2H_FIRESTAFF_HELL", name: "Brimstone Staff", subCat: "firestaff"},
-      {id: "T8_2H_FIRESTAFF_MORGANA", name: "Blazing Staff", subCat: "firestaff"},
-      {id: "T8_2H_FIRE_RINGPAIR_AVALON", name: "Dawnsong", subCat: "firestaff"},
-
-      // Frost Staffs
-      {id: "T8_MAIN_FROSTSTAFF", name: "Frost Staff", subCat: "froststaff"},
-      {id: "T8_2H_FROSTSTAFF", name: "Great Frost Staff", subCat: "froststaff"},
-      {id: "T8_2H_GLACIALSTAFF", name: "Glacial Staff", subCat: "froststaff"},
-      {id: "T8_MAIN_FROSTSTAFF_KEEPER", name: "Hoarfrost Staff", subCat: "froststaff"},
-      {id: "T8_2H_ICEGAUNTLETS_HELL", name: "Icicle Staff", subCat: "froststaff"},
-      {id: "T8_2H_ICECRYSTAL_UNDEAD", name: "Permafrost Prism", subCat: "froststaff"},
-      {id: "T8_MAIN_FROSTSTAFF_AVALON", name: "Chillhowl", subCat: "froststaff"},
-
-      // Arcane Staffs
-      {id: "T8_MAIN_ARCANESTAFF", name: "Arcane Staff", subCat: "arcanestaff"},
-      {id: "T8_2H_ARCANESTAFF", name: "Great Arcane Staff", subCat: "arcanestaff"},
-      {id: "T8_2H_ENIGMATICSTAFF", name: "Enigmatic Staff", subCat: "arcanestaff"},
-      {id: "T8_MAIN_ARCANESTAFF_UNDEAD", name: "Witchwork Staff", subCat: "arcanestaff"},
-      {id: "T8_2H_ARCANESTAFF_HELL", name: "Occult Staff", subCat: "arcanestaff"},
-      {id: "T8_2H_ENIGMATICORB_MORGANA", name: "Malevolent Locus", subCat: "arcanestaff"},
-      {id: "T8_MAIN_ARCANESTAFF_AVALON", name: "Evensong", subCat: "arcanestaff"},
-
-      // Cursed Staffs
-      {id: "T8_MAIN_CURSEDSTAFF", name: "Cursed Staff", subCat: "cursedstaff"},
-      {id: "T8_2H_CURSEDSTAFF", name: "Great Cursed Staff", subCat: "cursedstaff"},
-      {id: "T8_2H_DEMONICSTAFF", name: "Demonic Staff", subCat: "cursedstaff"},
-      {id: "T8_MAIN_CURSEDSTAFF_UNDEAD", name: "Lifecurse Staff", subCat: "cursedstaff"},
-      {id: "T8_2H_SKULLORB_HELL", name: "Cursed Skull", subCat: "cursedstaff"},
-      {id: "T8_2H_CURSEDSTAFF_MORGANA", name: "Damnation Staff", subCat: "cursedstaff"},
-      {id: "T8_MAIN_CURSEDSTAFF_AVALON", name: "Shadowcaller", subCat: "cursedstaff"},
-
-      // Nature Staffs
-      {id: "T8_MAIN_NATURESTAFF", name: "Nature Staff", subCat: "naturestaff"},
-      {id: "T8_2H_NATURESTAFF", name: "Great Nature Staff", subCat: "naturestaff"},
-      {id: "T8_2H_WILDSTAFF", name: "Wild Staff", subCat: "naturestaff"},
-      {id: "T8_MAIN_NATURESTAFF_KEEPER", name: "Druidic Staff", subCat: "naturestaff"},
-      {id: "T8_2H_NATURESTAFF_HELL", name: "Blight Staff", subCat: "naturestaff"},
-      {id: "T8_2H_NATURESTAFF_UNDEAD", name: "Rampant Staff", subCat: "naturestaff"},
-      {id: "T8_MAIN_NATURESTAFF_MORGANA", name: "Ironroot Staff", subCat: "naturestaff"},
-
-      // Holy Staffs
-      {id: "T8_MAIN_HOLYSTAFF", name: "Holy Staff", subCat: "holystaff"},
-      {id: "T8_2H_HOLYSTAFF", name: "Great Holy Staff", subCat: "holystaff"},
-      {id: "T8_2H_DIVINESTAFF", name: "Divine Staff", subCat: "holystaff"},
-      {id: "T8_MAIN_HOLYSTAFF_MORGANA", name: "Lifetouch Staff", subCat: "holystaff"},
-      {id: "T8_2H_HOLYSTAFF_HELL", name: "Fallen Staff", subCat: "holystaff"},
-      {id: "T8_2H_HOLYSTAFF_UNDEAD", name: "Redemption Staff", subCat: "holystaff"},
-      {id: "T8_MAIN_HOLYSTAFF_AVALON", name: "Hallowfall", subCat: "holystaff"},
-
-      // Shapeshifter Staffs
-      {id: "T8_2H_SHAPESHIFTER_PANTHER", name: "Prowling Staff", subCat: "shapeshifterstaff"},
-      {id: "T8_2H_SHAPESHIFTER_WEREWOLF", name: "Bloodmoon Staff", subCat: "shapeshifterstaff"},
-      {id: "T8_2H_SHAPESHIFTER_BEAR", name: "Primal Staff", subCat: "shapeshifterstaff"},
-      {id: "T8_2H_SHAPESHIFTER_ENT", name: "Rootbound Staff", subCat: "shapeshifterstaff"},
-      {id: "T8_2H_SHAPESHIFTER_GOLEM", name: "Earthrune Staff", subCat: "shapeshifterstaff"},
-      {id: "T8_2H_SHAPESHIFTER_EAGLE", name: "Lightcaller Staff", subCat: "shapeshifterstaff"},
-      {id: "T8_2H_SHAPESHIFTER_IMP", name: "Hellspawn Staff", subCat: "shapeshifterstaff"}
-  ];
-
   let weaponDB = [ { category: "🔍 Canlı Arama", isSearch: true } ];
   
   const catContainer = document.getElementById('weaponCategories');
@@ -345,11 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const catMap = {
        sword: "Kılıçlar", axe: "Baltalar", mace: "Gürzler", hammer: "Çekiçler",
        dagger: "Hançerler", spear: "Mızraklar", knuckles: "Eldivenler",
-       bow: "Yaylar", crossbow: "Arbaletler", quarterstaff: "Asalar",
-       firestaff: "Ateş Asaları", froststaff: "Buz Asaları", arcanestaff: "Gizem Asaları",
-       cursedstaff: "Lanetli Asalar", naturestaff: "Doğa Asaları", holystaff: "Kutsal Asalar",
-       shapeshifterstaff: "Şekil Değiştirenler",
-       other: "Diğer Silahlar"
+       bow: "Yaylar", crossbow: "Arbaletler", qstaff: "Sopalar",
+       fire: "Ateş Asaları", frost: "Buz Asaları", arcane: "Gizem Asaları",
+       curse: "Lanetli Asalar", nature: "Doğa Asaları", holy: "Kutsal Asalar",
+       shape: "Şekil Değiştirenler",
+       phelmet: "Plaka Kafalık", parmor: "Plaka Gövdelik", pshoes: "Plaka Ayakkabı",
+       chelmet: "Kumaş Kafalık", carmor: "Kumaş Gövdelik", cshoes: "Kumaş Ayakkabı",
+       lhelmet: "Deri Kafalık", larmor: "Deri Gövdelik", lshoes: "Deri Ayakkabı",
+       offhand: "Off-hand", cape: "Pelerin",
+       other: "Diğer Eşyalar"
     };
     
     const newDB = [ { category: "🔍 Canlı Arama", isSearch: true } ];
@@ -373,6 +165,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function initDynamicWeaponDB() {
     if(catContainer) catContainer.innerHTML = '';
+    let exhaustiveWeaponDB = [];
+
+    // Gerçek crafting verisi window.AO_ITEMS üzerinden eşyaları çıkar
+    if (window.AO_ITEMS) {
+        const validWeaponCats = ['sword','axe','mace','hammer','spear','bow','crossbow','nature','holy','fire','frost','arcane','curse','dagger','qstaff','knuckles','shape','phelmet','parmor','pshoes','chelmet','carmor','cshoes','lhelmet','larmor','lshoes','offhand','cape'];
+        window.AO_ITEMS.forEach(item => {
+           // İstenmeyen eşyaları (vanity, token, artifact) menüden temizleyelim
+           if (item.id.includes('@') || item.id.includes('ARTEFACT') || item.id.includes('UNIQUE') || item.id.includes('PROTOTYPE') || item.id.includes('NON_TRADABLE') || item.id.includes('DEBUG') || item.id.includes('DECAY') || item.id.includes('ARENA') || item.id.includes('VANITY') || item.en === item.id) return;
+           if (!validWeaponCats.includes(item.cat)) return;
+           // Sadece savaş pelerinleri
+           if (item.cat === 'cape' && item.id !== 'CAPE' && !item.id.startsWith('CAPEITEM_')) return;
+           
+           let maxTier = 8; // Standart olarak T8 resimlerini getireceğiz
+           if(item.tiers && item.tiers.length > 0) maxTier = Math.max(...item.tiers);
+           
+           let idToUse = item.id.match(/^T\d_/) ? item.id : `T${maxTier}_${item.id}`;
+           
+           let cleanName = item.tr || item.en;
+           cleanName = cleanName.replace(/^(Beginner's|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's|Tecrübesiz|Acemi|Çırak|Kalfa|Ehil|Uzman|Büyük Usta|Usta|Üstat|Yüce)\s+/i, '').trim();
+           
+           exhaustiveWeaponDB.push({
+               id: idToUse,
+               name: cleanName,
+               subCat: item.cat
+           });
+        });
+
+        // Çiftleri temizle
+        const unique = [];
+        const seen = new Set();
+        exhaustiveWeaponDB.forEach(i => {
+            if (!seen.has(i.id)) {
+                seen.add(i.id);
+                unique.push(i);
+            }
+        });
+        exhaustiveWeaponDB = unique;
+    }
+
     renderWeaponPickerData(exhaustiveWeaponDB);
   }
 
@@ -415,12 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
          <div class="text-[10px] text-gray-400 mb-1.5 font-bold uppercase tracking-wider"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Albion Canlı Veritabanında Ara</div>
          <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500 text-sm"></i>
-            <input type="text" id="liveWeaponInput" placeholder="İngilizce Silah adı yazın (Örn: Infinity, Crystal, Bloodletter)..." class="w-full bg-albion-900 border border-gray-600 rounded p-1.5 pl-8 text-sm text-white focus:border-albion-accent focus:outline-none transition-colors">
+            <input type="text" id="liveWeaponInput" placeholder="İngilizce Eşya adı yazın (Örn: Infinity, Crystal, Bloodletter)..." class="w-full bg-albion-900 border border-gray-600 rounded p-1.5 pl-8 text-sm text-white focus:border-albion-accent focus:outline-none transition-colors">
          </div>
          <div id="liveSearchLoading" class="hidden text-xs text-albion-accent mt-2 font-bold"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Sunucudan çekiliyor...</div>
        </div>
        <div id="liveSearchGrid" class="col-span-full grid grid-cols-7 sm:grid-cols-10 lg:grid-cols-14 gap-1 w-full max-h-[160px] overflow-y-auto custom-scroll pr-1">
-         <div class="col-span-full text-[10px] text-gray-500 py-2 italic text-center">Menülerden silah seçebilir veya isimle arayabilirsiniz.</div>
+         <div class="col-span-full text-[10px] text-gray-500 py-2 italic text-center">Menülerden eşya seçebilir veya isimle arayabilirsiniz.</div>
        </div>
     `;
 
@@ -487,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
        btn.type = 'button';
        btn.className = `relative w-full aspect-square bg-[#0a0d14] border border-gray-700 rounded p-0.5 hover:border-albion-accent hover:scale-105 transition-all group overflow-hidden shadow-inner flex items-center justify-center shrink-0`;
        
-       // API URL - tier prefix ile kullan (T8_, T7_, vb.)
        const imgStr = `<img loading="lazy" src="https://render.albiononline.com/v1/item/${item.id}" class="w-full h-full object-contain drop-shadow-md transition-opacity" alt="${item.name}" onerror="this.style.display='none'">`;
        const titleHover = `<div class="absolute bottom-0 left-0 right-0 bg-black/90 text-[6px] md:text-[7px] text-white font-bold leading-tight py-0.5 px-0.5 text-center truncate opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">${item.name}</div>`;
        
@@ -504,9 +334,8 @@ document.addEventListener('DOMContentLoaded', () => {
           document.querySelectorAll('#weaponGrid button, #liveSearchGrid button').forEach(c => c.classList.remove('border-albion-accent', 'shadow-[0_0_10px_rgba(212,175,55,0.4)]'));
           btn.classList.add('border-albion-accent', 'shadow-[0_0_10px_rgba(212,175,55,0.4)]');
           
-          // API URL - tier prefix ile kullan
           if (iconTarget) {
-              iconTarget.innerHTML = `<img loading="lazy" src="https://render.albiononline.com/v1/item/${item.id}" class="w-full h-full object-contain p-0.5" onerror="this.parentElement.innerHTML='<i class=\\"fa-solid fa-gavel text-2xl text-gray-600\\"></i>'">`;
+              iconTarget.innerHTML = `<img loading="lazy" src="https://render.albiononline.com/v1/item/${item.id}" class="w-full h-full object-contain p-0.5" onerror="this.style.display='none'">`;
           }
           if (textTarget) {
               textTarget.innerText = item.name;
@@ -529,7 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGridItems(items, gridContainer);
   }
 
-  initDynamicWeaponDB();
+  // Dinamik olarak window.AO_ITEMS yüklendiyse ondan beslen, gecikme ihtimaline karşı setTimeout
+  setTimeout(() => {
+    initDynamicWeaponDB();
+  }, 500);
 
   function parseJSONSafely(text) {
     if (typeof text !== 'string') text = String(text);
@@ -540,13 +372,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (start !== -1 && end !== -1 && end >= start) {
       let jsonStr = cleanText.substring(start, end + 1);
-      jsonStr = jsonStr.replace(/,\s*([\]}])/g, '$11'); // sondaki virgülleri düzelt
+      jsonStr = jsonStr.replace(/,\s*([\]}])/g, '$1'); // sondaki virgülleri düzelt
       
       try { 
         return JSON.parse(jsonStr); 
       } catch (e) {
          try {
-           const fixed = jsonStr.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$11"$22":').replace(/'/g, '"');
+           const fixed = jsonStr.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":').replace(/'/g, '"');
            return JSON.parse(fixed);
          } catch(e2) {
            console.error("JSON parse hatası:", e, "Metin:", jsonStr);
@@ -554,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     
-    throw new Error("Yapay Zeka doğru formatta (JSON) veri döndüremedi. Modeli değiştirmeyi veya tekrar denemeyi unutmayın.");
+    throw new Error("Yapay Zeka doğru formatta (JSON) veri döndüremedi. Lütfen tekrar deneyin.");
   }
 
   // YAPAY ZEKA HALÜSİNASYON TEMİZLEYİCİ - ÇOK KATMANLI
@@ -580,27 +412,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if(cid.includes('FOOD_')) cid = 'T8_MEAL_STEW';
     if(cid.includes('MEAL_') && !cid.includes('STEW') && !cid.includes('OMELETTE') && !cid.includes('SANDWICH') && !cid.includes('PIE') && !cid.includes('SALAD')) cid = 'T8_MEAL_STEW';
 
-    // Standart İsimlerden ID'ye Dönüştürme
+    // Standart İsimlerden ID'ye Dönüştürme (Orijinal veritabanındaki tam adlara uyumlu)
     cid = cid.replace('MAGE_COWL', 'HEAD_CLOTH_SET2')
              .replace('CLERIC_COWL', 'HEAD_CLOTH_SET3')
              .replace('SCHOLAR_COWL', 'HEAD_CLOTH_SET1')
              .replace('MERCENARY_HOOD', 'HEAD_LEATHER_SET1')
              .replace('HUNTER_HOOD', 'HEAD_LEATHER_SET2')
              .replace('ASSASSIN_HOOD', 'HEAD_LEATHER_SET3')
-             .replace('STALKER_HOOD', 'HEAD_LEATHER_ROYAL')
+             .replace('STALKER_HOOD', 'HEAD_LEATHER_MORGANA')
              .replace('HELLION_HOOD', 'HEAD_LEATHER_HELL')
              .replace('SPECTER_HOOD', 'HEAD_LEATHER_UNDEAD')
              .replace('SOLDIER_HELMET', 'HEAD_PLATE_SET1')
              .replace('KNIGHT_HELMET', 'HEAD_PLATE_SET2')
              .replace('JUDICATOR_HELMET', 'HEAD_PLATE_KEEPER')
-             .replace('DUSKWEAVER_HELMET', 'HEAD_PLATE_AVALON')
+             .replace('DUSKWEAVER_HELMET', 'HEAD_PLATE_FEY')
              .replace('MAGE_ROBE', 'ARMOR_CLOTH_SET2')
              .replace('CLERIC_ROBE', 'ARMOR_CLOTH_SET3')
              .replace('SCHOLAR_ROBE', 'ARMOR_CLOTH_SET1')
              .replace('MERCENARY_JACKET', 'ARMOR_LEATHER_SET1')
              .replace('HUNTER_JACKET', 'ARMOR_LEATHER_SET2')
              .replace('ASSASSIN_JACKET', 'ARMOR_LEATHER_SET3')
-             .replace('STALKER_JACKET', 'ARMOR_LEATHER_ROYAL')
+             .replace('STALKER_JACKET', 'ARMOR_LEATHER_MORGANA')
              .replace('HELLION_JACKET', 'ARMOR_LEATHER_HELL')
              .replace('SPECTER_JACKET', 'ARMOR_LEATHER_UNDEAD')
              .replace('SOLDIER_ARMOR', 'ARMOR_PLATE_SET1')
@@ -612,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
              .replace('MERCENARY_SHOES', 'SHOES_LEATHER_SET1')
              .replace('HUNTER_SHOES', 'SHOES_LEATHER_SET2')
              .replace('ASSASSIN_SHOES', 'SHOES_LEATHER_SET3')
-             .replace('STALKER_SHOES', 'SHOES_LEATHER_ROYAL')
+             .replace('STALKER_SHOES', 'SHOES_LEATHER_MORGANA')
              .replace('HELLION_SHOES', 'SHOES_LEATHER_HELL')
              .replace('SPECTER_SHOES', 'SHOES_LEATHER_UNDEAD')
              .replace('SOLDIER_BOOTS', 'SHOES_PLATE_SET1')
@@ -658,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
        return `<div class="w-10 h-10 md:w-12 md:h-12 bg-[#0a0d14] border border-gray-800 rounded flex items-center justify-center opacity-40 shadow-inner"><i class="fa-solid ${iconClass} text-lg md:text-xl text-gray-700"></i></div>`;
     }
     
-    // Consumable itemlar (yemek, iksir) için fallback - bu itemlar render API'de yok
+    // Consumable itemlar (yemek, iksir)
     const isConsumable = cleanId.includes('MEAL') || cleanId.includes('POTION');
     
     if (isConsumable) {
@@ -673,8 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     return `
       <div class="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[#1a2233] to-[#0a0d14] border border-gray-500 rounded shadow-lg flex items-center justify-center p-1 group shrink-0">
-         <img loading="lazy" src="https://render.albiononline.com/v1/item/${cleanId}" class="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt="${itemData.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-         <div style="display:none" class="absolute inset-0 items-center justify-center"><i class="fa-solid ${iconClass} text-lg text-gray-600"></i></div>
+         <img loading="lazy" src="https://render.albiononline.com/v1/item/${cleanId}" class="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform" alt="${itemData.name}" onerror="this.style.display='none';">
          <div class="absolute -bottom-2 md:-bottom-2.5 left-1/2 transform -translate-x-1/2 bg-black/95 border border-gray-600 text-[7px] md:text-[8px] text-white font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none shadow-md">${itemData.name}</div>
       </div>
     `;
@@ -684,7 +515,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanId = itemData && itemData.id ? sanitizeItemId(itemData.id) : 'NULL';
     if (!itemData || cleanId === 'NULL') return '';
     
-    // Consumable itemlar için fallback icon
     const isConsumable = cleanId.includes('MEAL') || cleanId.includes('POTION');
     const consumableIcon = cleanId.includes('MEAL') ? 'fa-utensils' : 'fa-flask';
     const slotIconMap = {
@@ -727,8 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `
       <div class="bg-albion-900 border border-gray-700 p-2 rounded-lg flex items-start space-x-2.5 hover:border-albion-accent/50 transition-colors shadow-inner w-full">
         <div class="relative w-8 h-8 md:w-10 md:h-10 bg-[#0a0d14] rounded border border-gray-800 flex items-center justify-center p-0.5 shrink-0 group mt-0.5">
-          ${isConsumable ? `<i class="fa-solid ${fallbackIcon} text-sm md:text-base text-gray-400"></i>` : `<img loading="lazy" src="https://render.albiononline.com/v1/item/${cleanId}" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\"fa-solid ${fallbackIcon} text-sm md:text-base text-gray-600\"></i>';">
-        `}
+          ${isConsumable ? `<i class="fa-solid ${fallbackIcon} text-sm md:text-base text-gray-400"></i>` : `<img loading="lazy" src="https://render.albiononline.com/v1/item/${cleanId}" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.style.display='none';">`}
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1.5 mb-0.5">
@@ -788,13 +617,13 @@ document.addEventListener('DOMContentLoaded', () => {
              return;
           }
 
-          const extraPrompt = extra ? `\nAyrıca kullanıcının şu özel notunu kesinlikle dikkate al: "${extra}"` : '';
+          const extraPrompt = extra ? `\\nAyrıca kullanıcının şu özel notunu kesinlikle dikkate al: "${extra}"` : '';
 
           let spellContext = '';
           if (window.AOT_DATA && window.AOT_DATA.spells && window.AOT_DATA.spells[weaponId]) {
               const weaponSpells = window.AOT_DATA.spells[weaponId];
-              const spellText = weaponSpells.map(s => `${s.slot}: ${s.name} (${s.cooldown}s CD, ${s.energy} Enerji)`).join('\n');
-              spellContext = `\n\n[SİLAHIN GERÇEK OYUN İÇİ YETENEKLERİ]:\n${spellText}\n(Lütfen build açıklamalarında bu yeteneklerin orijinal bekleme sürelerini ve enerji bedellerini de kesinlikle kullan.)\n`;
+              const spellText = weaponSpells.map(s => `${s.slot}: ${s.name} (${s.cooldown}s CD, ${s.energy} Enerji)`).join('\\n');
+              spellContext = `\\n\\n[EŞYANIN GERÇEK OYUN İÇİ YETENEKLERİ]:\\n${spellText}\\n(Lütfen build açıklamalarında bu yeteneklerin orijinal bekleme sürelerini ve enerji bedellerini de kesinlikle kullan.)\\n`;
           }
           
           let libraryContext = '';
@@ -802,29 +631,11 @@ document.addEventListener('DOMContentLoaded', () => {
               const equipCats = ['phelmet', 'parmor', 'pshoes', 'chelmet', 'carmor', 'cshoes', 'lhelmet', 'larmor', 'lshoes', 'cape', 'offhand'];
               const filtered = window.AO_ITEMS.filter(i => equipCats.includes(i.cat));
               const compactList = filtered.map(i => `${i.en.replace(/^(Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's) /i, '')}: ${i.id}`);
-              libraryContext = `\n\n[KÜTÜPHANE VERİLERİMİZ - SADECE BU ID'LERİ KULLAN]:\n` + compactList.join(', ');
+              libraryContext = `\\n\\n[KÜTÜPHANE VERİLERİMİZ - SADECE BU ID'LERİ KULLAN]:\\n` + compactList.join(', ');
           }
 
-          const prompt = `Kullanıcı görsel arayüzden "${weaponName}" (${weaponId}) silahını seçti. \nLütfen bu silahı kullanarak, 1 adet "Solo PvE" (Zindan/Farm) ve 1 adet "Solo/Small PvP" (Ganking/1v1) olmak üzere İKİ FARKLI set oluştur.${extraPrompt}${spellContext}${libraryContext}\n\nÖNEMLİ KURALLAR - LÜTFEN BİR MAKİNE GİBİ UY:\n1. "id" kısımlarına KESİNLİKLE Kütüphane Verilerimizde geçen gerçek ID'leri yaz. ASLA uydurma ID (T8_FOOD_DRINK, T8_CLOAK_CLOTH_SET1 vb.) yazma! (ID'lerin başına T8_ eklemeyi unutma).\n2. Pelerin için: T8_CAPE, T8_CAPEITEM_UNDEAD, T8_CAPEITEM_FW_THETFORD, T8_CAPEITEM_AVALON vb. kullan.\n3. Yemek için SADECE: T8_MEAL_STEW, T8_MEAL_OMELETTE, T8_MEAL_SANDWICH, T7_MEAL_PIE, T8_MEAL_SALAD kullan.\n4. İksir için SADECE: T6_POTION_HEAL, T6_POTION_POISON, T6_POTION_ENERGY, T8_POTION_STONESKIN kullan.\n5. Yetenekleri (skills) "Q1: [İsim] - [Açıklama]", "W1: [İsim] - [Açıklama]", "E: [İsim] - [Açıklama]", "P2: [Pasif]" formatında Türkçe yaz. Zırhlarda D:, R:, F: belirt. SADECE AŞAĞIDAKİ JSON FORMATINDA DÖN:
-{
-  "pve": {
-    "name": "PvE - Hızlı Temizleme",
-    "description": "Neden bu PvE buildi seçildi...",
-    "items": {
-      "weapon": {"name": "İngilizce Silah", "id": "${weaponId}", "skills": ["Q1: ...", "W1: ...", "E: ...", "P2: ..."]},
-      "offhand": {"name": "İngilizce Offhand (Yoksa null)", "id": "T8_...", "skills": []},
-      "head": {"name": "İngilizce Kafalık", "id": "T8_...", "skills": ["D: ...", "P1: ..."]},
-      "chest": {"name": "İngilizce Gövdelik", "id": "T8_...", "skills": ["R: ...", "P1: ..."]},
-      "shoes": {"name": "İngilizce Ayakkabı", "id": "T8_...", "skills": ["F: ...", "P1: ..."]},
-      "cape": {"name": "İngilizce Pelerin", "id": "T8_...", "skills": ["P1: ..."]},
-      "food": {"name": "İngilizce Yemek", "id": "T8_MEAL_STEW", "skills": []},
-      "potion": {"name": "İngilizce İksir", "id": "T6_POTION_POISON", "skills": []}
-    }
-  },
-  "pvp": { ...Aynı yapı... }
-}`;
+          const prompt = `Kullanıcı görsel arayüzden "${weaponName}" (${weaponId}) eşyasını seçti. \\nLütfen bu eşyayı kullanarak, 1 adet "Solo PvE" (Zindan/Farm) ve 1 adet "Solo/Small PvP" (Ganking/1v1) olmak üzere İKİ FARKLI set oluştur.${extraPrompt}${spellContext}${libraryContext}\\n\\nÖNEMLİ KURALLAR - LÜTFEN BİR MAKİNE GİBİ UY:\\n1. "id" kısımlarına KESİNLİKLE Kütüphane Verilerimizde geçen gerçek ID'leri yaz. ASLA uydurma ID (T8_FOOD_DRINK, vb.) yazma! (ID'lerin başına T8_ eklemeyi unutma).\\n2. Pelerin için: T8_CAPE, T8_CAPEITEM_UNDEAD, T8_CAPEITEM_FW_THETFORD, vb. kullan.\\n3. Yemek için SADECE: T8_MEAL_STEW, T8_MEAL_OMELETTE, T8_MEAL_SANDWICH, T7_MEAL_PIE, T8_MEAL_SALAD kullan.\\n4. İksir için SADECE: T6_POTION_HEAL, T6_POTION_POISON, T6_POTION_ENERGY, T8_POTION_STONESKIN kullan.\\n5. Yetenekleri (skills) "Q1: [İsim]", "W1: [İsim]", "E: [İsim]", "P2: [Pasif]" formatında ÇOK KISA YAZ (maksimum 3 kelime). Asla uzun cümle kurma! SADECE VE SADECE TEK BİR JSON OBJESİ (HEM PVE HEM PVP'Yİ İÇERECEK ŞEKİLDE) DÖN, BAŞKA HİÇBİR METİN YAZMA:\\n{\n  "pve": {\n    "name": "PvE - Hızlı Temizleme",\n    "description": "Kısa ve öz açıklama (maks 1 cümle).",\n    "items": {\n      "weapon": {"name": "İngilizce Silah", "id": "T8_...", "skills": ["Q1: ...", "W1: ...", "E: ...", "P2: ..."]},\n      "offhand": {"name": "İngilizce Offhand (Yoksa null)", "id": "T8_...", "skills": []},\n      "head": {"name": "İngilizce Kafalık", "id": "T8_...", "skills": ["D: ...", "P1: ..."]},\n      "chest": {"name": "İngilizce Gövdelik", "id": "T8_...", "skills": ["R: ...", "P1: ..."]},\n      "shoes": {"name": "İngilizce Ayakkabı", "id": "T8_...", "skills": ["F: ...", "P1: ..."]},\n      "cape": {"name": "İngilizce Pelerin", "id": "T8_...", "skills": ["P1: ..."]},\n      "food": {"name": "İngilizce Yemek", "id": "T8_MEAL_STEW", "skills": []},\n      "potion": {"name": "İngilizce İksir", "id": "T6_POTION_POISON", "skills": []}\n    }\n  },\n  "pvp": { ...Aynı yapı... }\n}`;
 
-          // window.miniappsAI kontrolü
           if (!window.miniappsAI || !window.miniappsAI.callModel) {
             throw new Error("AI servisi yüklenemedi. Lütfen sayfayı yenileyin.");
           }
@@ -832,9 +643,10 @@ document.addEventListener('DOMContentLoaded', () => {
           const result = await window.miniappsAI.callModel({
             modelId: MODEL_ID,
             messages: [
-              { role: 'system', content: 'You are an Albion Online build generator. Output ONLY valid JSON. NEVER translate item names. NEVER invent fake IDs like T8_FOOD_DRINK, use exact game IDs like T8_MEAL_STEW.' },
+              { role: 'system', content: 'You are an Albion Online build generator. Output EXACTLY ONE valid JSON containing BOTH `pve` and `pvp` keys. DO NOT output two separate JSON blocks. NO TEXT OUTSIDE JSON. KEEP DESCRIPTIONS EXTREMELY SHORT. NEVER translate item names. NEVER invent fake IDs.' },
               { role: 'user', content: prompt }
-            ]
+            ],
+            timeoutMs: 40000
           });
 
           const text = window.miniappsAI.extractText(result);
@@ -883,27 +695,11 @@ document.addEventListener('DOMContentLoaded', () => {
               const equipCats = ['phelmet', 'parmor', 'pshoes', 'chelmet', 'carmor', 'cshoes', 'lhelmet', 'larmor', 'lshoes', 'cape', 'offhand'];
               const filtered = window.AO_ITEMS.filter(i => equipCats.includes(i.cat));
               const compactList = filtered.map(i => `${i.en.replace(/^(Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's) /i, '')}: ${i.id}`);
-              libraryContext = `\n\n[KÜTÜPHANE VERİLERİMİZ - SADECE BU ID'LERİ KULLAN]:\n` + compactList.join(', ');
+              libraryContext = `\\n\\n[KÜTÜPHANE VERİLERİMİZ - SADECE BU ID'LERİ KULLAN]:\\n` + compactList.join(', ');
           }
 
-          const prompt = `Sen bir Albion Online Meta kompozisyon uzmanısın. Kullanıcı "${content}" içerik türünü seçti. \nLütfen bu içerik için en ideal "Meta Grup Kompozisyonunu" oluştur. İstenen yapıya tam uy.${libraryContext}\nÖNEMLİ KURALLAR:\n1. "title", "strategy", "roleName" Türkçe olsun. Eşyaların "name" (isim) kısmını İngilizce orijinal haliyle bırak.\n2. Yetenekleri KESİNLİKLE "Q1: İsim", "W1: İsim", "E: İsim", "P2: Pasif" formatında Türkçe dön.\n3. "id" kısmına KESİNLİKLE Kütüphane Verilerimizde geçen gerçek ID'leri yaz (Başına T8_ ekle). Asla uydurma ID'ler kullanma.\nSadece JSON dön.
-{
-  "title": "Kompozisyon Adı",
-  "strategy": "Grubun genel stratejisi...",
-  "roles": [
-    {
-      "roleName": "Rol Adı",
-      "items": {
-        "weapon": {"name": "Silah", "id": "T8_MAIN_...", "skills": ["Q1: ...", "W1: ...", "E: ...", "P2: ..."]},
-        "head": {"name": "Kafalık", "id": "T8_HEAD_...", "skills": ["D: ...", "P1: ..."]},
-        "chest": {"name": "Gövdelik", "id": "T8_ARMOR_...", "skills": ["R: ...", "P1: ..."]},
-        "shoes": {"name": "Ayakkabı", "id": "T8_SHOES_...", "skills": ["F: ...", "P1: ..."]}
-      }
-    }
-  ]
-}`;
+          const prompt = `Sen bir Albion Online Meta kompozisyon uzmanısın. Kullanıcı "${content}" içerik türünü seçti. \\nLütfen bu içerik için en ideal "Meta Grup Kompozisyonunu" oluştur. İstenen yapıya tam uy.${libraryContext}\\nÖNEMLİ KURALLAR:\\n1. "title", "strategy", "roleName" Türkçe olsun. Eşyaların "name" (isim) kısmını İngilizce orijinal haliyle bırak.\\n2. Yetenekleri KESİNLİKLE "Q1: İsim", "W1: İsim", "E: İsim", "P2: Pasif" formatında Türkçe DÖN VE ÇOK KISA (maks 3 kelime) yaz.\\n3. "id" kısmına KESİNLİKLE Kütüphane Verilerimizde geçen gerçek ID'leri yaz (Başına T8_ ekle). Asla uydurma ID'ler kullanma.\\nSadece JSON dön.\\n{\n  "title": "Kompozisyon Adı",\n  "strategy": "Grubun genel stratejisi (kısa ve öz)...",\n  "roles": [\n    {\n      "roleName": "Rol Adı",\n      "items": {\n        "weapon": {"name": "Silah", "id": "T8_MAIN_...", "skills": ["Q1: ...", "W1: ...", "E: ...", "P2: ..."]},\n        "head": {"name": "Kafalık", "id": "T8_HEAD_...", "skills": ["D: ...", "P1: ..."]},\n        "chest": {"name": "Gövdelik", "id": "T8_ARMOR_...", "skills": ["R: ...", "P1: ..."]},\n        "shoes": {"name": "Ayakkabı", "id": "T8_SHOES_...", "skills": ["F: ...", "P1: ..."]}\n      }\n    }\n  ]\n}`;
 
-          // window.miniappsAI kontrolü
           if (!window.miniappsAI || !window.miniappsAI.callModel) {
             throw new Error("AI servisi yüklenemedi. Lütfen sayfayı yenileyin.");
           }
@@ -911,9 +707,10 @@ document.addEventListener('DOMContentLoaded', () => {
           const result = await window.miniappsAI.callModel({
             modelId: MODEL_ID,
             messages: [
-              { role: 'system', content: 'You are an Albion Online meta group composer. ONLY output valid JSON. NEVER translate item names. USE EXACT IN-GAME IDs. NO FAKE IDs.' },
+              { role: 'system', content: 'You are an Albion Online meta group composer. ONLY output valid JSON. KEEP DESCRIPTIONS EXTREMELY SHORT. NEVER translate item names. USE EXACT IN-GAME IDs. NO FAKE IDs.' },
               { role: 'user', content: prompt }
-            ]
+            ],
+            timeoutMs: 40000
           });
 
           const text = window.miniappsAI.extractText(result);
@@ -1023,7 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!resultDiv) return;
     let html = `
       <div class="flex justify-between items-center mb-4">
-         <button class="back-to-form-btn text-gray-400 hover:text-white bg-albion-900 px-3 py-1.5 text-xs rounded-lg border border-gray-600 transition-colors font-bold"><i class="fa-solid fa-arrow-left mr-2"></i> Silah Değiştir</button>
+         <button class="back-to-form-btn text-gray-400 hover:text-white bg-albion-900 px-3 py-1.5 text-xs rounded-lg border border-gray-600 transition-colors font-bold"><i class="fa-solid fa-arrow-left mr-2"></i> Seçimi Değiştir</button>
          <button id="btnDownloadImage" class="build-download-btn bg-albion-accent hover:bg-albion-accent_hover text-black px-3 py-1.5 text-xs rounded-lg font-bold transition-transform hover:scale-105 shadow-md flex items-center">
             <i class="fa-solid fa-camera mr-2"></i> Görseli Kaydet
          </button>
@@ -1082,13 +879,13 @@ document.addEventListener('DOMContentLoaded', () => {
       <div id="buildExportArea" class="bg-albion-800 p-4 rounded-xl border border-gray-700 shadow-xl max-w-6xl mx-auto" style="background-color: #1a1a1a;">
         <div class="flex justify-between items-start mb-3">
           <div>
-             <h3 class="text-lg md:text-xl font-black text-blue-400 drop-shadow-md mb-1"><i class="fa-solid fa-users-viewfinder mr-2"></i>${data.title || 'Meta Kompozisyonu'}</h3>
+             <h3 class="text-lg md:text-xl font-black text-blue-400 drop-shadow-md mb-1"><i class="fa-solid fa-users-viewfinder mr-2\"></i>${data.title || 'Meta Kompozisyonu'}</h3>
              <div class="text-[10px] font-bold text-gray-300 bg-black/40 px-2 py-0.5 rounded inline-block border border-gray-700 shadow-sm">${contentStr}</div>
           </div>
           <div class="text-[7px] md:text-[8px] text-gray-500 font-bold uppercase tracking-widest border border-gray-700 px-1.5 py-0.5 rounded">AoT-PNASF Meta</div>
         </div>
         <div class="text-gray-200 mb-5 bg-blue-900/10 p-3 rounded-lg border-l-4 border-blue-500 text-[10px] md:text-xs leading-relaxed shadow-inner" style="background-color: rgba(30,58,138,0.1);">
-           <strong class="text-blue-400 uppercase tracking-widest text-[9px] mb-1 block"><i class="fa-solid fa-chess mr-1"></i> Genel Strateji & Kombolar</strong>
+           <strong class="text-blue-400 uppercase tracking-widest text-[9px] mb-1 block"><i class="fa-solid fa-chess mr-1\"></i> Genel Strateji & Kombolar</strong>
            ${data.strategy || 'Bu içerik için özel bir strateji belirtilmedi.'}
         </div>
         
@@ -1114,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <i class="fa-solid fa-triangle-exclamation text-3xl text-red-400 mb-2"></i>
       <h3 class="text-base font-bold text-white mb-1">Bir Hata Oluştu</h3>
       <p class="text-red-200 mb-4 text-[10px] md:text-xs">${errMsg}</p>
-      <button class="back-to-form-btn bg-albion-700 hover:bg-albion-600 px-4 py-1.5 rounded-lg font-bold transition-colors text-white shadow-lg text-xs"><i class="fa-solid fa-rotate-left mr-2"></i> Geri Dön ve Tekrar Dene</button>
+      <button class="back-to-form-btn bg-albion-700 hover:bg-albion-600 px-4 py-1.5 rounded-lg font-bold transition-colors text-white shadow-lg text-xs"><i class="fa-solid fa-rotate-left mr-2\"></i> Geri Dön ve Tekrar Dene</button>
     </div>`;
     resultDiv.classList.remove('hidden');
   }
