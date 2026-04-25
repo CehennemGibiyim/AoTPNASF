@@ -1,14 +1,95 @@
-# AoT-PNASF | Albion Online AI Platform
+# AoT — PNASF
+### Albion Online Tools · Powered Nexus & AI Smart Feed
+
+<div align="center">
+
+ **Türkiye'nin #1 AI Destekli Albion Online Platformu**
+  
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen?style=for-the-badge&logo=github)](https://cehennemgibiyim.github.io/AoTPNASF/)
+[![AI Powered](https://img.shields.io/badge/AI-Gemini%20Powered-gold?style=for-the-badge&logo=google)](https://deepmind.google/technologies/gemini/)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+[![Data](https://img.shields.io/badge/Data-AODP%20API-orange?style=for-the-badge)](https://www.albion-online-data.com/)
+
+[🌐 Canlı Site](https://cehennemgibiyim.github.io/AoTPNASF/) 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Albion Online](https://img.shields.io/badge/Albion%20Online-Companion%20App-blue)](https://albiononline.com/)
 [![AI Powered](https://img.shields.io/badge/AI-Powered-purple)](https://miniapps.ai/)
 
-**Türkiye'nin 1 Numaralı AI Destekli Albion Online Platformu**
+## 🎯 Proje Hakkında
 
-AoT-PNASF, Albion Online oyuncuları için geliştirilmiş kapsamlı bir companion (yardımcı) uygulamadır. Yapay zeka destekli build önerileri, piyasa arbitrajı, etkinlik takibi ve daha birçok özelliği tek bir平台上da sunar.
+**AoT-PNASF** (Albion Online Tools · Powered Nexus & AI Smart Feed), Albion Online oyuncuları için geliştirilmiş kapsamlı bir araç platformudur.
 
-## 🌟 Özellikler
+> 💡 **Sıfır maliyet, maksimum güç.** GitHub Pages üzerinde tamamen ücretsiz çalışır. Sunucu gerekmez, aylık ücret yoktur.
+
+### Neden AoT-PNASF?
+
+| Özellik | AoT-PNASF | Rakipler |
+|---------|-----------|----------|
+| 🇹🇷 Türkçe Destek | ✅ Tam | ❌ Yok |
+| 🌐 9 Dil | ✅ TR/EN/RU/DE/FR/PL/PT/ES/KR | ❌ Sadece EN |
+| 🤖 AI Rehber | ✅ Gemini AI | ❌ Yok |
+| 🎨 Tema Sistemi | ✅ 8 Tema + Özel | ❌ Yok |
+| 🗡️ Outlands Rest | ✅ Arthur's/Merlyn's/Morgana's | ❌ Eksik |
+| 💰 Maliyet | ✅ Ücretsiz | ❌ Ücretli özellikler |
+
+---
+
+## ✨ Özellikler
+
+### 💹 Market & Ekonomi
+```
+✅ Gerçek zamanlı fiyatlar — EU, US, Asia
+✅ 11 lokasyon (7 Royal + Mist + 3 Outlands Rest + Black Market)
+✅ Fiyat geçmişi grafiği (Chart.js — günlük/6sa/saatlik)
+✅ 3 Sunucu karşılaştırma (EU vs US vs Asia yan yana)
+✅ Top Traded Items (en çok işlem, artan, düşen)
+✅ Flip & Arbitraj (Şehirler arası + Black Market + Rest)
+✅ Kalite & Enchant karşılaştırması (+0/+1/+2/+3)
+✅ Gold fiyat grafiği (7/30/90 günlük)
+✅ Transport kâr hesabı
+```
+
+### 🔨 Crafting & Üretim
+```
+✅ Crafting kâr hesabı — gerçek zamanlı fiyatlarla
+✅ Refining hesabı — 5 kaynak türü, bonus şehirler
+✅ Farming hesabı — tarla verimi, günlük gelir
+✅ Journal hesabı — 9 günlük tipi karşılaştırma
+✅ Transport kâr modülü
+✅ Black Market flip modülü
+✅ Return rate & Focus optimizasyonu
+```
+
+### ⚔️ PvP & İstatistik
+```
+✅ Oyuncu arama & profil (Kill/Death/Fame istatistikleri)
+✅ Guild arama & üye listesi
+✅ Kill Feed — canlı (GitHub Actions her 5 dakikada günceller)
+✅ Battle Board — son ZvZ/GvG muharebeleri
+✅ EU/US/Asia sunucu geçişi
+✅ Ekipman görselleri kill kartlarında
+✅ Resmi Albion Killboard yönlendirmesi
+```
+
+### 📚 Rehberler
+```
+✅ 14 hazır rehber kategorisi
+✅ Gemini AI dinamik rehber üretimi
+✅ 9 dilde AI yanıt
+✅ YouTube video entegrasyonu
+✅ Sabit AI chat paneli (her an soru sorulabilir)
+✅ Popüler konu hızlı erişim
+```
+
+### ⚙️ Ayarlar & Tema
+```
+✅ 8 hazır tema (Obsidian Gold, Void Purple, Blood Moon, Arctic Cyan, Forest Keeper, Amber Fire, Silver Knight, Neon Nexus)
+✅ Özel tema editörü (renk dairesi + parlaklık/doygunluk/yoğunluk)
+✅ 9 dil desteği
+✅ EU/US/Asia sunucu tercihi
+✅ localStorage ile kalıcı tercihler
+```
 
 ### 🏠 Ana Sayfa
 - **Canlı Altın Fiyatları**: Gerçek zamanlı piyasa verileri ve grafikler
@@ -210,7 +291,13 @@ Ana Sayfa → Arama çubuğuna oyuncu adı yaz
 AI Rehber sekmesi → Kişisel Set
 → Crystal Sword seç → Çift Set Oluştur
 → PvE ve PvP build'lerini görsel olarak kaydet
-```
+---
+
+## 🌐 Desteklenen Diller
+
+🇹🇷 Türkçe · 🇬🇧 English · 🇷🇺 Русский · 🇩🇪 Deutsch · 🇫🇷 Français · 🇵🇱 Polski · 🇵🇹 Português · 🇪🇸 Español · 🇰🇷 한국어
+
+---
 
 ## 🤝 Katkıda Bulunma
 
