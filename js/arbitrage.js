@@ -444,6 +444,14 @@ function loadArbitrageModule() {
     let bmSort = { by: 'price', dir: 'desc' };
 
     let cityDataArray = []; // Artık çoklu item listesi tutacak
+
+    // === AĞIRLIK VE BİNEK SİSTEMİ (MAMUT/ÖKÜZ) ===
+    const MOUNT_CAPACITIES = {
+        'Mamut (T8)': 25000,
+        'Öküz (T8)': 2800,
+        'Öküz (T6)': 1400,
+        'Bozayı (T7)': 2100
+    };
     
     // === REFİNE EŞLEŞTİRİCİSİ ===
     const REFINE_MAPPING = {
@@ -1049,7 +1057,7 @@ function loadArbitrageModule() {
     };
 
     const getEnchantBadge = (itemId) => {
-        const match = itemId.match(/@(\d+)/);
+        const match = itemId.match(/@(\\d+)/);
         if(!match) return '';
         const e = parseInt(match[1]);
         let bgClass = 'bg-gray-700 text-white', borderClass = 'border-gray-500';
@@ -1063,7 +1071,7 @@ function loadArbitrageModule() {
     // Dinamik ID Üretici
     const generateItemIds = (baseItem, tierOpt, enchantOpt) => {
         // Eğer baseItem zaten tier prefix'i içeriyorsa (T4_, T5_, vb.)
-        const alreadyHasTier = /^T\d+_/.test(baseItem);
+        const alreadyHasTier = /^T\\d+_/.test(baseItem);
         
         const isTierless = (baseItem === "QUESTITEM_TOKEN_SIPHONED_ENERGY" || baseItem === "QUESTITEM_TOKEN_AVALON");
         const isEnchantless = ["QUESTITEM_TOKEN_ROYAL", "RUNE", "SOUL", "RELIC", "SHARD_AVALONIAN", "ESSENCE"].includes(baseItem);
@@ -1097,9 +1105,9 @@ function loadArbitrageModule() {
     };
 
     const formatItemName = (itemId) => {
-        let t = itemId.match(/^T(\d+)/); t = t ? `T${t[1]}` : '';
-        let e = itemId.match(/@(\d+)$/); e = e ? `.${e[1]}` : '';
-        let b = itemId.replace(/^T\d+_/, '').replace(/@\d+$/, '');
+        let t = itemId.match(/^T(\\d+)/); t = t ? `T${t[1]}` : '';
+        let e = itemId.match(/@(\\d+)$/); e = e ? `.${e[1]}` : '';
+        let b = itemId.replace(/^T\\d+_/, '').replace(/@\\d+$/, '');
         
         if (itemId === "QUESTITEM_TOKEN_SIPHONED_ENERGY") return "Siphoned Energy";
         if (itemId === "QUESTITEM_TOKEN_AVALON") return "Avalonian Energy";
@@ -1123,11 +1131,17 @@ function loadArbitrageModule() {
         const nameFromCat = findItemName(ARB_CATEGORIES, b);
         if (nameFromCat) foundName = nameFromCat;
         
+        // Official translation lookup
+        if (window.AOT_DATA && window.AOT_DATA.locales && window.AOT_DATA.locales[b]) {
+            foundName = window.AOT_DATA.locales[b];
+        }
+
         return `${t} ${foundName}${e}`.trim();
     };
 
     // Parçalara (Chunk) ayırarak çoklu eşya verisi çeken yeni ana fonksiyon
     async function fetchPricesInChunks(items, params = '') {
+        if (!items || items.length === 0) return [];
         const chunkSize = 100; // Albion API URL limitini aşmamak için güvenli sayı
         const chunks = [];
         for (let i = 0; i < items.length; i += chunkSize) {
@@ -1137,17 +1151,26 @@ function loadArbitrageModule() {
         const domain = window.getAlbionApiDomain ? window.getAlbionApiDomain() : 'europe.albion-online-data.com';
         let allData = [];
 
-        await Promise.all(chunks.map(async (chunk) => {
-            const url = `https://${domain}/api/v2/stats/prices/${chunk.join(',')}.json${params ? '?' + params : ''}`;
-            try {
-                const data = await window.fetchWithProxies(url);
-                if (Array.isArray(data)) {
-                    allData = allData.concat(data);
+        // Throttle requests to avoid rate limits
+        const maxConcurrent = 5;
+        for (let i = 0; i < chunks.length; i += maxConcurrent) {
+            const batch = chunks.slice(i, i + maxConcurrent);
+            await Promise.all(batch.map(async (chunk) => {
+                let p = params ? (params.startsWith('?') ? params : '?' + params) : '';
+                const url = `https://${domain}/api/v2/stats/prices/${chunk.join(',')}.json${p}`;
+                try {
+                    const data = await window.fetchWithProxies(url);
+                    if (Array.isArray(data)) {
+                        allData = allData.concat(data);
+                    }
+                } catch (e) {
+                    console.error("Fetch chunk failed", e);
                 }
-            } catch (e) {
-                // Sessiz hata yakalama: console.error("Fetch chunk failed", e);
+            }));
+            if (i + maxConcurrent < chunks.length) {
+                await new Promise(r => setTimeout(r, 200)); // Small delay between batches
             }
-        }));
+        }
 
         return allData;
     }
@@ -1253,19 +1276,36 @@ function loadArbitrageModule() {
             
             // Öneri oluştur
             let tipHtml = '';
+            
+            // Ağırlık hesaplama ve Binek uyarısı
+            let weightInfoHtml = '';
+            const baseItemId = opp.itemId.replace(/^T\\d+_/, '').replace(/@\\d+$/, '');
+            const singleWeight = (window.AOT_DATA && window.AOT_DATA.weights) ? window.AOT_DATA.weights[opp.itemId] || window.AOT_DATA.weights[baseItemId] || null : null;
+            
+            if (singleWeight) {
+                const mammothMax = Math.floor(MOUNT_CAPACITIES['Mamut (T8)'] / singleWeight);
+                const oxMax = Math.floor(MOUNT_CAPACITIES['Öküz (T8)'] / singleWeight);
+                weightInfoHtml = `<div class="mt-1 pt-1 border-t border-gray-700/50 text-[9px] text-gray-400">
+                    <span class="text-orange-400"><i class="fa-solid fa-weight-hanging"></i> ${singleWeight.toFixed(1)} kg</span> | 
+                    Max: 🐂 ${oxMax}x | 🐘 ${mammothMax}x
+                </div>`;
+            }
+
             if (opp.profit > 5000) {
                 tipHtml = `<div class="bg-green-500/10 border border-green-500/30 rounded p-2">
                     <div class="text-green-400 font-bold text-xs mb-1"><i class="fa-solid fa-fire mr-1"></i>YÜKSEK KÂR!</div>
                     <div class="text-gray-300 text-[10px]">ROI: ${roi}% → Hemen al, kâr büyük!</div>
                     <div class="text-gray-400 text-[9px] mt-1">Hedef: ${opp.sell.city}</div>
+                    ${weightInfoHtml}
                 </div>`;
             } else if (opp.profit > 2000) {
                 tipHtml = `<div class="bg-blue-500/10 border border-blue-500/30 rounded p-2">
                     <div class="text-blue-400 font-semibold text-xs mb-1"><i class="fa-solid fa-check-circle mr-1"></i>İYİ FIRSAT</div>
                     <div class="text-gray-300 text-[10px]">ROI: ${roi}% → Değerlendirilebilir</div>
+                    ${weightInfoHtml}
                 </div>`;
             } else {
-                tipHtml = `<div class="text-gray-500 text-[10px]"><i class="fa-solid fa-info-circle mr-1"></i>Düşük marj (${roi}%)</div>`;
+                tipHtml = `<div class="text-gray-500 text-[10px]"><i class="fa-solid fa-info-circle mr-1"></i>Düşük marj (${roi}%)</div>${weightInfoHtml}`;
             }
             
             return `
@@ -1291,8 +1331,8 @@ function loadArbitrageModule() {
                 ${opp.route ? `<div class="text-[10px] text-yellow-400 mt-1"><i class="fa-solid fa-route mr-1"></i>${opp.route}</div>` : ''}
             </td>
             <td class="p-3 border-b border-gray-700/50">
-                <div class="text-xs text-red-400 mb-0.5"><i class="fa-solid fa-skull mr-1"></i> Black Market</div>
-                <div class="text-sm font-bold text-gray-300">${opp.sell.price.toLocaleString()} 🥈 <span class="text-[9px] text-red-500/70">(Alış Emrine)</span></div>
+                <div class="text-xs ${opp.isBM ? 'text-red-400' : 'text-purple-400'} mb-0.5"><i class="fa-solid ${opp.isBM ? 'fa-skull' : 'fa-store'} mr-1"></i> ${opp.sell.city}</div>
+                <div class="text-sm font-bold text-gray-300">${opp.sell.price.toLocaleString()} 🥈 <span class="text-[9px] ${opp.isBM ? 'text-red-500/70' : 'text-purple-500/70'}">(Alış Emri)</span></div>
             </td>
             <td class="p-3 border-b border-gray-700/50 text-xs">${getTimeAgoStr(opp.recency)}</td>
             <td class="p-3 border-b border-gray-700/50 text-right">
@@ -1387,43 +1427,59 @@ function loadArbitrageModule() {
             if(data && data.length > 0) {
                 const grouped = {};
                 // Sadece ana şehirlerde veri var
-                const validCities = ["Lymhurst", "Bridgewatch", "Fort Sterling", "Martlock", "Thetford", "Caerleon"];
+                const validCities = ["Lymhurst", "Bridgewatch", "Fort Sterling", "Martlock", "Thetford", "Caerleon", "Black Market"];
                 
                 data.forEach(d => {
-                    // Sadece geçerli şehirlerdeki verileri işle
                     if(!validCities.includes(d.city)) return;
                     
                     const key = `${d.item_id}_${d.quality}`;
-                    if(!grouped[key]) grouped[key] = { itemId: d.item_id, quality: d.quality, royals: [], caerleon: null };
+                    if(!grouped[key]) grouped[key] = { itemId: d.item_id, quality: d.quality, royals: [], caerleon: null, blackmarket: null };
                     
-                    // Caerleon
-                    if(d.city === 'Caerleon') {
-                        if(d.buy_price_max > 0) grouped[key].caerleon = { city: 'Caerleon (Black Market)', price: d.buy_price_max, date: d.buy_price_max_date };
+                    if(d.city === 'Black Market') {
+                        if(d.buy_price_max > 0 && getMins(d.buy_price_max_date) <= 240) grouped[key].blackmarket = { city: 'Caerleon (Karaborsa)', price: d.buy_price_max, date: d.buy_price_max_date };
                     } 
-                    // Royal şehirler
+                    else if(d.city === 'Caerleon') {
+                        if(d.buy_price_max > 0 && getMins(d.buy_price_max_date) <= 240) grouped[key].caerleon = { city: 'Caerleon (Pazar)', price: d.buy_price_max, date: d.buy_price_max_date };
+                    }
                     else {
-                        if(d.sell_price_min > 0) grouped[key].royals.push({ city: d.city, price: d.sell_price_min, date: d.sell_price_min_date });
+                        if(d.sell_price_min > 0 && getMins(d.sell_price_min_date) <= 240) grouped[key].royals.push({ city: d.city, price: d.sell_price_min, date: d.sell_price_min_date });
                     }
                 });
 
                 for(const [key, info] of Object.entries(grouped)) {
-                    // Royal -> Caerleon arbitrajı
-                    if(info.caerleon && info.royals.length > 0) {
+                    if(info.royals.length > 0) {
                         info.royals.sort((a,b) => a.price - b.price);
                         const bestBuy = info.royals[0];
-                        const netProfit = Math.floor(info.caerleon.price * 0.96) - bestBuy.price;
                         
-                        if (netProfit > 500) {
-                            arbitrageData.push({
-                                itemId: info.itemId, itemNameStr: formatItemName(info.itemId),
-                                quality: info.quality, buy: bestBuy, sell: info.caerleon,
-                                profit: netProfit, recency: Math.max(getMins(bestBuy.date), getMins(info.caerleon.date)),
-                                route: `${bestBuy.city} → BM`
-                            });
+                        const nonEquipment = ['POTION', 'MEAL', 'MOUNT', 'WOOD', 'ROCK', 'ORE', 'FIBER', 'HIDE', 'FISH', 'PLANKS', 'LEATHER', 'STONEBLOCK', 'METALBAR', 'CLOTH'];
+                        const isEquipment = !nonEquipment.some(nx => info.itemId.includes(nx));
+
+                        if(info.blackmarket && isEquipment) {
+                            const netProfit = Math.floor(info.blackmarket.price * 0.935) - bestBuy.price;
+                            if (netProfit > 500) {
+                                arbitrageData.push({
+                                    itemId: info.itemId, itemNameStr: formatItemName(info.itemId),
+                                    quality: info.quality, buy: bestBuy, sell: info.blackmarket,
+                                    profit: netProfit, recency: Math.max(getMins(bestBuy.date), getMins(info.blackmarket.date)),
+                                    route: `${bestBuy.city} → BM`,
+                                    isBM: true
+                                });
+                            }
+                        }
+                        
+                        if(info.caerleon) {
+                            const netProfit = Math.floor(info.caerleon.price * 0.935) - bestBuy.price;
+                            if (netProfit > 500) {
+                                arbitrageData.push({
+                                    itemId: info.itemId, itemNameStr: formatItemName(info.itemId),
+                                    quality: info.quality, buy: bestBuy, sell: info.caerleon,
+                                    profit: netProfit, recency: Math.max(getMins(bestBuy.date), getMins(info.caerleon.date)),
+                                    route: `${bestBuy.city} → Caerleon Pazar`,
+                                    isBM: false
+                                });
+                            }
                         }
                     }
-                    
-                    // Not: Outpost şehirleri kaldırıldı, sadece Royal -> Caerleon arbitrajı aktif
                 }
             }
             renderOppTable();
@@ -1574,12 +1630,14 @@ function loadArbitrageModule() {
                             };
                             cityList.forEach(c => grouped[itemKey].cities[c] = { sell: 0, buy: 0 });
                         }
-                        grouped[itemKey].cities[d.city].sell = d.sell_price_min;
-                        grouped[itemKey].cities[d.city].buy = d.buy_price_max;
-                        
-                        const recSell = getMins(d.sell_price_min_date);
-                        const recBuy = getMins(d.buy_price_max_date);
-                        grouped[itemKey].bestRecency = Math.min(grouped[itemKey].bestRecency, recSell, recBuy);
+                        if (d.sell_price_min > 0 && getMins(d.sell_price_min_date) <= 240) {
+                            grouped[itemKey].cities[d.city].sell = d.sell_price_min;
+                            grouped[itemKey].bestRecency = Math.min(grouped[itemKey].bestRecency, getMins(d.sell_price_min_date));
+                        }
+                        if (d.buy_price_max > 0 && getMins(d.buy_price_max_date) <= 240) {
+                            grouped[itemKey].cities[d.city].buy = d.buy_price_max;
+                            grouped[itemKey].bestRecency = Math.min(grouped[itemKey].bestRecency, getMins(d.buy_price_max_date));
+                        }
                     }
                 });
             }
@@ -1709,12 +1767,12 @@ function loadArbitrageModule() {
         const itemsToFetch = getItemsToFetch(baseItems, tier, enchant);
         
         try {
-            const data = await fetchPricesInChunks(itemsToFetch, 'locations=Black Market');
+            const data = await fetchPricesInChunks(itemsToFetch, 'locations=Black%20Market');
             
             bmData = [];
             if(data && data.length > 0) {
                 data.forEach(d => {
-                    if (d.buy_price_max > 0) {
+                    if (d.buy_price_max > 0 && getMins(d.buy_price_max_date) <= 240) {
                         bmData.push({
                             itemId: d.item_id, quality: d.quality, price: d.buy_price_max, date: d.buy_price_max_date
                         });
@@ -1880,13 +1938,13 @@ function loadArbitrageModule() {
             const allCities = ["Lymhurst", "Bridgewatch", "Fort Sterling", "Martlock", "Thetford", "Caerleon"];
             let filterCities = allCities;
             // Sadece ana şehirlerde veri var
-            const validCities = ["Lymhurst", "Bridgewatch", "Fort Sterling", "Martlock", "Thetford", "Caerleon"];
+            const validCities = ["Lymhurst", "Bridgewatch", "Fort Sterling", "Martlock", "Thetford", "Caerleon", "Black Market"];
             
             if (cityFilter === 'ALL') {
                 filterCities = validCities;
             } else {
                 // Şehir adını düzelt (örn: FORT_STERLING -> Fort Sterling)
-                const cityName = cityFilter.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).replace("'S ", "'s ");
+                const cityName = cityFilter.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase()).replace("'S ", "'s ");
                 filterCities = validCities.includes(cityName) ? [cityName] : validCities;
             }
             
@@ -1900,11 +1958,11 @@ function loadArbitrageModule() {
                     grouped[key] = { itemId: d.item_id, quality: d.quality, cities: {} };
                     filterCities.forEach(c => grouped[key].cities[c] = { sell: 0, buy: 0, sellDate: null, buyDate: null });
                 }
-                if (d.sell_price_min > 0) {
+                if (d.sell_price_min > 0 && getMins(d.sell_price_min_date) <= 240) {
                     grouped[key].cities[d.city].sell = d.sell_price_min;
                     grouped[key].cities[d.city].sellDate = d.sell_price_min_date;
                 }
-                if (d.buy_price_max > 0) {
+                if (d.buy_price_max > 0 && getMins(d.buy_price_max_date) <= 240) {
                     grouped[key].cities[d.city].buy = d.buy_price_max;
                     grouped[key].cities[d.city].buyDate = d.buy_price_max_date;
                 }
@@ -2170,7 +2228,7 @@ function loadArbitrageModule() {
             
             // Tüm ham ve işlenmiş malzemelerin fiyatlarını çek
             const allItems = [...rawMaterials, ...processedMaterials].map(m => `T6_${m}`).join(',');
-            const locations = 'Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon,Arthur\'s Rest,Morgana\'s Rest,Merlyn\'s Rest';
+            const locations = encodeURIComponent("Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon,Arthur's Rest,Morgana's Rest,Merlyn's Rest");
             const url = `https://${domain}/api/v2/stats/prices/${allItems}.json?locations=${locations}`;
             
             const data = await window.fetchWithProxies(url);
@@ -2182,7 +2240,7 @@ function loadArbitrageModule() {
                 data.forEach(d => {
                     if (!prices[d.item_id]) prices[d.item_id] = {};
                     if (!timestamps[d.item_id]) timestamps[d.item_id] = {};
-                    if (d.sell_price_min > 0) {
+                    if (d.sell_price_min > 0 && getMins(d.sell_price_min_date) <= 240) {
                         prices[d.item_id][d.city] = d.sell_price_min;
                         timestamps[d.item_id][d.city] = d.sell_price_min_date;
                     }
@@ -2306,34 +2364,34 @@ function loadArbitrageModule() {
                 aiTipHtml = `<div class="bg-green-500/10 border border-green-500/30 rounded p-2">
                     <div class="text-green-400 font-bold text-xs mb-1"><i class="fa-solid fa-fire mr-1"></i>ÇOK SATAN!</div>
                     <div class="text-gray-300 text-[10px]">Yüksek talep + yüksek fiyat</div>
-                    <div class="text-green-400 text-[9px] mt-1">→ Bu eşyayı stokla!</div>
+                    <div class="text-green-400 text-[9px] mt-1\\">→ Bu eşyayı stokla!</div>
                 </div>`;
             } else if (item.soldCount > 100 && item.avgPrice <= 5000) {
                 aiTipHtml = `<div class="bg-blue-500/10 border border-blue-500/30 rounded p-2">
-                    <div class="text-blue-400 font-semibold text-xs mb-1"><i class="fa-solid fa-chart-line mr-1"></i>HACIM KÂRI</div>
+                    <div class="text-blue-400 font-semibold text-xs mb-1"><i class="fa-solid fa-chart-line mr-1\\"></i>HACIM KÂRI</div>
                     <div class="text-gray-300 text-[10px]">Çok satıyor, düşük fiyat</div>
-                    <div class="text-blue-400 text-[9px] mt-1">→ Bulk al, hızlı sat!</div>
+                    <div class="text-blue-400 text-[9px] mt-1\\">→ Bulk al, hızlı sat!</div>
                 </div>`;
             } else if (item.soldCount <= 100 && item.avgPrice > 10000) {
                 aiTipHtml = `<div class="bg-purple-500/10 border border-purple-500/30 rounded p-2">
-                    <div class="text-purple-400 font-semibold text-xs mb-1"><i class="fa-solid fa-gem mr-1"></i>PREMIUM</div>
+                    <div class="text-purple-400 font-semibold text-xs mb-1"><i class="fa-solid fa-gem mr-1\\"></i>PREMIUM</div>
                     <div class="text-gray-300 text-[10px]">Az satan, yüksek fiyat</div>
-                    <div class="text-purple-400 text-[9px] mt-1">→ Lüks pazar fırsatı</div>
+                    <div class="text-purple-400 text-[9px] mt-1\\">→ Lüks pazar fırsatı</div>
                 </div>`;
             } else if (item.totalRevenue > 500000) {
                 aiTipHtml = `<div class="bg-amber-500/10 border border-amber-500/30 rounded p-2">
-                    <div class="text-amber-400 font-semibold text-xs mb-1"><i class="fa-solid fa-sack-dollar mr-1"></i>YÜKSEK GELİR</div>
+                    <div class="text-amber-400 font-semibold text-xs mb-1"><i class="fa-solid fa-sack-dollar mr-1\\"></i>YÜKSEK GELİR</div>
                     <div class="text-gray-300 text-[10px]">Toplam gelir yüksek</div>
-                    <div class="text-amber-400 text-[9px] mt-1">→ Güvenilir yatırım</div>
+                    <div class="text-amber-400 text-[9px] mt-1\\">→ Güvenilir yatırım</div>
                 </div>`;
             } else {
-                aiTipHtml = `<div class="text-gray-500 text-[10px]"><i class="fa-solid fa-info-circle mr-1"></i>Normal performans</div>`;
+                aiTipHtml = `<div class="text-gray-500 text-[10px]"><i class="fa-solid fa-info-circle mr-1\\"></i>Normal performans</div>`;
             }
             
             // Popülerlik rozeti
             let badge = '';
-            if (index === 0) badge = `<span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-1.5 py-0.5 rounded text-[8px] font-black ml-2">#1 BEST</span>`;
-            else if (index < 3) badge = `<span class="bg-gray-400/20 text-gray-300 border border-gray-400/30 px-1.5 py-0.5 rounded text-[8px] font-bold ml-2">TOP ${index + 1}</span>`;
+            if (index === 0) badge = `<span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-1.5 py-0.5 rounded text-[8px] font-black ml-2\\">#1 BEST</span>`;
+            else if (index < 3) badge = `<span class="bg-gray-400/20 text-gray-300 border border-gray-400/30 px-1.5 py-0.5 rounded text-[8px] font-bold ml-2\\">TOP ${index + 1}</span>`;
             
             return `<tr class="hover:bg-white/5 transition-colors border-b border-gray-700/50">
                 <td class="p-3 border-r border-gray-800/50">
@@ -2443,7 +2501,7 @@ function loadArbitrageModule() {
                 .map(item => `T6_${item.id}`)
                 .join(',');
             
-            const locations = 'Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon';
+            const locations = encodeURIComponent('Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon');
             const url = `https://${domain}/api/v2/stats/prices/${allItems}.json?locations=${locations}`;
             
             const data = await window.fetchWithProxies(url);
@@ -2459,7 +2517,7 @@ function loadArbitrageModule() {
                             itemId: d.item_id
                         };
                     }
-                    if (d.sell_price_min > 0) {
+                    if (d.sell_price_min > 0 && getMins(d.sell_price_min_date) <= 240) {
                         grouped[d.item_id].prices.push(d.sell_price_min);
                         grouped[d.item_id].cities.add(d.city);
                     }
@@ -2541,7 +2599,7 @@ function loadArbitrageModule() {
         if(!tbody || !thead) return;
 
         if (craftData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-gray-500"><i class="fa-solid fa-ghost text-2xl mb-2 opacity-50"></i><br>Veri bulunamadı.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center p-8 text-gray-500"><i class="fa-solid fa-ghost text-2xl mb-2 opacity-50"></i><br>Veri bulunamad.</td></tr>`;
             return;
         }
 
@@ -2567,7 +2625,7 @@ function loadArbitrageModule() {
                 tipHtml = `<div class="bg-green-500/10 border border-green-500/30 rounded p-2">
                     <div class="text-green-400 font-bold text-xs mb-1"><i class="fa-solid fa-fire mr-1"></i>MÜKEMMEL!</div>
                     <div class="text-gray-300 text-[10px]">ROI: ${roi}% → Craft et, sat!</div>
-                    <div class="text-gray-400 text-[9px] mt-1">+Craft Puanı</div>
+                    <div class="text-gray-400 text-[9px] mt-1">+Craft Puan</div>
                 </div>`;
             } else if (item.profit > 5000) {
                 tipHtml = `<div class="bg-blue-500/10 border border-blue-500/30 rounded p-2">
@@ -2639,7 +2697,7 @@ function loadArbitrageModule() {
             });
             
             const allItems = [...craftedItems, ...Array.from(allMaterials)].join(',');
-            const locations = 'Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon,Arthur\'s Rest,Morgana\'s Rest,Merlyn\'s Rest';
+            const locations = encodeURIComponent("Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon,Arthur's Rest,Morgana's Rest,Merlyn's Rest");
             const url = `https://${domain}/api/v2/stats/prices/${allItems}.json?locations=${locations}`;
             
             const data = await window.fetchWithProxies(url);
@@ -2649,7 +2707,7 @@ function loadArbitrageModule() {
                 const prices = {};
                 data.forEach(d => {
                     if (!prices[d.item_id]) prices[d.item_id] = {};
-                    if (d.sell_price_min > 0) {
+                    if (d.sell_price_min > 0 && getMins(d.sell_price_min_date) <= 240) {
                         prices[d.item_id][d.city] = d.sell_price_min;
                     }
                 });

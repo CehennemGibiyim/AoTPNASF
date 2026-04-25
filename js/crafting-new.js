@@ -3,6 +3,12 @@ const PRICE_API = 'https://europe.albion-online-data.com';
 const RENDER    = 'https://render.albiononline.com/v1/item';
 const ALL_CITIES = 'Caerleon,Bridgewatch,Lymhurst,Martlock,Thetford,Fort Sterling,Brecilien,Black Market';
 
+function isValidData(dateStr) {
+  if (!dateStr || dateStr.startsWith('0001')) return false;
+  const m = (Date.now() - new Date(dateStr+'Z').getTime()) / 60000;
+  return m >= 1 && m <= 240; // 1 ile 4 saat (240 dk) arasındaki veriler
+}
+
 // Kategori tanımları — items-data.js'deki cat değerleriyle eşleşir
 const CATEGORIES = [
   {key:'sword',   icon:'⚔️', tr:'Kılıçlar',        en:'Swords'},
@@ -389,7 +395,7 @@ async function loadItemPrices() {
     const data = await res.json();
     data.forEach(d => {
       if (!priceCache[d.item_id]) priceCache[d.item_id]={};
-      if (d.sell_price_min>0) {
+      if (d.sell_price_min>0 && isValidData(d.sell_price_min_date)) {
         if (!priceCache[d.item_id][d.city]||d.sell_price_min<priceCache[d.item_id][d.city])
           priceCache[d.item_id][d.city]=d.sell_price_min;
       }
@@ -494,7 +500,7 @@ async function loadRefiningPrices() {
   try {
     const res=await fetch(`${PRICE_API}/api/v2/stats/prices/${[...new Set(ids)].join(',')}.json?locations=Caerleon,Bridgewatch,Lymhurst,Martlock,Thetford,Fort Sterling`);
     const data=await res.json();
-    data.forEach(d=>{ if(!priceCache[d.item_id]) priceCache[d.item_id]={}; if(d.sell_price_min>0) priceCache[d.item_id][d.city]=d.sell_price_min; });
+    data.forEach(d=>{ if(!priceCache[d.item_id]) priceCache[d.item_id]={}; if(d.sell_price_min>0 && isValidData(d.sell_price_min_date)) priceCache[d.item_id][d.city]=d.sell_price_min; });
     calcRefining();
   } catch(e) { console.error(e); }
 }
@@ -543,7 +549,7 @@ async function loadFarmingPrices() {
   try {
     const res=await fetch(`${PRICE_API}/api/v2/stats/prices/${ids.join(',')}.json?locations=Caerleon`);
     const data=await res.json();
-    data.forEach(d=>{ if(!priceCache[d.item_id]) priceCache[d.item_id]={}; if(d.sell_price_min>0) priceCache[d.item_id][d.city]=d.sell_price_min; });
+    data.forEach(d=>{ if(!priceCache[d.item_id]) priceCache[d.item_id]={}; if(d.sell_price_min>0 && isValidData(d.sell_price_min_date)) priceCache[d.item_id][d.city]=d.sell_price_min; });
     calcFarming(); renderFarmRanking();
   } catch(e) { console.error(e); }
 }
@@ -638,9 +644,9 @@ async function loadTransportPrices(baseId) {
     transportData = {};
     data.forEach(d => {
       if (!transportData[d.item_id]) transportData[d.item_id] = {};
-      if (d.sell_price_min > 0) transportData[d.item_id][d.city] = d.sell_price_min;
+      if (d.sell_price_min > 0 && isValidData(d.sell_price_min_date)) transportData[d.item_id][d.city] = d.sell_price_min;
       if (!transportData[d.item_id+'_buy']) transportData[d.item_id+'_buy'] = {};
-      if (d.buy_price_max > 0) transportData[d.item_id+'_buy'][d.city] = d.buy_price_max;
+      if (d.buy_price_max > 0 && isValidData(d.buy_price_max_date)) transportData[d.item_id+'_buy'][d.city] = d.buy_price_max;
     });
     calcTransport();
     calcTransportRoutes();
@@ -699,7 +705,7 @@ async function calcTransportRoutes() {
     const byItem = {};
     data.forEach(d => {
       if (!byItem[d.item_id]) byItem[d.item_id] = {};
-      if (d.sell_price_min > 0) byItem[d.item_id][d.city] = d.sell_price_min;
+      if (d.sell_price_min > 0 && isValidData(d.sell_price_min_date)) byItem[d.item_id][d.city] = d.sell_price_min;
     });
     const routes = [];
     Object.entries(byItem).forEach(([id, prices]) => {
@@ -751,7 +757,7 @@ async function loadJournalPrices() {
     const res = await fetch(url);
     const data = await res.json();
     data.forEach(d => {
-      journalCache[d.item_id] = d.sell_price_min > 0 ? d.sell_price_min : 0;
+      journalCache[d.item_id] = (d.sell_price_min > 0 && isValidData(d.sell_price_min_date)) ? d.sell_price_min : 0;
     });
     calcJournal();
     renderJournalCompare();
@@ -842,13 +848,13 @@ async function loadBMData() {
 
     const cityPrices = {};
     cityData.forEach(d => {
-      if (d.sell_price_min > 0) {
+      if (d.sell_price_min > 0 && isValidData(d.sell_price_min_date)) {
         if (!cityPrices[d.item_id] || d.sell_price_min < cityPrices[d.item_id].price)
           cityPrices[d.item_id] = {price: d.sell_price_min, city: d.city};
       }
     });
     const bmPrices = {};
-    bmData.forEach(d => { if (d.buy_price_max > 0) bmPrices[d.item_id] = d.buy_price_max; });
+    bmData.forEach(d => { if (d.buy_price_max > 0 && isValidData(d.buy_price_max_date)) bmPrices[d.item_id] = d.buy_price_max; });
 
     renderBMTable(cityPrices, bmPrices);
   } catch(e) {

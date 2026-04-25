@@ -1,3 +1,37 @@
+// Global Data Pipeline Store
+window.AOT_DATA = {
+  weights: {},
+  spells: {},
+  locales: {}
+};
+
+async function loadPipelineData() {
+  try {
+    const [weightRes, spellRes, localeRes] = await Promise.all([
+      fetch('data/items-weight.json').catch(() => null),
+      fetch('data/spells-data.json').catch(() => null),
+      fetch('locales/tr-official.json').catch(() => null)
+    ]);
+
+    if (weightRes && weightRes.ok) window.AOT_DATA.weights = await weightRes.json();
+    if (spellRes && spellRes.ok) window.AOT_DATA.spells = await spellRes.json();
+    if (localeRes && localeRes.ok) {
+      window.AOT_DATA.locales = await localeRes.json();
+      // AO_ITEMS'daki isimleri resmi çevirilerle güncelle
+      if (window.AO_ITEMS) {
+        window.AO_ITEMS.forEach(item => {
+          if (window.AOT_DATA.locales[item.id]) {
+            item.tr = window.AOT_DATA.locales[item.id];
+          }
+        });
+      }
+    }
+    console.log('✅ Pipeline Data yüklendi:', Object.keys(window.AOT_DATA.weights).length, 'ağırlık,', Object.keys(window.AOT_DATA.locales).length, 'çeviri,', Object.keys(window.AOT_DATA.spells).length, 'yetenek.');
+  } catch(e) {
+    console.error('Pipeline data yükleme hatası:', e);
+  }
+}
+
 // ns_setupCallback hatasini kesin olarak cozmek icin
 if (typeof globalThis !== 'undefined') {
   globalThis.ns_setupCallback = globalThis.ns_setupCallback || function() {};
@@ -152,7 +186,7 @@ function fetchGameActivePlayers() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function initMainApp() {
   try {
     const rootHtml = document.documentElement;
     const globalServerBadge = document.getElementById('globalServerBadge');
@@ -207,13 +241,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
-  } catch (err) {}
+  } catch (err) {
+    console.error('Init error:', err);
+  }
 
   const clearCacheBtn = document.getElementById('clearCacheBtn');
   if (clearCacheBtn) clearCacheBtn.addEventListener('click', clearImageCache);
   updateCacheStats();
   setInterval(updateCacheStats, 5000);
-});
+
+  // Start data load asynchronously, so it DOES NOT block UI
+  loadPipelineData();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMainApp);
+} else {
+  initMainApp();
+}
 
 // GUN CHAT
 (function() {
@@ -426,7 +471,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     onlineModal?.addEventListener('click', (e) => { if (e.target === onlineModal) { onlineModal.classList.add('hidden'); onlineModal.classList.remove('flex'); } });
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initChat() {
     setupEventListeners();
     pingPresence();
     if (userNickname) {
@@ -435,7 +480,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       const userNickEl = document.getElementById('chatUserNick');
       if (userNickEl) userNickEl.textContent = userNickname;
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChat);
+  } else {
+    initChat();
+  }
 })();
 
 // DASHBOARD
@@ -574,27 +625,32 @@ function formatItemNameTr(itemId) {
   const tier = m ? m[1] : '';
   const ench = e ? e[1] : '0';
   
-  // Düzeltilmiş doğru Türkçe oyun içi karşılıklar (Oyuncunun bildirdiği hatalar düzeltildi)
-  if (name.includes('BAG')) name = 'Çanta';
-  else if (name.includes('CAPE')) name = 'Pelerin';
-  else if (name.includes('CLAYMORE')) name = 'Claymore';
-  else if (name.includes('SWORD')) name = 'Kılıç';
-  else if (name.includes('BOW')) name = 'Yay';
-  else if (name.includes('CROSSBOW')) name = 'Arbalet';
-  else if (name.includes('FIRESTAFF')) name = 'Ateş Asası';
-  else if (name.includes('NATURESTAFF')) name = 'Doğa Asası';
-  else if (name.includes('ARMOR PLATE KEEPER')) name = 'Yargıç Zırhı';
-  else if (name.includes('HEAD PLATE KEEPER')) name = 'Yargıç Miğferi';
-  else if (name.includes('SHOES PLATE KEEPER')) name = 'Yargıç Çizmesi'; // Bakıcı Çizmesi düzeltildi -> Yargıç Çizmesi
-  else if (name.includes('ARMOR PLATE HELL')) name = 'Şövalye Zırhı';
-  else if (name.includes('ARMOR PLATE')) name = 'Plaka Zırh';
-  else if (name.includes('ARMOR LEATHER')) name = 'Deri Ceket';
-  else if (name.includes('ARMOR CLOTH')) name = 'Kumaş Cüppe';
-  else if (name.includes('MEAL STEW')) name = 'Yahni';
-  else if (name.includes('MEAL OMELETTE')) name = 'Omlet';
-  else if (name.includes('POTION HEAL')) name = 'Can İksiri';
-  else if (name.includes('MOUNT HORSE')) name = 'Binek Atı';
-  else if (name.includes('MOUNT OX')) name = 'Binek Öküzü';
+  const cleanId = itemId.replace(/^T\d+_/, '').replace(/@\d+$/, '');
+  if (window.AOT_DATA && window.AOT_DATA.locales && window.AOT_DATA.locales[cleanId]) {
+    name = window.AOT_DATA.locales[cleanId];
+  } else {
+    // Fallback Düzeltilmiş doğru Türkçe oyun içi karşılıklar
+    if (name.includes('BAG')) name = 'Çanta';
+    else if (name.includes('CAPE')) name = 'Pelerin';
+    else if (name.includes('CLAYMORE')) name = 'Claymore';
+    else if (name.includes('SWORD')) name = 'Kılıç';
+    else if (name.includes('BOW')) name = 'Yay';
+    else if (name.includes('CROSSBOW')) name = 'Arbalet';
+    else if (name.includes('FIRESTAFF')) name = 'Ateş Asası';
+    else if (name.includes('NATURESTAFF')) name = 'Doğa Asası';
+    else if (name.includes('ARMOR PLATE KEEPER')) name = 'Yargıç Zırhı';
+    else if (name.includes('HEAD PLATE KEEPER')) name = 'Yargıç Miğferi';
+    else if (name.includes('SHOES PLATE KEEPER')) name = 'Yargıç Çizmesi';
+    else if (name.includes('ARMOR PLATE HELL')) name = 'Şövalye Zırhı';
+    else if (name.includes('ARMOR PLATE')) name = 'Plaka Zırh';
+    else if (name.includes('ARMOR LEATHER')) name = 'Deri Ceket';
+    else if (name.includes('ARMOR CLOTH')) name = 'Kumaş Cüppe';
+    else if (name.includes('MEAL STEW')) name = 'Yahni';
+    else if (name.includes('MEAL OMELETTE')) name = 'Omlet';
+    else if (name.includes('POTION HEAL')) name = 'Can İksiri';
+    else if (name.includes('MOUNT HORSE')) name = 'Binek Atı';
+    else if (name.includes('MOUNT OX')) name = 'Binek Öküzü';
+  }
 
   if (tier) {
     if (ench !== '0') return `T${tier}.${ench} ${name}`;
@@ -627,7 +683,7 @@ async function updateProfitTicker() {
     itemPool.sort(() => 0.5 - Math.random());
     const items = itemPool.slice(0, 80).join(',');
     
-    const locations = 'Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon';
+    const locations = encodeURIComponent('Lymhurst,Bridgewatch,Fort Sterling,Martlock,Thetford,Caerleon,Black Market');
     const url = `https://${domain}/api/v2/stats/prices/${items}.json?locations=${locations}&qualities=1,2,3,4,5`;
     
     const data = await fetchWithProxies(url);
@@ -640,9 +696,21 @@ async function updateProfitTicker() {
         const key = `${d.item_id}_${d.quality}`;
         if (!grouped[key]) grouped[key] = { id: d.item_id, quality: d.quality, cities: {}, lastUpdate: 0 };
         
+        let s_price = d.sell_price_min || 0;
+        let b_price = d.buy_price_max || 0;
+
+        if (d.sell_price_min_date) {
+          const t = new Date(d.sell_price_min_date + 'Z').getTime();
+          if (now - t > 14400000) s_price = 0; // >4 hours
+        }
+        if (d.buy_price_max_date) {
+          const t = new Date(d.buy_price_max_date + 'Z').getTime();
+          if (now - t > 14400000) b_price = 0; // >4 hours
+        }
+
         grouped[key].cities[d.city] = { 
-          sell: d.sell_price_min || 0, 
-          buy: d.buy_price_max || 0,
+          sell: s_price, 
+          buy: b_price,
           timestamp: d.sell_price_min_date
         };
         
@@ -654,22 +722,27 @@ async function updateProfitTicker() {
       
       let oppList = [];
       for (const [key, itemData] of Object.entries(grouped)) {
-        if (now - itemData.lastUpdate > 3600000) continue;
+        if (now - itemData.lastUpdate > 14400000) continue; // Skip if overall older than 4 hrs
 
         const cities = Object.entries(itemData.cities);
         for (const [city1, c1] of cities) {
-          if (c1.buy === 0) continue;
+          if (c1.sell === 0) continue;
           for (const [city2, c2] of cities) {
-            if (city1 === city2 || c2.sell === 0) continue;
-            const profit = Math.floor(c2.sell * 0.935) - c1.buy;
+            if (city1 === city2 || c2.buy === 0) continue;
+            // Sadece Ekipmanlar Black Market'e satılabilir!
+            if (city2 === 'Black Market') {
+              const nonEquipment = ['POTION', 'MEAL', 'MOUNT', 'WOOD', 'ROCK', 'ORE', 'FIBER', 'HIDE'];
+              if (nonEquipment.some(nx => itemData.id.includes(nx))) continue;
+            }
+            const profit = Math.floor(c2.buy * 0.935) - c1.sell;
             if (profit > 1000) {
               oppList.push({ 
                 item: itemData.id, 
                 quality: itemData.quality,
                 from: city1, 
                 to: city2, 
-                buyPrice: c1.buy, 
-                sellPrice: c2.sell, 
+                buyPrice: c1.sell, 
+                sellPrice: c2.buy, 
                 profit, 
                 lastUpdate: itemData.lastUpdate 
               });
@@ -715,7 +788,7 @@ async function updateProfitTicker() {
         
         ticker.innerHTML = html;
       } else {
-        ticker.innerHTML = '<span class="text-gray-400">Son 1 saat içinde yüksek kârlı canlı fırsat bulunamadı. Lütfen bekleyin...</span>';
+        ticker.innerHTML = '<span class="text-gray-400">Son 4 saat içinde yüksek kârlı canlı fırsat bulunamadı. Lütfen bekleyin...</span>';
       }
     } else {
       ticker.innerHTML = '<span class="text-gray-400">Piyasa verileri yükleniyor...</span>';
@@ -726,5 +799,13 @@ async function updateProfitTicker() {
   }
 }
 
-updateProfitTicker();
-setInterval(updateProfitTicker, 150000);
+// Only start the ticker if we're on the dashboard
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    updateProfitTicker();
+    setInterval(updateProfitTicker, 150000);
+  });
+} else {
+  updateProfitTicker();
+  setInterval(updateProfitTicker, 150000);
+}

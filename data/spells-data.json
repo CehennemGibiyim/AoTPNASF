@@ -1,0 +1,19 @@
+{
+  "T8_MAIN_SWORD": [
+    {"slot": "Q1", "name": "Kahramanca Vuruş (Heroic Strike)", "cooldown": 3, "energy": 2.5},
+    {"slot": "Q2", "name": "Geniş Yarma (Cleave)", "cooldown": 3.5, "energy": 3},
+    {"slot": "W1", "name": "Bölme (Splitting Slash)", "cooldown": 12, "energy": 8},
+    {"slot": "W2", "name": "Demir İrade (Iron Will)", "cooldown": 15, "energy": 11},
+    {"slot": "E", "name": "Sıçrama Saldırısı (Mighty Blow)", "cooldown": 15, "energy": 13}
+  ],
+  "T8_2H_CLAYMORE": [
+    {"slot": "Q1", "name": "Kahramanca Vuruş (Heroic Strike)", "cooldown": 3, "energy": 2.5},
+    {"slot": "W1", "name": "Hücum (Charge)", "cooldown": 15, "energy": 10},
+    {"slot": "E", "name": "Boyun Vuran (Charge)", "cooldown": 20, "energy": 16}
+  ],
+  "T8_MAIN_NATURESTAFF": [
+    {"slot": "Q1", "name": "Yenileme (Rejuvenation)", "cooldown": 1.5, "energy": 4},
+    {"slot": "W1", "name": "Canlandırma (Revitalize)", "cooldown": 10, "energy": 12},
+    {"slot": "E", "name": "Ormanın Kalbi (Circle of Life)", "cooldown": 20, "energy": 25}
+  ]
+}

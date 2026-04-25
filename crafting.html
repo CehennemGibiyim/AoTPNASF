@@ -381,6 +381,18 @@
 <script src="js/crafting-new.js"></script>
 
 <script>
+  // Eğer iframe içinde yüklendiyse (örneğin js/crafting.js sekmesinden) navbar ve footer gizle
+  if (window.self !== window.top || window.location.search.includes('embedded=1')) {
+    const nav = document.getElementById('navbar');
+    const header = document.querySelector('.page-header');
+    const footer = document.querySelector('.footer');
+    if (nav) nav.style.display = 'none';
+    if (header) header.style.display = 'none';
+    if (footer) footer.style.display = 'none';
+    document.body.style.background = 'transparent';
+    document.documentElement.style.background = 'transparent';
+  }
+  
   // Sync panel varsa başlat
   if (typeof initSyncPanel === 'function') {
     document.addEventListener("DOMContentLoaded", () => initSyncPanel("syncPanelContainer"));

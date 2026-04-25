@@ -1,5 +1,5 @@
 
-const MODEL_ID = 'ba695aee-f2ec-497f-9335-1c796cb0c30d'; // RolePlay V1 (Cost 0)
+const MODEL_ID = 'ba695aee-f2ec-497f-9335-1c796cb0c30d'; // RolePlay v1 (Ücretsiz)
 
 // --- MOCK AI SERVICE (Local Testing İçin) ---
 // Gerçek Telegram Mini Apps ortamında bu obje otomatik olarak sağlanır
@@ -532,22 +532,29 @@ document.addEventListener('DOMContentLoaded', () => {
   initDynamicWeaponDB();
 
   function parseJSONSafely(text) {
-    let cleanText = text.replace(/```json/gi, '').replace(/```/gi, '').trim();
+    if (typeof text !== 'string') text = String(text);
+    let cleanText = text.replace(/```(?:json)?/gi, '').replace(/`/g, '').trim();
+    
     const start = cleanText.indexOf('{');
     const end = cleanText.lastIndexOf('}');
-    if (start !== -1 && end !== -1) {
+    
+    if (start !== -1 && end !== -1 && end >= start) {
       let jsonStr = cleanText.substring(start, end + 1);
-      jsonStr = jsonStr.replace(/,\s*([\]}])/g, '$1');
-      try { return JSON.parse(jsonStr); } catch (e) {}
+      jsonStr = jsonStr.replace(/,\s*([\]}])/g, '$11'); // sondaki virgülleri düzelt
+      
+      try { 
+        return JSON.parse(jsonStr); 
+      } catch (e) {
+         try {
+           const fixed = jsonStr.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$11"$22":').replace(/'/g, '"');
+           return JSON.parse(fixed);
+         } catch(e2) {
+           console.error("JSON parse hatası:", e, "Metin:", jsonStr);
+         }
+      }
     }
-    try {
-      const fixed = cleanText.replace(/(\w+)\s*:/g, '"$1":').replace(/'/g, '"');
-      const start2 = fixed.indexOf('{');
-      const end2 = fixed.lastIndexOf('}');
-      return JSON.parse(fixed.substring(start2, end2 + 1));
-    } catch(e) {
-      throw new Error("Yapay Zeka doğru formatta veri döndüremedi. Lütfen tekrar deneyin.");
-    }
+    
+    throw new Error("Yapay Zeka doğru formatta (JSON) veri döndüremedi. Modeli değiştirmeyi veya tekrar denemeyi unutmayın.");
   }
 
   // YAPAY ZEKA HALÜSİNASYON TEMİZLEYİCİ - ÇOK KATMANLI
@@ -782,18 +789,23 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           const extraPrompt = extra ? `\nAyrıca kullanıcının şu özel notunu kesinlikle dikkate al: "${extra}"` : '';
-          
-          const prompt = `Kullanıcı görsel arayüzden "${weaponName}" (${weaponId}) silahını seçti. 
-Lütfen bu silahı kullanarak, 1 adet "Solo PvE" (Zindan/Farm) ve 1 adet "Solo/Small PvP" (Ganking/1v1) olmak üzere İKİ FARKLI set oluştur.${extraPrompt}
 
-ÖNEMLİ KURALLAR - LÜTFEN BİR MAKİNE GİBİ UY:
-1. "id" kısımlarına KESİNLİKLE gerçek İngilizce oyun içi ID'leri yaz. ASLA uydurma ID (T8_FOOD_DRINK, T8_CLOAK_CLOTH_SET1 vb.) yazma!
-2. Pelerin için: T8_CAPE, T8_CAPEITEM_UNDEAD, T8_CAPEITEM_FW_THETFORD, T8_CAPEITEM_AVALON kullan.
-3. Kafalık için: T8_HEAD_PLATE_SET1, T8_HEAD_CLOTH_SET2 vb. kullan.
-4. Gövdelik için: T8_ARMOR_PLATE_SET1, T8_ARMOR_CLOTH_SET2 vb. kullan.
-5. Yemek için SADECE: T8_MEAL_STEW, T8_MEAL_OMELETTE, T8_MEAL_SANDWICH, T7_MEAL_PIE, T8_MEAL_SALAD kullan.
-6. İksir için SADECE: T6_POTION_HEAL, T6_POTION_POISON, T6_POTION_ENERGY, T8_POTION_STONESKIN kullan.
-7. Yetenekleri (skills) "Q1: [İsim] - [Açıklama]", "W1: [İsim] - [Açıklama]", "E: [İsim] - [Açıklama]", "P2: [Pasif]" formatında Türkçe yaz. Zırhlarda D:, R:, F: belirt. SADECE AŞAĞIDAKİ JSON FORMATINDA DÖN:
+          let spellContext = '';
+          if (window.AOT_DATA && window.AOT_DATA.spells && window.AOT_DATA.spells[weaponId]) {
+              const weaponSpells = window.AOT_DATA.spells[weaponId];
+              const spellText = weaponSpells.map(s => `${s.slot}: ${s.name} (${s.cooldown}s CD, ${s.energy} Enerji)`).join('\n');
+              spellContext = `\n\n[SİLAHIN GERÇEK OYUN İÇİ YETENEKLERİ]:\n${spellText}\n(Lütfen build açıklamalarında bu yeteneklerin orijinal bekleme sürelerini ve enerji bedellerini de kesinlikle kullan.)\n`;
+          }
+          
+          let libraryContext = '';
+          if (window.AO_ITEMS) {
+              const equipCats = ['phelmet', 'parmor', 'pshoes', 'chelmet', 'carmor', 'cshoes', 'lhelmet', 'larmor', 'lshoes', 'cape', 'offhand'];
+              const filtered = window.AO_ITEMS.filter(i => equipCats.includes(i.cat));
+              const compactList = filtered.map(i => `${i.en.replace(/^(Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's) /i, '')}: ${i.id}`);
+              libraryContext = `\n\n[KÜTÜPHANE VERİLERİMİZ - SADECE BU ID'LERİ KULLAN]:\n` + compactList.join(', ');
+          }
+
+          const prompt = `Kullanıcı görsel arayüzden "${weaponName}" (${weaponId}) silahını seçti. \nLütfen bu silahı kullanarak, 1 adet "Solo PvE" (Zindan/Farm) ve 1 adet "Solo/Small PvP" (Ganking/1v1) olmak üzere İKİ FARKLI set oluştur.${extraPrompt}${spellContext}${libraryContext}\n\nÖNEMLİ KURALLAR - LÜTFEN BİR MAKİNE GİBİ UY:\n1. "id" kısımlarına KESİNLİKLE Kütüphane Verilerimizde geçen gerçek ID'leri yaz. ASLA uydurma ID (T8_FOOD_DRINK, T8_CLOAK_CLOTH_SET1 vb.) yazma! (ID'lerin başına T8_ eklemeyi unutma).\n2. Pelerin için: T8_CAPE, T8_CAPEITEM_UNDEAD, T8_CAPEITEM_FW_THETFORD, T8_CAPEITEM_AVALON vb. kullan.\n3. Yemek için SADECE: T8_MEAL_STEW, T8_MEAL_OMELETTE, T8_MEAL_SANDWICH, T7_MEAL_PIE, T8_MEAL_SALAD kullan.\n4. İksir için SADECE: T6_POTION_HEAL, T6_POTION_POISON, T6_POTION_ENERGY, T8_POTION_STONESKIN kullan.\n5. Yetenekleri (skills) "Q1: [İsim] - [Açıklama]", "W1: [İsim] - [Açıklama]", "E: [İsim] - [Açıklama]", "P2: [Pasif]" formatında Türkçe yaz. Zırhlarda D:, R:, F: belirt. SADECE AŞAĞIDAKİ JSON FORMATINDA DÖN:
 {
   "pve": {
     "name": "PvE - Hızlı Temizleme",
@@ -866,13 +878,15 @@ Lütfen bu silahı kullanarak, 1 adet "Solo PvE" (Zindan/Farm) ve 1 adet "Solo/S
              return;
           }
 
-          const prompt = `Sen bir Albion Online Meta kompozisyon uzmanısın. Kullanıcı "${content}" içerik türünü seçti. 
-Lütfen bu içerik için en ideal "Meta Grup Kompozisyonunu" oluştur. İstenen yapıya tam uy.
-ÖNEMLİ KURALLAR:
-1. "title", "strategy", "roleName" Türkçe olsun. Eşyaların "name" (isim) kısmını İngilizce orijinal haliyle bırak.
-2. Yetenekleri KESİNLİKLE "Q1: İsim", "W1: İsim", "E: İsim", "P2: Pasif" formatında Türkçe dön.
-3. "id" kısmına KESİNLİKLE OYUN İÇİ GERÇEK İNGİLİZCE ID'sini yaz. Asla T8_CLOAK_CLOTH_SET1 veya T8_CHEST gibi uydurma ID'ler kullanma. Sadece T8_HEAD_..., T8_ARMOR_... vs kullan.
-Sadece JSON dön.
+          let libraryContext = '';
+          if (window.AO_ITEMS) {
+              const equipCats = ['phelmet', 'parmor', 'pshoes', 'chelmet', 'carmor', 'cshoes', 'lhelmet', 'larmor', 'lshoes', 'cape', 'offhand'];
+              const filtered = window.AO_ITEMS.filter(i => equipCats.includes(i.cat));
+              const compactList = filtered.map(i => `${i.en.replace(/^(Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's) /i, '')}: ${i.id}`);
+              libraryContext = `\n\n[KÜTÜPHANE VERİLERİMİZ - SADECE BU ID'LERİ KULLAN]:\n` + compactList.join(', ');
+          }
+
+          const prompt = `Sen bir Albion Online Meta kompozisyon uzmanısın. Kullanıcı "${content}" içerik türünü seçti. \nLütfen bu içerik için en ideal "Meta Grup Kompozisyonunu" oluştur. İstenen yapıya tam uy.${libraryContext}\nÖNEMLİ KURALLAR:\n1. "title", "strategy", "roleName" Türkçe olsun. Eşyaların "name" (isim) kısmını İngilizce orijinal haliyle bırak.\n2. Yetenekleri KESİNLİKLE "Q1: İsim", "W1: İsim", "E: İsim", "P2: Pasif" formatında Türkçe dön.\n3. "id" kısmına KESİNLİKLE Kütüphane Verilerimizde geçen gerçek ID'leri yaz (Başına T8_ ekle). Asla uydurma ID'ler kullanma.\nSadece JSON dön.
 {
   "title": "Kompozisyon Adı",
   "strategy": "Grubun genel stratejisi...",
