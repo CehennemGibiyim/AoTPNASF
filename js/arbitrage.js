@@ -1105,38 +1105,79 @@ function loadArbitrageModule() {
     };
 
     const formatItemName = (itemId) => {
-        let t = itemId.match(/^T(\\d+)/); t = t ? `T${t[1]}` : '';
-        let e = itemId.match(/@(\\d+)$/); e = e ? `.${e[1]}` : '';
-        let b = itemId.replace(/^T\\d+_/, '').replace(/@\\d+$/, '');
+        let tMatch = itemId.match(/^T(\d+)/); 
+        let tNum = tMatch ? parseInt(tMatch[1]) : 0;
+        let tStr = tMatch ? `T${tMatch[1]}` : '';
         
-        if (itemId === "QUESTITEM_TOKEN_SIPHONED_ENERGY") return "Siphoned Energy";
-        if (itemId === "QUESTITEM_TOKEN_AVALON") return "Avalonian Energy";
+        let eMatch = itemId.match(/@(\d+)$/);
+        let e = eMatch ? `.${eMatch[1]}` : '';
+        let b = itemId.replace(/^T\d+_/, '').replace(/@\d+$/, '');
+        
+        if (itemId === "QUESTITEM_TOKEN_SIPHONED_ENERGY") return "Özümlenmiş Enerji";
+        if (itemId === "QUESTITEM_TOKEN_AVALON") return "Avalon Enerjisi";
 
         let foundName = b.replace(/_/g, ' ');
         
-        // Yeni kategori yapısında ara
-        const findItemName = (categories, baseId) => {
-            for (const cat of Object.values(categories)) {
-                if (typeof cat === 'object' && !Array.isArray(cat)) {
-                    const result = findItemName(cat, baseId);
-                    if (result) return result;
-                } else if (Array.isArray(cat)) {
-                    const item = cat.find(i => i.id === baseId);
-                    if (item) return item.name;
-                }
+        // 1. AO_ITEMS'tan Türkçe ismini bul (Varsa)
+        if (window.AO_ITEMS) {
+            const itemData = window.AO_ITEMS.find(i => i.id === b);
+            if (itemData && itemData.tr) {
+                foundName = itemData.tr;
             }
-            return null;
-        };
-        
-        const nameFromCat = findItemName(ARB_CATEGORIES, b);
-        if (nameFromCat) foundName = nameFromCat;
-        
-        // Official translation lookup
-        if (window.AOT_DATA && window.AOT_DATA.locales && window.AOT_DATA.locales[b]) {
+        } else if (window.AOT_DATA && window.AOT_DATA.locales && window.AOT_DATA.locales[b]) {
             foundName = window.AOT_DATA.locales[b];
+        } else {
+            // Fallback: ARB_CATEGORIES
+            const findItemName = (categories, baseId) => {
+                for (const cat of Object.values(categories)) {
+                    if (typeof cat === 'object' && !Array.isArray(cat)) {
+                        const result = findItemName(cat, baseId);
+                        if (result) return result;
+                    } else if (Array.isArray(cat)) {
+                        const item = cat.find(i => i.id === baseId);
+                        if (item) return item.name;
+                    }
+                }
+                return null;
+            };
+            const nameFromCat = findItemName(ARB_CATEGORIES, b);
+            if (nameFromCat) foundName = nameFromCat;
         }
-
-        return `${t} ${foundName}${e}`.trim();
+        
+        // Eğer Türkçe isimde Tier ön eki varsa, doğru tier ön ekini koy
+        const tierPrefixes = ["Tecrübesiz ", "Acemi ", "Kalfa ", "Ehil ", "Uzman ", "Usta ", "Büyük Usta ", "Büyük usta ", "Yüce "];
+        let hasTierPrefix = false;
+        
+        for (let prefix of tierPrefixes) {
+            if (foundName.startsWith(prefix)) {
+                foundName = foundName.substring(prefix.length); // Ön eki kaldır
+                hasTierPrefix = true;
+                break;
+            }
+        }
+        
+        // Eğer bir ön ek kaldırıldıysa (silah/zırh), hedef tier'in ön ekini ekle
+        if (tNum > 0 && hasTierPrefix) {
+            let newPrefix = "";
+            switch (tNum) {
+                case 1: newPrefix = "Tecrübesiz "; break;
+                case 2: newPrefix = "Acemi "; break;
+                case 3: newPrefix = "Kalfa "; break;
+                case 4: newPrefix = "Ehil "; break;
+                case 5: newPrefix = "Uzman "; break;
+                case 6: newPrefix = "Usta "; break;
+                case 7: newPrefix = "Büyük Usta "; break;
+                case 8: newPrefix = "Yüce "; break;
+            }
+            return `${newPrefix}${foundName}${e}`.trim();
+        }
+        
+        // Ön ek yoksa (Örn: "Havuçlar", "Ağaç Kütüğü")
+        if (tNum > 0 && !hasTierPrefix && !foundName.startsWith("T" + tNum)) {
+            return `${tStr} ${foundName}${e}`.trim();
+        }
+        
+        return `${foundName}${e}`.trim();
     };
 
     // Parçalara (Chunk) ayırarak çoklu eşya verisi çeken yeni ana fonksiyon
