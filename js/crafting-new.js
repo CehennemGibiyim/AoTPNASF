@@ -134,7 +134,7 @@ const RECIPES = {
   '2H_SKULLJESTER_UNDEAD':    { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
   
   'BAG':                      { default: { mats: [{r:'LEATHER',q:16},{r:'PLANKS',q:8}] }},
-  'SATCHEL_OF_INSIGHT':       { default: { mats: [{r:'LEATHER',q:16},{r:'PLANKS',q:8},{r:'CLOTH',q:8}] }},
+  'BAG_INSIGHT':       { default: { mats: [{r:'LEATHER',q:16},{r:'PLANKS',q:8},{r:'CLOTH',q:8}] }},
   'CAPE':                     { default: { mats: [{r:'CLOTH',q:4}, {r:'LEATHER',q:4}] }},
   'CAPEITEM_FW_MARTLOCK':     { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_MARTLOCK',q:1}] }},
   'CAPEITEM_FW_LYMHURST':     { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_LYMHURST',q:1}] }},
