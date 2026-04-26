@@ -390,44 +390,74 @@ const QUALITY_NAMES = {
 };
 
 function formatItemNameTr(itemId) {
-  let name = itemId.replace(/T\d_/, '').replace(/@\d/, '').replace(/_/g, ' ');
-  const m = itemId.match(/T(\d)/);
-  const e = itemId.match(/@(\d)/);
-  const tier = m ? m[1] : '';
-  const ench = e ? e[1] : '0';
+  let tMatch = itemId.match(/^T(\d+)/); 
+  let tNum = tMatch ? parseInt(tMatch[1]) : 0;
+  let tStr = tMatch ? `T${tMatch[1]}` : '';
   
-  const cleanId = itemId.replace(/^T\d+_/, '').replace(/@\d+$/, '');
-  if (window.AOT_DATA && window.AOT_DATA.locales && window.AOT_DATA.locales[cleanId]) {
-    name = window.AOT_DATA.locales[cleanId];
-  } else {
-    // Fallback Düzeltilmiş doğru Türkçe oyun içi karşılıklar
-    if (name.includes('BAG')) name = 'Çanta';
-    else if (name.includes('CAPE')) name = 'Pelerin';
-    else if (name.includes('CLAYMORE')) name = 'Claymore';
-    else if (name.includes('SWORD')) name = 'Kılıç';
-    else if (name.includes('BOW')) name = 'Yay';
-    else if (name.includes('CROSSBOW')) name = 'Arbalet';
-    else if (name.includes('FIRESTAFF')) name = 'Ateş Asası';
-    else if (name.includes('NATURESTAFF')) name = 'Doğa Asası';
-    else if (name.includes('ARMOR PLATE KEEPER')) name = 'Yargıç Zırhı';
-    else if (name.includes('HEAD PLATE KEEPER')) name = 'Yargıç Miğferi';
-    else if (name.includes('SHOES PLATE KEEPER')) name = 'Yargıç Çizmesi';
-    else if (name.includes('ARMOR PLATE HELL')) name = 'Şövalye Zırhı';
-    else if (name.includes('ARMOR PLATE')) name = 'Plaka Zırh';
-    else if (name.includes('ARMOR LEATHER')) name = 'Deri Ceket';
-    else if (name.includes('ARMOR CLOTH')) name = 'Kumaş Cüppe';
-    else if (name.includes('MEAL STEW')) name = 'Yahni';
-    else if (name.includes('MEAL OMELETTE')) name = 'Omlet';
-    else if (name.includes('POTION HEAL')) name = 'Can İksiri';
-    else if (name.includes('MOUNT HORSE')) name = 'Binek Atı';
-    else if (name.includes('MOUNT OX')) name = 'Binek Öküzü';
-  }
+  let eMatch = itemId.match(/@(\d+)$/);
+  let e = eMatch ? `.${eMatch[1]}` : '';
+  let b = itemId.replace(/^T\d+_/, '').replace(/@\d+$/, '');
+  
+  if (itemId === "QUESTITEM_TOKEN_SIPHONED_ENERGY") return "Özümlenmiş Enerji";
+  if (itemId === "QUESTITEM_TOKEN_AVALON") return "Avalon Enerjisi";
 
-  if (tier) {
-    if (ench !== '0') return `T${tier}.${ench} ${name}`;
-    return `T${tier} ${name}`;
+  let foundName = b.replace(/_/g, ' ');
+  
+  if (window.AO_ITEMS) {
+      const itemData = window.AO_ITEMS.find(i => i.id === b);
+      if (itemData && itemData.tr) foundName = itemData.tr;
+  } else if (window.AOT_DATA && window.AOT_DATA.locales && window.AOT_DATA.locales[b]) {
+      foundName = window.AOT_DATA.locales[b];
+  } else {
+      if (foundName.includes('BAG')) foundName = 'Çanta';
+      else if (foundName.includes('CAPE')) foundName = 'Pelerin';
+      else if (foundName.includes('CLAYMORE')) foundName = 'Claymore';
+      else if (foundName.includes('SWORD')) foundName = 'Kılıç';
+      else if (foundName.includes('BOW')) foundName = 'Yay';
+      else if (foundName.includes('CROSSBOW')) foundName = 'Arbalet';
+      else if (foundName.includes('FIRESTAFF')) foundName = 'Ateş Asası';
+      else if (foundName.includes('NATURESTAFF')) foundName = 'Doğa Asası';
+      else if (foundName.includes('ARMOR PLATE')) foundName = 'Plaka Zırh';
+      else if (foundName.includes('ARMOR LEATHER')) foundName = 'Deri Ceket';
+      else if (foundName.includes('ARMOR CLOTH')) foundName = 'Kumaş Cüppe';
+      else if (foundName.includes('MEAL STEW')) foundName = 'Yahni';
+      else if (foundName.includes('MEAL OMELETTE')) foundName = 'Omlet';
+      else if (foundName.includes('POTION HEAL')) foundName = 'Can İksiri';
+      else if (foundName.includes('MOUNT HORSE')) foundName = 'Binek Atı';
+      else if (foundName.includes('MOUNT OX')) foundName = 'Binek Öküzü';
   }
-  return name;
+  
+  const tierPrefixes = ["Tecrübesiz ", "Acemi ", "Kalfa ", "Ehil ", "Uzman ", "Usta ", "Büyük Usta ", "Büyük usta ", "Yüce "];
+  let hasTierPrefix = false;
+  
+  for (let prefix of tierPrefixes) {
+      if (foundName.startsWith(prefix)) {
+          foundName = foundName.substring(prefix.length);
+          hasTierPrefix = true;
+          break;
+      }
+  }
+  
+  if (tNum > 0 && hasTierPrefix) {
+      let newPrefix = "";
+      switch (tNum) {
+          case 1: newPrefix = "Tecrübesiz "; break;
+          case 2: newPrefix = "Acemi "; break;
+          case 3: newPrefix = "Kalfa "; break;
+          case 4: newPrefix = "Ehil "; break;
+          case 5: newPrefix = "Uzman "; break;
+          case 6: newPrefix = "Usta "; break;
+          case 7: newPrefix = "Büyük Usta "; break;
+          case 8: newPrefix = "Yüce "; break;
+      }
+      return `${newPrefix}${foundName}${e}`.trim();
+  }
+  
+  if (tNum > 0 && !hasTierPrefix && !foundName.startsWith("T" + tNum)) {
+      return `${tStr} ${foundName}${e}`.trim();
+  }
+  
+  return `${foundName}${e}`.trim();
 }
 
 async function updateProfitTicker() {
