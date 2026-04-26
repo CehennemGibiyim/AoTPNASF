@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (item.id.startsWith('MEAL_')) item.cat = 'food';
       else if (item.id.startsWith('POTION_')) item.cat = 'potion';
       else if (item.id.includes('CAPE')) item.cat = 'cape';
-      else if (item.id.includes('BAG') || item.id === 'SATCHEL_OF_INSIGHT') item.cat = 'bag';
+      else if (item.id.includes('BAG') || item.id === 'BAG_INSIGHT') item.cat = 'bag';
       else if (item.id.includes('_GATHERER_')) item.cat = 'gatherer';
 
       if (item.id.includes('@') || item.id.includes('ARTEFACT') || item.id.includes('TREASURE') || item.id.includes('UNIQUE')) return;
