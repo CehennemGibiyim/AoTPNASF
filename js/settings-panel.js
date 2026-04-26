@@ -66,6 +66,10 @@ function buildSettingsPanel() {
     ru: { flag: '🇷🇺', name: window.t('settings-langRu', 'Rusça'), native: 'Русский' },
     de: { flag: '🇩🇪', name: window.t('settings-langDe', 'Almanca'), native: 'Deutsch' },
     fr: { flag: '🇫🇷', name: window.t('settings-langFr', 'Fransızca'), native: 'Français' },
+    pl: { flag: '🇵🇱', name: window.t('settings-langPl', 'Lehçe'), native: 'Polski' },
+    pt: { flag: '🇵🇹', name: window.t('settings-langPt', 'Portekizce'), native: 'Português' },
+    es: { flag: '🇪🇸', name: window.t('settings-langEs', 'İspanyolca'), native: 'Español' },
+    kr: { flag: '🇰🇷', name: window.t('settings-langKr', 'Korece'), native: '한국어' }
   };
 
   const servers = {
