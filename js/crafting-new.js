@@ -1,4 +1,4 @@
-// AoT-PNASF — Crafting v4 — items-data.js entegreli, çok dilli
+// AoT-PNASF — Crafting v5 — Tüm Crafting İşlemleri, Binekler, Yemekler, İksirler
 const PRICE_API = 'https://europe.albion-online-data.com';
 const RENDER    = 'https://render.albiononline.com/v1/item';
 const ALL_CITIES = 'Caerleon,Bridgewatch,Lymhurst,Martlock,Thetford,Fort Sterling,Brecilien,Black Market';
@@ -6,10 +6,10 @@ const ALL_CITIES = 'Caerleon,Bridgewatch,Lymhurst,Martlock,Thetford,Fort Sterlin
 function isValidData(dateStr) {
   if (!dateStr || dateStr.startsWith('0001')) return false;
   const m = (Date.now() - new Date(dateStr+'Z').getTime()) / 60000;
-  return m >= 1 && m <= 240; // 1 ile 4 saat (240 dk) arasındaki veriler
+  return m >= 1 && m <= 240; // 1 ile 4 saat
 }
 
-// Kategori tanımları — items-data.js'deki cat değerleriyle eşleşir
+// Kategoriler
 const CATEGORIES = [
   {key:'sword',   icon:'⚔️', tr:'Kılıçlar',        en:'Swords'},
   {key:'axe',     icon:'🪓', tr:'Baltalar',         en:'Axes'},
@@ -28,6 +28,7 @@ const CATEGORIES = [
   {key:'nature',  icon:'🌿', tr:'Doğa Asaları',     en:'Nature Staves'},
   {key:'curse',   icon:'💀', tr:'Lanet Asaları',    en:'Cursed Staves'},
   {key:'bag',     icon:'🎒', tr:'Çantalar',         en:'Bags'},
+  {key:'cape',    icon:'🧣', tr:'Pelerinler',       en:'Capes'},
   {key:'lhelmet', icon:'🪖', tr:'Deri Kask',        en:'Leather Helmet'},
   {key:'larmor',  icon:'🥋', tr:'Deri Zırh',        en:'Leather Armor'},
   {key:'lshoes',  icon:'👢', tr:'Deri Bot',         en:'Leather Shoes'},
@@ -37,158 +38,262 @@ const CATEGORIES = [
   {key:'chelmet', icon:'🎩', tr:'Kumaş Kask',       en:'Cloth Helmet'},
   {key:'carmor',  icon:'👘', tr:'Kumaş Zırh',       en:'Cloth Armor'},
   {key:'cshoes',  icon:'🥿', tr:'Kumaş Bot',        en:'Cloth Shoes'},
-  {key:'cape',    icon:'🧣', tr:'Pelerinler',       en:'Capes'},
   {key:'offhand', icon:'🔰', tr:'Offhand',          en:'Offhand'},
+  {key:'gatherer',icon:'⛏️', tr:'Toplayıcı Setleri',en:'Gathering Gear'},
   {key:'mount',   icon:'🐎', tr:'Binekler',         en:'Mounts'},
-  {key:'food',    icon:'🍲', tr:'Yiyecek',          en:'Food'},
+  {key:'food',    icon:'🍲', tr:'Yemekler',         en:'Food'},
   {key:'potion',  icon:'⚗️', tr:'İksirler',         en:'Potions'},
-  {key:'refined', icon:'⚙️', tr:'İşlenmiş Kaynak',  en:'Refined Resources'},
-  {key:'raw',     icon:'🪵', tr:'Ham Kaynak',       en:'Raw Resources'},
 ];
 
-// Crafting malzeme veritabanı
+// Reçeteler: { default: { mats: [...] }, 4: { yield: 10, mats: [...] } }
 const RECIPES = {
-  'MAIN_SWORD':               [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}],
-  '2H_CLAYMORE':              [{r:'METALBAR',q:16},{r:'LEATHER',q:8},{r:'PLANKS',q:8}],
-  '2H_DUALSWORD':             [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}],
-  'MAIN_SCIMITAR_MORGANA':    [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}],
-  '2H_CLEAVER_HELL':          [{r:'METALBAR',q:16},{r:'LEATHER',q:8},{r:'PLANKS',q:8}],
-  '2H_DUALSWORD_UNDEAD':      [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}],
-  'MAIN_AXE':                 [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  '2H_AXE':                   [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  '2H_HALBERD':               [{r:'METALBAR',q:12},{r:'PLANKS',q:12},{r:'LEATHER',q:4}],
-  '2H_SCYTHE_HELL':           [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  '2H_HALBERD_UNDEAD':        [{r:'METALBAR',q:16},{r:'PLANKS',q:12},{r:'LEATHER',q:4}],
-  '2H_BOW':                   [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}],
-  '2H_LONGBOW':               [{r:'PLANKS',q:20},{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  '2H_LONGBOW_UNDEAD':        [{r:'PLANKS',q:20},{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  '2H_BOW_HELL':              [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}],
-  '2H_BOW_MORGANA':           [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}],
-  '2H_CROSSBOW':              [{r:'METALBAR',q:8},{r:'PLANKS',q:12},{r:'LEATHER',q:8}],
-  '2H_CROSSBOW_CANNON':       [{r:'METALBAR',q:12},{r:'PLANKS',q:12},{r:'LEATHER',q:4}],
-  'MAIN_CROSSBOW':            [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:8}],
-  '2H_CROSSBOW_LARGE_MORGANA':[{r:'METALBAR',q:12},{r:'PLANKS',q:16},{r:'LEATHER',q:4}],
-  '2H_BOW_KEEPER':            [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}],
-  'MAIN_HAMMER':              [{r:'METALBAR',q:12},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  '2H_POLEHAMMER':            [{r:'METALBAR',q:16},{r:'PLANKS',q:12},{r:'LEATHER',q:4}],
-  '2H_HAMMER_HELL':           [{r:'METALBAR',q:20},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  '2H_HAMMER_MORGANA':        [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  'MAIN_SPEAR':               [{r:'METALBAR',q:8},{r:'PLANKS',q:12},{r:'LEATHER',q:4}],
-  '2H_SPEAR':                 [{r:'METALBAR',q:8},{r:'PLANKS',q:16},{r:'LEATHER',q:4}],
-  '2H_GLAIVE':                [{r:'METALBAR',q:8},{r:'PLANKS',q:16},{r:'LEATHER',q:4}],
-  '2H_HARPOON_HELL':          [{r:'METALBAR',q:8},{r:'PLANKS',q:16},{r:'LEATHER',q:4}],
-  '2H_DUALSICKLE_HELL':       [{r:'METALBAR',q:12},{r:'PLANKS',q:12},{r:'LEATHER',q:4}],
-  'MAIN_DAGGER':              [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}],
-  '2H_DAGGERPAIR':            [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}],
-  '2H_CLAWPAIR_HELL':         [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}],
-  'MAIN_RAPIER_MORGANA':      [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}],
-  '2H_DUALSCIMITAR_UNDEAD':   [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}],
-  '2H_QUARTERSTAFF':          [{r:'PLANKS',q:20},{r:'LEATHER',q:4}],
-  '2H_IRONCLADEDSTAFF':       [{r:'PLANKS',q:20},{r:'LEATHER',q:4},{r:'METALBAR',q:4}],
-  '2H_DOUBLEBLADEDSTAFF_HELL':[{r:'PLANKS',q:20},{r:'LEATHER',q:4},{r:'METALBAR',q:4}],
-  '2H_COMBATSTAFF_MORGANA':   [{r:'PLANKS',q:20},{r:'LEATHER',q:4}],
-  '2H_ROCKSTAFF_UNDEAD':      [{r:'PLANKS',q:20},{r:'LEATHER',q:4},{r:'STONEBLOCK',q:4}],
-  'MAIN_MACE':                [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  '2H_MACE':                  [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  'MAIN_ROCKMACE_KEEPER':     [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'STONEBLOCK',q:4}],
-  'MAIN_MACE_HELL':           [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  '2H_MACE_MORGANA':          [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  'MAIN_KNUCKLES':            [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  '2H_KNUCKLES_SET1':         [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_KNUCKLES_SET2':         [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_KNUCKLES_SET3':         [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  'MAIN_KNUCKLES_HELL':       [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  '2H_KNUCKLES_MORGANA':      [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_KNUCKLES_KEEPER':       [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_KNUCKLES_AVALON':       [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_SHAPESHIFTER_SET1':     [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_SHAPESHIFTER_SET2':     [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_SHAPESHIFTER_SET3':     [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_SHAPESHIFTER_MORGANA':  [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_SHAPESHIFTER_HELL':     [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_SHAPESHIFTER_KEEPER':   [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  '2H_SHAPESHIFTER_AVALON':   [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}],
-  'MAIN_FIRE':                [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  '2H_INFERNOSTAFF':          [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_INFERNOSTAFF_HELL':     [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_INFERNOSTAFF_MORGANA':  [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  'MAIN_FROST':               [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  '2H_FROSTSTAFF':            [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_ICEGAUNTLETS_HELL':     [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  '2H_ICICLESTAFF_UNDEAD':    [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  'MAIN_ARCANE':              [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  '2H_ARCANESTAFF':           [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_ENIGMATICSTAFF_HELL':   [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_LIGHTCROSSBOW_MORGANA': [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  'MAIN_HOLY':                [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  '2H_HOLYSTAFF':             [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_DIVINESTAFF_HELL':      [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_HOLYSTAFF_MORGANA':     [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  'MAIN_NATURE':              [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  '2H_NATURESTAFF':           [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_WILDSTAFF_HELL':        [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_NATURESTAFF_KEEPER':    [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  'MAIN_CURSEDSTAFF':         [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}],
-  '2H_CURSEDSTAFF':           [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_CURSEDSTAFF_HELL':      [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  '2H_SKULLJESTER_UNDEAD':    [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}],
-  'BAG':                      [{r:'LEATHER',q:16},{r:'PLANKS',q:8}],
-  'SATCHEL_OF_INSIGHT':       [{r:'LEATHER',q:16},{r:'PLANKS',q:8},{r:'CLOTH',q:8}],
-  'HEAD_LEATHER_SET1':        [{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  'HEAD_LEATHER_SET2':        [{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  'HEAD_LEATHER_SET3':        [{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  'ARMOR_LEATHER_SET1':       [{r:'LEATHER',q:12},{r:'CLOTH',q:4}],
-  'ARMOR_LEATHER_SET2':       [{r:'LEATHER',q:12},{r:'CLOTH',q:4}],
-  'ARMOR_LEATHER_SET3':       [{r:'LEATHER',q:12},{r:'CLOTH',q:4}],
-  'SHOES_LEATHER_SET1':       [{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  'SHOES_LEATHER_SET2':       [{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  'SHOES_LEATHER_SET3':       [{r:'LEATHER',q:8},{r:'CLOTH',q:4}],
-  'HEAD_PLATE_SET1':          [{r:'METALBAR',q:8},{r:'LEATHER',q:4}],
-  'HEAD_PLATE_SET2':          [{r:'METALBAR',q:8},{r:'LEATHER',q:4}],
-  'HEAD_PLATE_SET3':          [{r:'METALBAR',q:8},{r:'LEATHER',q:4}],
-  'ARMOR_PLATE_SET1':         [{r:'METALBAR',q:12},{r:'LEATHER',q:4}],
-  'ARMOR_PLATE_SET2':         [{r:'METALBAR',q:12},{r:'LEATHER',q:4}],
-  'ARMOR_PLATE_SET3':         [{r:'METALBAR',q:12},{r:'LEATHER',q:4}],
-  'SHOES_PLATE_SET1':         [{r:'METALBAR',q:8},{r:'LEATHER',q:4}],
-  'SHOES_PLATE_SET2':         [{r:'METALBAR',q:8},{r:'LEATHER',q:4}],
-  'SHOES_PLATE_SET3':         [{r:'METALBAR',q:8},{r:'LEATHER',q:4}],
-  'HEAD_CLOTH_SET1':          [{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  'HEAD_CLOTH_SET2':          [{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  'HEAD_CLOTH_SET3':          [{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  'ARMOR_CLOTH_SET1':         [{r:'CLOTH',q:12},{r:'LEATHER',q:4}],
-  'ARMOR_CLOTH_SET2':         [{r:'CLOTH',q:12},{r:'LEATHER',q:4}],
-  'ARMOR_CLOTH_SET3':         [{r:'CLOTH',q:12},{r:'LEATHER',q:4}],
-  'SHOES_CLOTH_SET1':         [{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  'SHOES_CLOTH_SET2':         [{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  'SHOES_CLOTH_SET3':         [{r:'CLOTH',q:8},{r:'LEATHER',q:4}],
-  'OFF_SHIELD':               [{r:'METALBAR',q:8},{r:'PLANKS',q:4},{r:'LEATHER',q:4}],
-  'OFF_BOOK':                 [{r:'CLOTH',q:8},{r:'PLANKS',q:4},{r:'LEATHER',q:4}],
-  'OFF_HORN':                 [{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  'OFF_TORCH':                [{r:'PLANKS',q:8},{r:'LEATHER',q:4}],
-  'MEAL_STEW':                [{r:'CROP_TURNIP',q:8},{r:'CROP_CARROT',q:4},{r:'MEAT',q:4}],
-  'MEAL_SOUP':                [{r:'CROP_TURNIP',q:8},{r:'CROP_CARROT',q:8}],
-  'MEAL_SALAD':               [{r:'CROP_PUMPKIN',q:8},{r:'CROP_CARROT',q:4}],
-  'MEAL_OMELETTE':            [{r:'CROP_CABBAGE',q:8},{r:'EGG',q:4}],
-  'MEAL_ROAST':               [{r:'MEAT',q:8},{r:'CROP_CORN',q:4}],
-  'POTION_HEALING':           [{r:'HERB_FOXGLOVE',q:8},{r:'HERB_YARROW',q:4}],
-  'POTION_ENERGY':            [{r:'HERB_FOXGLOVE',q:8},{r:'HERB_MUELEIN',q:4}],
-  'POTION_GIGANTIFY':         [{r:'HERB_BURDOCK',q:8},{r:'HERB_FOXGLOVE',q:4}],
-  'POTION_RESISTANCE':        [{r:'HERB_YARROW',q:8},{r:'HERB_BURDOCK',q:4}],
-};
+  // SİLAHLAR & ZIRHLAR
+  'MAIN_SWORD':               { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}] }},
+  '2H_CLAYMORE':              { default: { mats: [{r:'METALBAR',q:16},{r:'LEATHER',q:8},{r:'PLANKS',q:8}] }},
+  '2H_DUALSWORD':             { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}] }},
+  'MAIN_SCIMITAR_MORGANA':    { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}] }},
+  '2H_CLEAVER_HELL':          { default: { mats: [{r:'METALBAR',q:16},{r:'LEATHER',q:8},{r:'PLANKS',q:8}] }},
+  '2H_DUALSWORD_UNDEAD':      { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}] }},
+  'MAIN_AXE':                 { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  '2H_AXE':                   { default: { mats: [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  '2H_HALBERD':               { default: { mats: [{r:'METALBAR',q:12},{r:'PLANKS',q:12},{r:'LEATHER',q:4}] }},
+  '2H_SCYTHE_HELL':           { default: { mats: [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  '2H_HALBERD_UNDEAD':        { default: { mats: [{r:'METALBAR',q:16},{r:'PLANKS',q:12},{r:'LEATHER',q:4}] }},
+  '2H_BOW':                   { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}] }},
+  '2H_LONGBOW':               { default: { mats: [{r:'PLANKS',q:20},{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  '2H_LONGBOW_UNDEAD':        { default: { mats: [{r:'PLANKS',q:20},{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  '2H_BOW_HELL':              { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}] }},
+  '2H_BOW_MORGANA':           { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}] }},
+  '2H_CROSSBOW':              { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:12},{r:'LEATHER',q:8}] }},
+  '2H_CROSSBOW_CANNON':       { default: { mats: [{r:'METALBAR',q:12},{r:'PLANKS',q:12},{r:'LEATHER',q:4}] }},
+  'MAIN_CROSSBOW':            { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:8}] }},
+  '2H_CROSSBOW_LARGE_MORGANA':{ default: { mats: [{r:'METALBAR',q:12},{r:'PLANKS',q:16},{r:'LEATHER',q:4}] }},
+  '2H_BOW_KEEPER':            { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'LEATHER',q:8}] }},
+  'MAIN_HAMMER':              { default: { mats: [{r:'METALBAR',q:12},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  '2H_POLEHAMMER':            { default: { mats: [{r:'METALBAR',q:16},{r:'PLANKS',q:12},{r:'LEATHER',q:4}] }},
+  '2H_HAMMER_HELL':           { default: { mats: [{r:'METALBAR',q:20},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  '2H_HAMMER_MORGANA':        { default: { mats: [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  'MAIN_SPEAR':               { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:12},{r:'LEATHER',q:4}] }},
+  '2H_SPEAR':                 { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:16},{r:'LEATHER',q:4}] }},
+  '2H_GLAIVE':                { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:16},{r:'LEATHER',q:4}] }},
+  '2H_HARPOON_HELL':          { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:16},{r:'LEATHER',q:4}] }},
+  '2H_DUALSICKLE_HELL':       { default: { mats: [{r:'METALBAR',q:12},{r:'PLANKS',q:12},{r:'LEATHER',q:4}] }},
+  'MAIN_DAGGER':              { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}] }},
+  '2H_DAGGERPAIR':            { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}] }},
+  '2H_CLAWPAIR_HELL':         { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}] }},
+  'MAIN_RAPIER_MORGANA':      { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'PLANKS',q:4}] }},
+  '2H_DUALSCIMITAR_UNDEAD':   { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'PLANKS',q:8}] }},
+  '2H_QUARTERSTAFF':          { default: { mats: [{r:'PLANKS',q:20},{r:'LEATHER',q:4}] }},
+  '2H_IRONCLADEDSTAFF':       { default: { mats: [{r:'PLANKS',q:20},{r:'LEATHER',q:4},{r:'METALBAR',q:4}] }},
+  '2H_DOUBLEBLADEDSTAFF_HELL':{ default: { mats: [{r:'PLANKS',q:20},{r:'LEATHER',q:4},{r:'METALBAR',q:4}] }},
+  '2H_COMBATSTAFF_MORGANA':   { default: { mats: [{r:'PLANKS',q:20},{r:'LEATHER',q:4}] }},
+  '2H_ROCKSTAFF_UNDEAD':      { default: { mats: [{r:'PLANKS',q:20},{r:'LEATHER',q:4},{r:'STONEBLOCK',q:4}] }},
+  'MAIN_MACE':                { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  '2H_MACE':                  { default: { mats: [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  'MAIN_ROCKMACE_KEEPER':     { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'STONEBLOCK',q:4}] }},
+  'MAIN_MACE_HELL':           { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  '2H_MACE_MORGANA':          { default: { mats: [{r:'METALBAR',q:16},{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  'MAIN_KNUCKLES':            { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  '2H_KNUCKLES_SET1':         { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_KNUCKLES_SET2':         { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_KNUCKLES_SET3':         { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  'MAIN_KNUCKLES_HELL':       { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  '2H_KNUCKLES_MORGANA':      { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_KNUCKLES_KEEPER':       { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_KNUCKLES_AVALON':       { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_SHAPESHIFTER_SET1':     { default: { mats: [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_SHAPESHIFTER_SET2':     { default: { mats: [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_SHAPESHIFTER_SET3':     { default: { mats: [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_SHAPESHIFTER_MORGANA':  { default: { mats: [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_SHAPESHIFTER_HELL':     { default: { mats: [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_SHAPESHIFTER_KEEPER':   { default: { mats: [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  '2H_SHAPESHIFTER_AVALON':   { default: { mats: [{r:'PLANKS',q:12},{r:'LEATHER',q:8},{r:'CLOTH',q:8}] }},
+  'MAIN_FIRE':                { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  '2H_INFERNOSTAFF':          { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_INFERNOSTAFF_HELL':     { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_INFERNOSTAFF_MORGANA':  { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  'MAIN_FROST':               { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  '2H_FROSTSTAFF':            { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_ICEGAUNTLETS_HELL':     { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  '2H_ICICLESTAFF_UNDEAD':    { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  'MAIN_ARCANE':              { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  '2H_ARCANESTAFF':           { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_ENIGMATICSTAFF_HELL':   { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_LIGHTCROSSBOW_MORGANA': { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  'MAIN_HOLY':                { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  '2H_HOLYSTAFF':             { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_DIVINESTAFF_HELL':      { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_HOLYSTAFF_MORGANA':     { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  'MAIN_NATURE':              { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  '2H_NATURESTAFF':           { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_WILDSTAFF_HELL':        { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_NATURESTAFF_KEEPER':    { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  'MAIN_CURSEDSTAFF':         { default: { mats: [{r:'PLANKS',q:8},{r:'CLOTH',q:8},{r:'METALBAR',q:8}] }},
+  '2H_CURSEDSTAFF':           { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_CURSEDSTAFF_HELL':      { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  '2H_SKULLJESTER_UNDEAD':    { default: { mats: [{r:'PLANKS',q:16},{r:'CLOTH',q:8},{r:'METALBAR',q:4}] }},
+  
+  'BAG':                      { default: { mats: [{r:'LEATHER',q:16},{r:'PLANKS',q:8}] }},
+  'SATCHEL_OF_INSIGHT':       { default: { mats: [{r:'LEATHER',q:16},{r:'PLANKS',q:8},{r:'CLOTH',q:8}] }},
+  'CAPE':                     { default: { mats: [{r:'CLOTH',q:4}, {r:'LEATHER',q:4}] }},
+  'CAPEITEM_FW_MARTLOCK':     { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_MARTLOCK',q:1}] }},
+  'CAPEITEM_FW_LYMHURST':     { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_LYMHURST',q:1}] }},
+  'CAPEITEM_FW_THETFORD':     { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_THETFORD',q:1}] }},
+  'CAPEITEM_FW_FORTSTERLING': { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_FORTSTERLING',q:1}] }},
+  'CAPEITEM_FW_BRIDGEWATCH':  { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_BRIDGEWATCH',q:1}] }},
+  'CAPEITEM_FW_CAERLEON':     { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_CAERLEON',q:1}] }},
+  'CAPEITEM_FW_BRECILIEN':    { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_BRECILIEN',q:1}] }},
+  'CAPEITEM_HERETIC':         { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_HERETIC',q:1}] }},
+  'CAPEITEM_UNDEAD':          { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_UNDEAD',q:1}] }},
+  'CAPEITEM_KEEPER':          { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_KEEPER',q:1}] }},
+  'CAPEITEM_MORGANA':         { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_MORGANA',q:1}] }},
+  'CAPEITEM_DEMON':           { default: { mats: [{r:'CAPE',q:1}, {id:'T4_ITEM_FACTION_DEMON',q:1}] }},
 
-const RES_NAMES_TR = {
-  PLANKS:'Tahta', METALBAR:'Metal Külçe', CLOTH:'Kumaş', LEATHER:'İşl. Deri',
-  STONEBLOCK:'Taş Blok', CROP_TURNIP:'Şalgam', CROP_CARROT:'Havuç',
-  CROP_PUMPKIN:'Kabak', CROP_CABBAGE:'Lahana', CROP_CORN:'Mısır',
-  MEAT:'Et', EGG:'Yumurta', HERB_FOXGLOVE:'Yüksükotu', HERB_YARROW:'Civanperçemi',
-  HERB_MUELEIN:'Sığırkuyruğu', HERB_BURDOCK:'Dulavrat Otu',
-};
-const RES_NAMES_EN = {
-  PLANKS:'Planks', METALBAR:'Metal Bar', CLOTH:'Cloth', LEATHER:'Leather',
-  STONEBLOCK:'Stone Block', CROP_TURNIP:'Turnip', CROP_CARROT:'Carrot',
-  CROP_PUMPKIN:'Pumpkin', CROP_CABBAGE:'Cabbage', CROP_CORN:'Corn',
-  MEAT:'Meat', EGG:'Egg', HERB_FOXGLOVE:'Foxglove', HERB_YARROW:'Yarrow',
-  HERB_MUELEIN:'Mullein', HERB_BURDOCK:'Burdock',
+  'HEAD_LEATHER_SET1':        { default: { mats: [{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  'HEAD_LEATHER_SET2':        { default: { mats: [{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  'HEAD_LEATHER_SET3':        { default: { mats: [{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  'ARMOR_LEATHER_SET1':       { default: { mats: [{r:'LEATHER',q:12},{r:'CLOTH',q:4}] }},
+  'ARMOR_LEATHER_SET2':       { default: { mats: [{r:'LEATHER',q:12},{r:'CLOTH',q:4}] }},
+  'ARMOR_LEATHER_SET3':       { default: { mats: [{r:'LEATHER',q:12},{r:'CLOTH',q:4}] }},
+  'SHOES_LEATHER_SET1':       { default: { mats: [{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  'SHOES_LEATHER_SET2':       { default: { mats: [{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  'SHOES_LEATHER_SET3':       { default: { mats: [{r:'LEATHER',q:8},{r:'CLOTH',q:4}] }},
+  'HEAD_PLATE_SET1':          { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:4}] }},
+  'HEAD_PLATE_SET2':          { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:4}] }},
+  'HEAD_PLATE_SET3':          { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:4}] }},
+  'ARMOR_PLATE_SET1':         { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:4}] }},
+  'ARMOR_PLATE_SET2':         { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:4}] }},
+  'ARMOR_PLATE_SET3':         { default: { mats: [{r:'METALBAR',q:12},{r:'LEATHER',q:4}] }},
+  'SHOES_PLATE_SET1':         { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:4}] }},
+  'SHOES_PLATE_SET2':         { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:4}] }},
+  'SHOES_PLATE_SET3':         { default: { mats: [{r:'METALBAR',q:8},{r:'LEATHER',q:4}] }},
+  'HEAD_CLOTH_SET1':          { default: { mats: [{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  'HEAD_CLOTH_SET2':          { default: { mats: [{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  'HEAD_CLOTH_SET3':          { default: { mats: [{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  'ARMOR_CLOTH_SET1':         { default: { mats: [{r:'CLOTH',q:12},{r:'LEATHER',q:4}] }},
+  'ARMOR_CLOTH_SET2':         { default: { mats: [{r:'CLOTH',q:12},{r:'LEATHER',q:4}] }},
+  'ARMOR_CLOTH_SET3':         { default: { mats: [{r:'CLOTH',q:12},{r:'LEATHER',q:4}] }},
+  'SHOES_CLOTH_SET1':         { default: { mats: [{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  'SHOES_CLOTH_SET2':         { default: { mats: [{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  'SHOES_CLOTH_SET3':         { default: { mats: [{r:'CLOTH',q:8},{r:'LEATHER',q:4}] }},
+  'OFF_SHIELD':               { default: { mats: [{r:'METALBAR',q:8},{r:'PLANKS',q:4},{r:'LEATHER',q:4}] }},
+  'OFF_BOOK':                 { default: { mats: [{r:'CLOTH',q:8},{r:'PLANKS',q:4},{r:'LEATHER',q:4}] }},
+  'OFF_HORN':                 { default: { mats: [{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+  'OFF_TORCH':                { default: { mats: [{r:'PLANKS',q:8},{r:'LEATHER',q:4}] }},
+
+  // GATHERING GEAR (Toplayıcı Setleri)
+  'HEAD_GATHERER_FIBER':      { default: { mats: [{r:'CLOTH',q:8}] }},
+  'ARMOR_GATHERER_FIBER':     { default: { mats: [{r:'CLOTH',q:16}] }},
+  'SHOES_GATHERER_FIBER':     { default: { mats: [{r:'CLOTH',q:8}] }},
+  'BACKPACK_GATHERER_FIBER':  { default: { mats: [{r:'CLOTH',q:8}, {r:'LEATHER',q:8}] }},
+  'HEAD_GATHERER_HIDE':       { default: { mats: [{r:'LEATHER',q:8}] }},
+  'ARMOR_GATHERER_HIDE':      { default: { mats: [{r:'LEATHER',q:16}] }},
+  'SHOES_GATHERER_HIDE':      { default: { mats: [{r:'LEATHER',q:8}] }},
+  'BACKPACK_GATHERER_HIDE':   { default: { mats: [{r:'LEATHER',q:8}, {r:'CLOTH',q:8}] }},
+  'HEAD_GATHERER_ORE':        { default: { mats: [{r:'METALBAR',q:8}] }},
+  'ARMOR_GATHERER_ORE':       { default: { mats: [{r:'METALBAR',q:16}] }},
+  'SHOES_GATHERER_ORE':       { default: { mats: [{r:'METALBAR',q:8}] }},
+  'BACKPACK_GATHERER_ORE':    { default: { mats: [{r:'METALBAR',q:8}, {r:'LEATHER',q:8}] }},
+  'HEAD_GATHERER_ROCK':       { default: { mats: [{r:'STONEBLOCK',q:8}] }},
+  'ARMOR_GATHERER_ROCK':      { default: { mats: [{r:'STONEBLOCK',q:16}] }},
+  'SHOES_GATHERER_ROCK':      { default: { mats: [{r:'STONEBLOCK',q:8}] }},
+  'BACKPACK_GATHERER_ROCK':   { default: { mats: [{r:'STONEBLOCK',q:8}, {r:'LEATHER',q:8}] }},
+  'HEAD_GATHERER_WOOD':       { default: { mats: [{r:'PLANKS',q:8}] }},
+  'ARMOR_GATHERER_WOOD':      { default: { mats: [{r:'PLANKS',q:16}] }},
+  'SHOES_GATHERER_WOOD':      { default: { mats: [{r:'PLANKS',q:8}] }},
+  'BACKPACK_GATHERER_WOOD':   { default: { mats: [{r:'PLANKS',q:8}, {r:'LEATHER',q:8}] }},
+  'HEAD_GATHERER_FISH':       { default: { mats: [{r:'CLOTH',q:8}] }},
+  'ARMOR_GATHERER_FISH':      { default: { mats: [{r:'LEATHER',q:16}] }},
+  'SHOES_GATHERER_FISH':      { default: { mats: [{r:'LEATHER',q:8}] }},
+  'BACKPACK_GATHERER_FISH':   { default: { mats: [{r:'CLOTH',q:8}, {r:'LEATHER',q:8}] }},
+
+  // MOUNTS (Binekler)
+  'MOUNT_HORSE':              { default: { mats: [{r:'FARM_HORSE_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_ARMORED_HORSE':      { default: { mats: [{r:'MOUNT_HORSE',q:1}, {r:'METALBAR',q:10}, {r:'CLOTH',q:10}] }},
+  'MOUNT_OX':                 { default: { mats: [{r:'FARM_OX_GROWN',q:1}, {r:'PLANKS',q:30}] }},
+  'MOUNT_GIANTSTAG':          { default: { mats: [{r:'FARM_GIANTSTAG_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_GIANTSTAG_MOOSE':    { default: { mats: [{r:'FARM_GIANTSTAG_MOOSE_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_DIREWOLF':           { default: { mats: [{r:'FARM_DIREWOLF_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_DIREBOAR':           { default: { mats: [{r:'FARM_DIREBOAR_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_DIREBEAR':           { default: { mats: [{r:'FARM_DIREBEAR_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_SWAMPDRAGON':        { default: { mats: [{r:'FARM_SWAMPDRAGON_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_MAMMOTH_TRANSPORT':  { default: { mats: [{r:'FARM_MAMMOTH_GROWN',q:1}, {r:'LEATHER',q:20}] }},
+  'MOUNT_BOAR_FW_LYMHURST':           { default: { mats: [{r:'FARM_PIG_GROWN',q:1}, {id:'T4_FACTION_HEART_LYMHURST',q:20}] }},
+  'MOUNT_RAM_FW_MARTLOCK':            { default: { mats: [{r:'FARM_SHEEP_GROWN',q:1}, {id:'T4_FACTION_HEART_MARTLOCK',q:20}] }},
+  'MOUNT_TERRORBIRD_FW_BRIDGEWATCH':  { default: { mats: [{r:'FARM_TERRORBIRD_GROWN',q:1}, {id:'T4_FACTION_HEART_BRIDGEWATCH',q:20}] }},
+  'MOUNT_BEAR_FW_FORTSTERLING':       { default: { mats: [{r:'FARM_DIREBEAR_GROWN',q:1}, {id:'T4_FACTION_HEART_FORTSTERLING',q:20}] }},
+  'MOUNT_SWAMP_SALAMANDER_FW_THETFORD':{ default: { mats: [{r:'FARM_SWAMPDRAGON_GROWN',q:1}, {id:'T4_FACTION_HEART_THETFORD',q:20}] }},
+  'MOUNT_DIRE_WOLF_FW_CAERLEON':      { default: { mats: [{r:'FARM_DIREWOLF_GROWN',q:1}, {id:'T4_FACTION_HEART_CAERLEON',q:20}] }},
+  'MOUNT_OWL_FW_BRECILIEN':           { default: { mats: [{r:'FARM_OWL_GROWN',q:1}, {id:'T4_FACTION_HEART_BRECILIEN',q:20}] }},
+
+  // YEMEKLER (Food)
+  'MEAL_SOUP': {
+    1: { yield: 10, mats: [{id:'T1_CARROT', q:16}] },
+    3: { yield: 10, mats: [{id:'T3_WHEAT', q:48}] },
+    5: { yield: 10, mats: [{id:'T5_CABBAGE', q:144}] }
+  },
+  'MEAL_SALAD': {
+    2: { yield: 10, mats: [{id:'T2_BEAN', q:16}, {id:'T1_CARROT', q:16}] },
+    4: { yield: 10, mats: [{id:'T4_TURNIP', q:48}, {id:'T2_BEAN', q:48}] },
+    6: { yield: 10, mats: [{id:'T6_POTATO', q:144}, {id:'T4_TURNIP', q:144}] }
+  },
+  'MEAL_PIE': {
+    3: { yield: 10, mats: [{id:'T3_WHEAT', q:24}, {id:'T3_MEAT', q:12}, {id:'T3_FLOUR', q:12}] },
+    5: { yield: 10, mats: [{id:'T5_CABBAGE', q:72}, {id:'T5_MEAT', q:36}, {id:'T3_FLOUR', q:36}] },
+    7: { yield: 10, mats: [{id:'T7_CORN', q:216}, {id:'T7_MEAT', q:108}, {id:'T3_FLOUR', q:108}] }
+  },
+  'MEAL_OMELETTE': {
+    3: { yield: 10, mats: [{id:'T3_WHEAT', q:24}, {id:'T3_EGG', q:48}] },
+    5: { yield: 10, mats: [{id:'T5_CABBAGE', q:72}, {id:'T5_EGG', q:144}] },
+    7: { yield: 10, mats: [{id:'T7_CORN', q:216}, {id:'T7_EGG', q:432}] }
+  },
+  'MEAL_STEW': {
+    4: { yield: 10, mats: [{id:'T4_TURNIP', q:48}, {id:'T4_MEAT', q:48}] },
+    6: { yield: 10, mats: [{id:'T6_POTATO', q:144}, {id:'T6_MEAT', q:144}] },
+    8: { yield: 10, mats: [{id:'T8_PUMPKIN', q:432}, {id:'T8_MEAT', q:432}] }
+  },
+  'MEAL_SANDWICH': {
+    4: { yield: 10, mats: [{id:'T4_TURNIP', q:48}, {id:'T4_BUTTER', q:48}] },
+    6: { yield: 10, mats: [{id:'T6_POTATO', q:144}, {id:'T6_BUTTER', q:144}] },
+    8: { yield: 10, mats: [{id:'T8_PUMPKIN', q:432}, {id:'T8_BUTTER', q:432}] }
+  },
+  'MEAL_ROAST': {
+    3: { yield: 10, mats: [{id:'T3_MEAT', q:24}, {id:'T3_WHEAT', q:24}] },
+    5: { yield: 10, mats: [{id:'T5_MEAT', q:72}, {id:'T5_CABBAGE', q:72}] },
+    7: { yield: 10, mats: [{id:'T7_MEAT', q:216}, {id:'T7_CORN', q:216}] }
+  },
+
+  // İKSİRLER (Potions)
+  'POTION_HEAL': {
+    2: { yield: 5, mats: [{id:'T2_AGARIC', q:16}] },
+    4: { yield: 5, mats: [{id:'T4_BURDOCK', q:48}] },
+    6: { yield: 5, mats: [{id:'T6_FOXGLOVE', q:144}] }
+  },
+  'POTION_ENERGY': {
+    2: { yield: 5, mats: [{id:'T2_AGARIC', q:16}] },
+    4: { yield: 5, mats: [{id:'T4_BURDOCK', q:48}] },
+    6: { yield: 5, mats: [{id:'T6_FOXGLOVE', q:144}] }
+  },
+  'POTION_REVIVE': {
+    3: { yield: 5, mats: [{id:'T3_COMFREY', q:24}] },
+    5: { yield: 5, mats: [{id:'T5_TEASEL', q:72}] },
+    7: { yield: 5, mats: [{id:'T7_MULLEIN', q:216}] }
+  },
+  'POTION_STONESKIN': {
+    3: { yield: 5, mats: [{id:'T3_COMFREY', q:24}] },
+    5: { yield: 5, mats: [{id:'T5_TEASEL', q:72}] },
+    7: { yield: 5, mats: [{id:'T7_MULLEIN', q:216}] }
+  },
+  'POTION_SLOWFIELD': {
+    3: { yield: 5, mats: [{id:'T3_COMFREY', q:24}] },
+    5: { yield: 5, mats: [{id:'T5_TEASEL', q:72}] },
+    7: { yield: 5, mats: [{id:'T7_MULLEIN', q:216}] }
+  },
+  'POTION_COOLDOWN': {
+    4: { yield: 5, mats: [{id:'T4_BURDOCK', q:48}] },
+    6: { yield: 5, mats: [{id:'T6_FOXGLOVE', q:144}] },
+    8: { yield: 5, mats: [{id:'T8_YARROW', q:432}] }
+  }
 };
 
 const CITY_BONUSES = {
@@ -197,7 +302,7 @@ const CITY_BONUSES = {
   'Martlock':    {tr:'🏔️ Bonus: Balta, Quarterstaff, Frost, Plaka Bot', en:'🏔️ Bonus: Axe, Quarterstaff, Frost, Plate Shoes'},
   'Fort Sterling':{tr:'⛰️ Bonus: Çekiç, Mızrak, Holy, Kumaş Zırh', en:'⛰️ Bonus: Hammer, Spear, Holy, Cloth Armor'},
   'Thetford':    {tr:'🌿 Bonus: Gürz, Doğa, Ateş, Deri Zırh', en:'🌿 Bonus: Mace, Nature, Fire, Leather Armor'},
-  'Brecilien':   {tr:'🌫️ Bonus: Bitki/Herb crafting', en:'🌫️ Bonus: Herb/Plant crafting'},
+  'Brecilien':   {tr:'🌫️ Bonus: Bitki, İksir', en:'🌫️ Bonus: Herb, Potion'},
 };
 
 const REFINE_DATA = {
@@ -225,17 +330,49 @@ const FARM_DATA = {
 let currentTier=5, currentEnchant=0, currentCat=null, currentItemBase=null, craftCity='Caerleon';
 let priceCache={};
 
-// ─── LANG HELPER ──────────────────────────────────────────────
+// ─── YARDIMCI FONKSİYONLAR ────────────────────────────────────
 function getLang() { return localStorage.getItem('aot-lang') || 'tr'; }
-function t(obj) { const l=getLang(); return obj[l] || obj.tr || obj.en || ''; }
+
+function getItemName(fullId) {
+  const baseId = fullId.replace(/^T\d_/, '').replace(/@\d$/, '');
+  const item = (window.AO_ITEMS||[]).find(i => i.id === baseId);
+  if (item) return getLang() === 'tr' ? item.tr : item.en;
+  
+  // Yedek isimler (bazı ham maddeler items-data.js'de tam eşleşmeyebilir)
+  const lang = getLang();
+  const fallbackTR = { PLANKS:'Tahta', METALBAR:'Metal Külçe', CLOTH:'Kumaş', LEATHER:'İşl. Deri', STONEBLOCK:'Taş Blok' };
+  const fallbackEN = { PLANKS:'Planks', METALBAR:'Metal Bar', CLOTH:'Cloth', LEATHER:'Leather', STONEBLOCK:'Stone Block' };
+  return (lang==='tr' ? fallbackTR[baseId] : fallbackEN[baseId]) || baseId;
+}
+
+function getRecipeDef() {
+  const def = RECIPES[currentItemBase];
+  if (!def) return null;
+  return def[currentTier] || def['default'];
+}
+
+function getMinPrice(id){ const p=priceCache[id]; if(!p) return 0; const v=Object.values(p).filter(x=>x>0); return v.length?Math.min(...v):0; }
+function getMinPriceCity(id){ const p=priceCache[id]; if(!p) return {price:0,city:null}; const e=Object.entries(p).filter(([,v])=>v>0).sort((a,b)=>a[1]-b[1]); return e.length?{price:e[0][1],city:e[0][0]}:{price:0,city:null}; }
 
 // ─── INIT ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Dinamik olarak kategorileri AO_ITEMS içinden düzelt (Mount, Food, Potion vb. 'misc' içinde geliyor)
+  if (window.AO_ITEMS) {
+    window.AO_ITEMS.forEach(i => {
+      if (i.id.startsWith('MOUNT_')) i.cat = 'mount';
+      else if (i.id.startsWith('MEAL_')) i.cat = 'food';
+      else if (i.id.startsWith('POTION_')) i.cat = 'potion';
+      else if (i.id.includes('CAPE')) i.cat = 'cape';
+      else if (i.id.includes('BAG')) i.cat = 'bag';
+      else if (i.id.includes('_GATHERER_')) i.cat = 'gatherer';
+    });
+  }
+
   buildCatList();
   setCraftCity('Caerleon');
   loadRefiningPrices();
   loadFarmingPrices();
-  // Dil değişince yeniden render
+  
   const origToggle = window.toggleLang;
   window.toggleLang = function() {
     if (origToggle) origToggle();
@@ -243,12 +380,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 });
 
-// ─── MODÜL ────────────────────────────────────────────────────
+// ─── MODÜL GEÇİŞİ ─────────────────────────────────────────────
 function switchModule(mod, btn) {
   document.querySelectorAll('.module-content').forEach(el => el.style.display='none');
   document.querySelectorAll('.mod-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('mod-'+mod).style.display = 'block';
   if (btn) btn.classList.add('active');
+  if (mod === 'refining')    loadRefiningPrices();
+  if (mod === 'farming')     loadFarmingPrices();
+  if (mod === 'transport')   calcTransportRoutes();
+  if (mod === 'journal')     loadJournalPrices();
+  if (mod === 'blackmarket') loadBMData();
 }
 
 // ─── TIER / ENCHANT ───────────────────────────────────────────
@@ -303,7 +445,7 @@ function renderItemGrid(catKey) {
         <img src="${icon}" alt="${name}" onerror="this.src='${RENDER}/T4_BAG.png'"/>
         <span class="item-btn-name">${name}</span>
       </button>`;
-    }).join('') || `<div class="grid-empty"><p>Bu tier için eşya yok</p></div>`;
+    }).join('') || `<div class="grid-empty"><p>${lang==='tr'?'Bu tier için eşya yok':'No items for this tier'}</p></div>`;
 }
 
 // ─── ARAMA ────────────────────────────────────────────────────
@@ -367,7 +509,6 @@ function updateSelectedBar() {
     </div>`;
 }
 
-// ─── ŞEHİR ────────────────────────────────────────────────────
 function setCraftCity(city) {
   craftCity = city;
   document.querySelectorAll('.city-btn').forEach(b => b.classList.toggle('active', b.dataset.city===city));
@@ -381,15 +522,17 @@ function setCraftCity(city) {
   calcCrafting();
 }
 
-// ─── FİYAT ÇEKİMİ ─────────────────────────────────────────────
+// ─── CRAFTING İÇİN FİYAT ÇEKİMİ ───────────────────────────────
 async function loadItemPrices() {
   if (!currentItemBase) return;
-  const recipe = RECIPES[currentItemBase];
+  const recipeDef = getRecipeDef();
   const baseId = `T${currentTier}_${currentItemBase}`;
-  const matIds = recipe ? recipe.map(m=>`T${currentTier}_${m.r}`) : [];
+  const matIds = recipeDef ? recipeDef.mats.map(m => m.id ? m.id : `T${currentTier}_${m.r}`) : [];
   const allIds = [...new Set([...matIds, baseId])];
   const lang = getLang();
+  
   document.getElementById('materialsList').innerHTML = `<div class="loading-wrap"><div class="loading-spinner"></div><span>${lang==='tr'?'Fiyatlar yükleniyor...':'Loading prices...'}</span></div>`;
+  
   try {
     const res = await fetch(`${PRICE_API}/api/v2/stats/prices/${allIds.join(',')}.json?locations=${encodeURIComponent(ALL_CITIES)}`);
     const data = await res.json();
@@ -406,10 +549,9 @@ async function loadItemPrices() {
   }
 }
 
-// ─── CRAFTING HESABI ──────────────────────────────────────────
 function calcCrafting() {
   if (!currentItemBase) return;
-  const recipe = RECIPES[currentItemBase];
+  const recipeDef = getRecipeDef();
   const baseId = `T${currentTier}_${currentItemBase}`;
   const lang   = getLang();
   const qty    = parseInt(document.getElementById('craftQty')?.value)||1;
@@ -418,15 +560,20 @@ function calcCrafting() {
   const uf     = (parseFloat(document.getElementById('usageFee')?.value)||3)/100;
   const tax    = (parseFloat(document.getElementById('taxRate')?.value)||8)/100;
 
-  if (!recipe) {
-    document.getElementById('materialsList').innerHTML=`<p style="color:var(--text-muted);font-size:12px">${lang==='tr'?'Bu eşya için reçete henüz eklenmedi.':'No recipe added yet for this item.'}</p>`;
+  if (!recipeDef || !recipeDef.mats) {
+    document.getElementById('materialsList').innerHTML=`<p style="color:var(--text-muted);font-size:12px">${lang==='tr'?'Bu eşya/seviye için reçete bulunamadı.':'No recipe found for this item/tier.'}</p>`;
+    document.getElementById('matTotal').innerHTML='';
+    document.getElementById('sellGrid').innerHTML='';
+    document.getElementById('profitBreakdown').innerHTML='';
+    document.getElementById('profitResult').innerHTML='';
     return;
   }
 
+  const recipeYield = recipeDef.yield || 1;
   let totalMat = 0;
-  const resNames = lang==='tr' ? RES_NAMES_TR : RES_NAMES_EN;
-  const matHtml = recipe.map(m => {
-    const matId = `T${currentTier}_${m.r}`;
+
+  const matHtml = recipeDef.mats.map(m => {
+    const matId = m.id ? m.id : `T${currentTier}_${m.r}`;
     const cheapEntry = getMinPriceCity(matId);
     const cityP = priceCache[matId]?.[craftCity] || cheapEntry.price || 0;
     const effQty = m.q * qty * (1-rr);
@@ -434,10 +581,11 @@ function calcCrafting() {
     totalMat += cost;
     const cheapNote = cheapEntry.city && cheapEntry.city!==craftCity && cheapEntry.price>0
       ? `<span class="mat-cheap">${lang==='tr'?'En ucuz':'Cheapest'}: ${cheapEntry.city}<br>${cheapEntry.price.toLocaleString('tr-TR')}</span>` : '';
+    
     return `<div class="mat-row">
       <img src="${RENDER}/${matId}.png" onerror="this.style.display='none'" style="width:34px;height:34px;border-radius:5px;border:1px solid var(--border)"/>
       <div style="flex:1">
-        <div class="mat-name">${resNames[m.r]||m.r}</div>
+        <div class="mat-name">${getItemName(matId)}</div>
         <div class="mat-qty">${effQty.toFixed(1)} ${lang==='tr'?'adet':'pcs'}</div>
       </div>
       <div style="text-align:right">
@@ -458,6 +606,7 @@ function calcCrafting() {
   const cities=['Caerleon','Bridgewatch','Lymhurst','Martlock','Thetford','Fort Sterling','Brecilien','Black Market'];
   const sellData = cities.map(c=>({city:c,price:priceCache[baseId]?.[c]||0}));
   const best = sellData.filter(x=>x.price>0).sort((a,b)=>b.price-a.price)[0];
+  
   document.getElementById('sellGrid').innerHTML = cities.map(c => {
     const p = priceCache[baseId]?.[c]||0;
     const isBest = best && c===best.city;
@@ -469,28 +618,30 @@ function calcCrafting() {
   }).join('');
 
   // Kâr
-  const sellPrice = (best?.price||0)*qty;
-  const ufAmt = totalMat*uf;
-  const taxAmt = sellPrice*tax;
+  const totalProduced = qty * recipeYield;
+  const sellPrice = (best?.price||0) * totalProduced;
+  const ufAmt = totalMat * uf;
+  const taxAmt = sellPrice * tax;
   const profit = sellPrice - taxAmt - totalMat - ufAmt;
   const pct = totalMat>0?((profit/totalMat)*100).toFixed(1):0;
 
   document.getElementById('profitBreakdown').innerHTML = `
-    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Malzeme maliyeti':'Material cost'}</span><span class="pb-val cost">−${Math.round(totalMat).toLocaleString('tr-TR')}</span></div>
-    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Kullanım ücreti':'Usage fee'} (%${(uf*100).toFixed(0)})</span><span class="pb-val fee">−${Math.round(ufAmt).toLocaleString('tr-TR')}</span></div>
-    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Satış geliri':'Sell revenue'}${best?' ('+best.city+')':''}</span><span class="pb-val earn">+${Math.round(sellPrice).toLocaleString('tr-TR')}</span></div>
-    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Vergi':'Tax'} (%${(tax*100).toFixed(0)})</span><span class="pb-val fee">−${Math.round(taxAmt).toLocaleString('tr-TR')}</span></div>`;
+    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Malzeme maliyeti':'Material cost'}</span><span class="pb-val cost\">−${Math.round(totalMat).toLocaleString('tr-TR')}</span></div>
+    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Kullanım ücreti':'Usage fee'} (%${(uf*100).toFixed(0)})</span><span class="pb-val fee\">−${Math.round(ufAmt).toLocaleString('tr-TR')}</span></div>
+    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Satış geliri':'Sell revenue'}${best?' ('+best.city+')':''}</span><span class="pb-val earn\">+${Math.round(sellPrice).toLocaleString('tr-TR')}</span></div>
+    <div class="pb-row"><span class="pb-label">${lang==='tr'?'Vergi':'Tax'} (%${(tax*100).toFixed(0)})</span><span class="pb-val fee\">−${Math.round(taxAmt).toLocaleString('tr-TR')}</span></div>`;
 
   document.getElementById('profitResult').innerHTML = `
     <div class="profit-box ${profit>=0?'pos':'neg'}">
       <div>
-        <div class="pb-meta">${lang==='tr'?'NET KÂR':'NET PROFIT'} (${qty} ${lang==='tr'?'adet':'pcs'})</div>
+        <div class="pb-meta">${lang==='tr'?'NET KÂR':'NET PROFIT'} (${totalProduced} ${lang==='tr'?'adet':'pcs'})</div>
         <div class="pb-pct">%${pct} ${lang==='tr'?'getiri':'return'} · ${best?best.city:'—'}'${lang==='tr'?'de':'in'} sat</div>
       </div>
       <div class="pb-amount ${profit>=0?'pos':'neg'}">${profit>=0?'+':''}${Math.round(profit).toLocaleString('tr-TR')}</div>
     </div>`;
 }
 
+// ─── DİĞER MODÜLLER BURADAN İTİBAREN AYNIDIR ───
 // ─── REFİNİNG ─────────────────────────────────────────────────
 async function loadRefiningPrices() {
   const ids=[];
@@ -598,13 +749,7 @@ function renderFarmRanking() {
     </div>`).join('');
 }
 
-// ─── YARDIMCILAR ──────────────────────────────────────────────
-function getMinPrice(id){ const p=priceCache[id]; if(!p) return 0; const v=Object.values(p).filter(x=>x>0); return v.length?Math.min(...v):0; }
-function getMinPriceCity(id){ const p=priceCache[id]; if(!p) return {price:0,city:null}; const e=Object.entries(p).filter(([,v])=>v>0).sort((a,b)=>a[1]-b[1]); return e.length?{price:e[0][1],city:e[0][0]}:{price:0,city:null}; }
-
-// ══════════════════════════════════════════════════════
-// TRANSPORT MODÜLÜ
-// ══════════════════════════════════════════════════════
+// ─── TRANSPORT MODÜLÜ ─────────────────────────────────────────
 let transportItemBase = null;
 let transportData = {};
 
@@ -694,7 +839,6 @@ function calcTransport() {
 }
 
 async function calcTransportRoutes() {
-  // En iyi rotaları tüm items-data üzerinde hesapla (top 10 bag, sword, bow...)
   const el = document.getElementById('transportRoutes');
   const topItems = (window.AO_ITEMS||[]).filter(i=>['bag','sword','bow','axe','hammer'].includes(i.cat)).slice(0,20);
   const ids = topItems.flatMap(i=>[4,5,6,7,8].filter(t=>i.tiers.includes(t)).map(t=>`T${t}_${i.id}`));
@@ -732,9 +876,7 @@ async function calcTransportRoutes() {
   } catch(e) { el.innerHTML = '<p style="color:var(--text-muted);font-size:12px">Yüklenemedi</p>'; }
 }
 
-// ══════════════════════════════════════════════════════
-// JOURNAL MODÜLÜ
-// ══════════════════════════════════════════════════════
+// ─── JOURNAL MODÜLÜ ───────────────────────────────────────────
 const JOURNAL_TYPES = [
   {id:'JOURNAL_HUNTER',    tr:'Avcı Günlüğü',       en:'Hunter Journal'},
   {id:'JOURNAL_CRAFTSMAN', tr:'Craftçı Günlüğü',    en:'Craftsman Journal'},
@@ -813,9 +955,7 @@ function renderJournalCompare() {
   </tr>`).join('');
 }
 
-// ══════════════════════════════════════════════════════
-// BLACK MARKET MODÜLÜ
-// ══════════════════════════════════════════════════════
+// ─── BLACK MARKET MODÜLÜ ──────────────────────────────────────
 const BM_ITEMS = (window.AO_ITEMS||[]).filter(i=>
   ['sword','axe','bow','hammer','spear','dagger','qstaff','mace','fire','frost','arcane','holy','nature','curse',
    'lhelmet','larmor','lshoes','phelmet','parmor','pshoes','chelmet','carmor','cshoes','bag'].includes(i.cat)
@@ -838,9 +978,7 @@ async function loadBMData() {
   );
 
   try {
-    // Şehir fiyatları
     const cityUrl = `${PRICE_API}/api/v2/stats/prices/${ids.slice(0,60).join(',')}.json?locations=Caerleon,Bridgewatch,Lymhurst,Martlock,Thetford,Fort Sterling`;
-    // BM alış emirleri
     const bmUrl   = `${PRICE_API}/api/v2/stats/prices/${ids.slice(0,60).join(',')}.json?locations=Black Market`;
 
     const [cityRes, bmRes] = await Promise.all([fetch(cityUrl), fetch(bmUrl)]);
@@ -906,24 +1044,3 @@ function renderBMTable(cityPrices, bmPrices) {
     <td class="bm-profit-pos">%${f.pct}</td>
   </tr>`).join('');
 }
-
-// ══════════════════════════════════════════════════════
-// MODÜL GEÇİŞ — GÜNCELLENDİ
-// ══════════════════════════════════════════════════════
-function switchModule(mod, btn) {
-  document.querySelectorAll('.module-content').forEach(el => el.style.display='none');
-  document.querySelectorAll('.mod-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('mod-'+mod).style.display = 'block';
-  if (btn) btn.classList.add('active');
-  if (mod === 'refining')    loadRefiningPrices();
-  if (mod === 'farming')     loadFarmingPrices();
-  if (mod === 'transport')   calcTransportRoutes();
-  if (mod === 'journal')     loadJournalPrices();
-  if (mod === 'blackmarket') loadBMData();
-}
-
-// Dışarı tıklayınca transport dropdown kapat
-document.addEventListener('click', e => {
-  if (!e.target.closest('.transport-search-wrap'))
-    document.getElementById('transportDropdown')?.classList.remove('open');
-});
