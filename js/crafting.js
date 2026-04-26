@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('craftingApp');
   if (!container) return;
 
-  // Add the top tabs and dynamic content area
   container.innerHTML = `
     <div class="flex flex-col md:flex-row gap-2 mb-6 bg-albion-800 p-2 rounded-lg border border-gray-700 w-full md:w-max mx-auto md:mx-0 shadow-lg shrink-0">
       <button id="tabBtnRoyal" class="flex-1 md:flex-none px-6 py-2 bg-albion-accent text-black font-bold rounded shadow-md transition-colors flex items-center justify-center">
@@ -287,134 +286,39 @@ document.addEventListener('DOMContentLoaded', () => {
   // RENDER CANLI CRAFT HESAPLAYICI (DİNAMİK AO_ITEMS ENTEGRASYONU)
   let ALL_CRAFT_RECIPES = {};
   
-  const RECIPE_RULES = [
-    { match: /ARMOR_PLATE/, main: "METALBAR", mainQty: 16 },
-    { match: /HEAD_PLATE/, main: "METALBAR", mainQty: 8 },
-    { match: /SHOES_PLATE/, main: "METALBAR", mainQty: 8 },
-    { match: /ARMOR_LEATHER/, main: "LEATHER", mainQty: 16 },
-    { match: /HEAD_LEATHER/, main: "LEATHER", mainQty: 8 },
-    { match: /SHOES_LEATHER/, main: "LEATHER", mainQty: 8 },
-    { match: /ARMOR_CLOTH/, main: "CLOTH", mainQty: 16 },
-    { match: /HEAD_CLOTH/, main: "CLOTH", mainQty: 8 },
-    { match: /SHOES_CLOTH/, main: "CLOTH", mainQty: 8 },
-    { match: /OFF_SHIELD/, main: "METALBAR", mainQty: 4, sub: "PLANKS", subQty: 4 },
-    { match: /OFF_TOWERSHIELD/, main: "METALBAR", mainQty: 4, sub: "PLANKS", subQty: 4 },
-    { match: /OFF_SPIKEDSHIELD/, main: "METALBAR", mainQty: 4, sub: "PLANKS", subQty: 4 },
-    { match: /OFF_BOOK/, main: "LEATHER", mainQty: 4, sub: "CLOTH", subQty: 4 },
-    { match: /OFF_ORB/, main: "LEATHER", mainQty: 4, sub: "CLOTH", subQty: 4 },
-    { match: /OFF_DEMONSKULL/, main: "LEATHER", mainQty: 4, sub: "CLOTH", subQty: 4 },
-    { match: /OFF_TOTEM/, main: "LEATHER", mainQty: 4, sub: "CLOTH", subQty: 4 },
-    { match: /OFF_CENSER/, main: "LEATHER", mainQty: 4, sub: "CLOTH", subQty: 4 },
-    { match: /OFF_TOME/, main: "LEATHER", mainQty: 4, sub: "CLOTH", subQty: 4 },
-    { match: /OFF_TORCH/, main: "PLANKS", mainQty: 4, sub: "LEATHER", subQty: 4 },
-    { match: /OFF_HORN/, main: "PLANKS", mainQty: 4, sub: "LEATHER", subQty: 4 },
-    { match: /OFF_TALISMAN/, main: "PLANKS", mainQty: 4, sub: "LEATHER", subQty: 4 },
-    { match: /OFF_LAMP/, main: "PLANKS", mainQty: 4, sub: "LEATHER", subQty: 4 },
-    { match: /OFF_JESTERCANE/, main: "PLANKS", mainQty: 4, sub: "LEATHER", subQty: 4 },
-    { match: /MAIN_SWORD/, main: "METALBAR", mainQty: 16, sub: "LEATHER", subQty: 8 },
-    { match: /MAIN_SCIMITAR/, main: "METALBAR", mainQty: 16, sub: "LEATHER", subQty: 8 },
-    { match: /MAIN_RAPIER/, main: "METALBAR", mainQty: 16, sub: "LEATHER", subQty: 8 },
-    { match: /2H_CLAYMORE/, main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_DUALSWORD/, main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_CLEAVER/, main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_DUALSCIMITAR/, main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /MAIN_AXE/, main: "PLANKS", mainQty: 16, sub: "METALBAR", subQty: 8 },
-    { match: /2H_AXE/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_HALBERD/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_SCYTHE/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_DUALAXE/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /MAIN_MACE/, main: "METALBAR", mainQty: 16, sub: "CLOTH", subQty: 8 },
-    { match: /MAIN_ROCKMACE/, main: "METALBAR", mainQty: 16, sub: "CLOTH", subQty: 8 },
-    { match: /2H_MACE/, main: "METALBAR", mainQty: 20, sub: "CLOTH", subQty: 12 },
-    { match: /2H_FLAIL/, main: "METALBAR", mainQty: 20, sub: "CLOTH", subQty: 12 },
-    { match: /2H_DUALMACE/, main: "METALBAR", mainQty: 20, sub: "CLOTH", subQty: 12 },
-    { match: /MAIN_HAMMER/, main: "METALBAR", mainQty: 16, sub: "PLANKS", subQty: 8 },
-    { match: /2H_POLEHAMMER/, main: "METALBAR", mainQty: 20, sub: "PLANKS", subQty: 12 },
-    { match: /2H_HAMMER/, main: "METALBAR", mainQty: 20, sub: "PLANKS", subQty: 12 },
-    { match: /2H_DUALHAMMER/, main: "METALBAR", mainQty: 20, sub: "PLANKS", subQty: 12 },
-    { match: /2H_RAM/, main: "METALBAR", mainQty: 20, sub: "PLANKS", subQty: 12 },
-    { match: /MAIN_SPEAR/, main: "PLANKS", mainQty: 16, sub: "METALBAR", subQty: 8 },
-    { match: /2H_SPEAR/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_GLAIVE/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_HARPOON/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_TRIDENT/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /MAIN_DAGGER/, main: "METALBAR", mainQty: 16, sub: "LEATHER", subQty: 8 },
-    { match: /2H_DAGGER/, main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_CLAW/, main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_DUALSICKLE/, main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_QUARTERSTAFF/, main: "LEATHER", mainQty: 20, sub: "PLANKS", subQty: 12 },
-    { match: /2H_IRONCLADEDSTAFF/, main: "LEATHER", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_DOUBLEBLADEDSTAFF/, main: "LEATHER", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_COMBATSTAFF/, main: "LEATHER", mainQty: 20, sub: "PLANKS", subQty: 12 },
-    { match: /2H_TWINSCYTHE/, main: "LEATHER", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_ROCKSTAFF/, main: "LEATHER", mainQty: 20, sub: "PLANKS", subQty: 12 },
-    { match: /2H_BOW/, main: "PLANKS", mainQty: 32 },
-    { match: /2H_WARBOW/, main: "PLANKS", mainQty: 32 },
-    { match: /2H_LONGBOW/, main: "PLANKS", mainQty: 32 },
-    { match: /MAIN_1HCROSSBOW/, main: "PLANKS", mainQty: 16, sub: "METALBAR", subQty: 8 },
-    { match: /2H_CROSSBOW/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_REPEATINGCROSSBOW/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_DUALCROSSBOW/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /MAIN_CURSEDSTAFF/, main: "PLANKS", mainQty: 16, sub: "METALBAR", subQty: 8 },
-    { match: /2H_CURSEDSTAFF/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_DEMONICSTAFF/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_SKULLORB/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /MAIN_FIRESTAFF/, main: "PLANKS", mainQty: 16, sub: "METALBAR", subQty: 8 },
-    { match: /2H_FIRESTAFF/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_INFERNOSTAFF/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_FIRE_RINGPAIR/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /MAIN_FROSTSTAFF/, main: "PLANKS", mainQty: 16, sub: "LEATHER", subQty: 8 },
-    { match: /2H_FROSTSTAFF/, main: "PLANKS", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_GLACIALSTAFF/, main: "PLANKS", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_ICEGAUNTLETS/, main: "PLANKS", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /2H_ICECRYSTAL/, main: "PLANKS", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    { match: /MAIN_ARCANESTAFF/, main: "PLANKS", mainQty: 16, sub: "METALBAR", subQty: 8 },
-    { match: /2H_ARCANESTAFF/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_ENIGMATICSTAFF/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_ENIGMATICORB/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_ARCANE_RINGPAIR/, main: "PLANKS", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /MAIN_HOLYSTAFF/, main: "PLANKS", mainQty: 16, sub: "CLOTH", subQty: 8 },
-    { match: /2H_HOLYSTAFF/, main: "PLANKS", mainQty: 20, sub: "CLOTH", subQty: 12 },
-    { match: /2H_DIVINESTAFF/, main: "PLANKS", mainQty: 20, sub: "CLOTH", subQty: 12 },
-    { match: /MAIN_NATURESTAFF/, main: "PLANKS", mainQty: 16, sub: "CLOTH", subQty: 8 },
-    { match: /2H_NATURESTAFF/, main: "PLANKS", mainQty: 20, sub: "CLOTH", subQty: 12 },
-    { match: /2H_WILDSTAFF/, main: "PLANKS", mainQty: 20, sub: "CLOTH", subQty: 12 },
-    { match: /2H_KNUCKLES/, main: "LEATHER", mainQty: 20, sub: "METALBAR", subQty: 12 },
-    { match: /2H_SHAPESHIFTER/, main: "PLANKS", mainQty: 20, sub: "LEATHER", subQty: 12 }
-  ];
+  // Use global RECIPES from crafting-new.js if available
+  const R_DB = typeof RECIPES !== 'undefined' ? RECIPES : {};
 
-  if (window.AO_ITEMS) {
-    const validCats = ['sword','axe','mace','hammer','spear','bow','crossbow','nature','holy','fire','frost','arcane','curse','dagger','qstaff','knuckles','shape','phelmet','parmor','pshoes','lhelmet','larmor','lshoes','chelmet','carmor','cshoes','offhand'];
+  if (window.AO_ITEMS && Object.keys(R_DB).length > 0) {
+    const validCats = ['sword','axe','mace','hammer','spear','bow','crossbow','nature','holy','fire','frost','arcane','curse','dagger','qstaff','knuckles','shape','phelmet','parmor','pshoes','lhelmet','larmor','lshoes','chelmet','carmor','cshoes','offhand', 'bag', 'cape', 'gatherer', 'mount', 'food', 'potion'];
     
     window.AO_ITEMS.forEach(item => {
-      // Enchanted (@) varyasyonları atlayalım. Base id'lerde zaten yoktur ama emin olmak için.
-      if (item.id.includes('@')) return;
+      // Fix missing categories safely for UI builder
+      if (item.id.startsWith('MOUNT_')) item.cat = 'mount';
+      else if (item.id.startsWith('MEAL_')) item.cat = 'food';
+      else if (item.id.startsWith('POTION_')) item.cat = 'potion';
+      else if (item.id.includes('CAPE')) item.cat = 'cape';
+      else if (item.id.includes('BAG') || item.id === 'SATCHEL_OF_INSIGHT') item.cat = 'bag';
+      else if (item.id.includes('_GATHERER_')) item.cat = 'gatherer';
 
-      // Exclude tokens, artifacts, and debug/garbage items
-      if (item.id.includes('ARTEFACT') || item.id.includes('TREASURE') || item.id.includes('UNIQUE')) return;
+      if (item.id.includes('@') || item.id.includes('ARTEFACT') || item.id.includes('TREASURE') || item.id.includes('UNIQUE')) return;
       if (item.id.includes('PROTOTYPE') || item.id.includes('DEBUG') || item.id.includes('NON_TRADABLE') || item.en === item.id) return;
 
       if (validCats.includes(item.cat)) {
-        // Eşya datası base ID şeklindedir (örn: MAIN_SWORD)
         const baseId = item.id;
-        let rule = RECIPE_RULES.find(r => r.match.test(baseId));
-        if (rule) {
+        if (R_DB[baseId]) {
           let rawName = item.tr || item.en;
-          // Tüm tier ön eklerini (Acemi, Ehil, Tecrübesiz vb.) temizleyelim ki net eşya adı kalsın.
           let cleanName = rawName.replace(/^(Beginner's|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's|Tecrübesiz|Acemi|Çırak|Kalfa|Ehil|Uzman|Büyük Usta|Usta|Üstat|Yüce)\s+/i, '').trim();
 
           ALL_CRAFT_RECIPES[baseId] = {
             name: cleanName,
             cat: item.cat,
-            main: rule.main,
-            mainQty: rule.mainQty,
-            sub: rule.sub || null,
-            subQty: rule.subQty || 0
+            recipeDef: R_DB[baseId],
+            tiers: item.tiers || [4,5,6,7,8]
           };
           
           const artId = "ARTEFACT_" + baseId;
-          const hasArtifact = window.AO_ITEMS.some(i => i.id === artId);
-          if (hasArtifact) {
+          if (window.AO_ITEMS.some(i => i.id === artId)) {
             ALL_CRAFT_RECIPES[baseId].art = artId;
           }
         }
@@ -422,42 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Güvenlik amaçlı Fallback (eğer liste yüklenmezse)
-  if (Object.keys(ALL_CRAFT_RECIPES).length === 0) {
-    ALL_CRAFT_RECIPES = {
-      "MAIN_SWORD": { name: "Geniş Kılıç", cat: "sword", main: "METALBAR", mainQty: 16, sub: "LEATHER", subQty: 8 },
-      "2H_CLAYMORE": { name: "Çift Elli Kılıç", cat: "sword", main: "METALBAR", mainQty: 20, sub: "LEATHER", subQty: 12 },
-    };
-  }
-
   const GROUP_MAP = {
-      sword: "Silahlar - Kılıçlar", 
-      axe: "Silahlar - Baltalar", 
-      mace: "Silahlar - Gürzler", 
-      hammer: "Silahlar - Çekiçler", 
-      spear: "Silahlar - Mızraklar", 
-      bow: "Silahlar - Yaylar", 
-      crossbow: "Silahlar - Arbaletler",
-      dagger: "Silahlar - Hançerler", 
-      qstaff: "Silahlar - Sopalar", 
-      knuckles: "Silahlar - Savaş Eldivenleri", 
-      nature: "Büyü Asaları - Doğa", 
-      holy: "Büyü Asaları - Kutsal", 
-      fire: "Büyü Asaları - Ateş", 
-      frost: "Büyü Asaları - Buz", 
-      arcane: "Büyü Asaları - Arkana", 
-      curse: "Büyü Asaları - Lanetli", 
-      shape: "Büyü Asaları - Şekil Değiştiren", 
-      phelmet: "Zırhlar - Plaka Set", 
-      parmor: "Zırhlar - Plaka Set", 
-      pshoes: "Zırhlar - Plaka Set", 
-      lhelmet: "Zırhlar - Deri Set", 
-      larmor: "Zırhlar - Deri Set", 
-      lshoes: "Zırhlar - Deri Set", 
-      chelmet: "Zırhlar - Kumaş Set", 
-      carmor: "Zırhlar - Kumaş Set", 
-      cshoes: "Zırhlar - Kumaş Set", 
-      offhand: "İkincil Eşyalar (Off-Hand)"
+      sword: "Silahlar - Kılıçlar", axe: "Silahlar - Baltalar", mace: "Silahlar - Gürzler", hammer: "Silahlar - Çekiçler", spear: "Silahlar - Mızraklar", bow: "Silahlar - Yaylar", crossbow: "Silahlar - Arbaletler", dagger: "Silahlar - Hançerler", qstaff: "Silahlar - Sopalar", knuckles: "Silahlar - Savaş Eldivenleri", nature: "Büyü Asaları - Doğa", holy: "Büyü Asaları - Kutsal", fire: "Büyü Asaları - Ateş", frost: "Büyü Asaları - Buz", arcane: "Büyü Asaları - Arkana", curse: "Büyü Asaları - Lanetli", shape: "Büyü Asaları - Şekil Değiştiren", phelmet: "Zırhlar - Plaka Set", parmor: "Zırhlar - Plaka Set", pshoes: "Zırhlar - Plaka Set", lhelmet: "Zırhlar - Deri Set", larmor: "Zırhlar - Deri Set", lshoes: "Zırhlar - Deri Set", chelmet: "Zırhlar - Kumaş Set", carmor: "Zırhlar - Kumaş Set", cshoes: "Zırhlar - Kumaş Set", offhand: "İkincil Eşyalar (Off-Hand)",
+      bag: "Aksesuarlar - Çantalar", cape: "Aksesuarlar - Pelerinler", gatherer: "Toplayıcı Setleri", mount: "Binekler", food: "Yemekler", potion: "İksirler"
   };
 
   const superGroups = {};
@@ -468,11 +339,13 @@ document.addEventListener('DOMContentLoaded', () => {
       superGroups[groupName].push({ id, ...ALL_CRAFT_RECIPES[id] });
   });
 
-  const MAT_NAMES = { "METALBAR": "Metal Külçe", "LEATHER": "İşlenmiş Deri", "CLOTH": "Kumaş", "PLANKS": "Kalas (Ahşap)" };
-
-  function getMatId(baseMat, tier, enchant) {
-    if (enchant == 0) return `T${tier}_${baseMat}`;
-    return `T${tier}_${baseMat}_LEVEL${enchant}`;
+  function getLang() { return localStorage.getItem('aot-lang') || 'tr'; }
+  function getItemName(fullId) {
+    const baseId = fullId.replace(/^T\d_/, '').replace(/@\d$/, '').replace(/_LEVEL\d$/, '');
+    const item = (window.AO_ITEMS||[]).find(i => i.id === baseId || i.id === fullId);
+    if (item) return getLang() === 'tr' ? (item.tr || item.en) : item.en;
+    const fallbackTR = { PLANKS:'Kalas', METALBAR:'Metal Külçe', CLOTH:'Kumaş', LEATHER:'İşl. Deri', STONEBLOCK:'Taş Blok', WOOD:'Odun', ORE:'Maden', FIBER:'Lif', HIDE:'Ham Deri', ROCK:'Taş' };
+    return fallbackTR[baseId] || baseId;
   }
   function getItemId(baseItem, tier, enchant) {
     if (enchant == 0) return `T${tier}_${baseItem}`;
@@ -488,11 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const selectOptions = sortedGroupKeys.map(groupName => {
         let html = `<optgroup label="${groupName}">`;
-        
         superGroups[groupName].sort((a,b) => {
             const typeWeightA = a.cat.includes('armor') ? 1 : (a.cat.includes('helmet') ? 2 : 3);
             const typeWeightB = b.cat.includes('armor') ? 1 : (b.cat.includes('helmet') ? 2 : 3);
-            
             if (typeWeightA !== typeWeightB && a.cat !== b.cat) return typeWeightA - typeWeightB;
             return a.name.localeCompare(b.name);
         }).forEach(item => {
@@ -509,10 +380,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3 class="text-xl font-black text-albion-accent border-b border-gray-700 pb-3 flex items-center"><i class="fa-solid fa-hammer mr-2"></i> Eşya Seçimi</h3>
             
             <div>
-               <label class="block text-xs font-bold text-gray-400 mb-1">Eşya Tipi</label>
-               <select id="calcItemType" class="w-full bg-albion-900 border border-gray-600 rounded p-2.5 text-white outline-none focus:border-albion-accent transition-colors custom-scroll">
-                 ${selectOptions}
-               </select>
+               <label class="block text-xs font-bold text-gray-400 mb-1">Eşya Tipi (Görselli Seçim)</label>
+               <div class="flex items-center gap-3">
+                 <div id="calcItemPreview" class="w-12 h-12 bg-black/50 border border-gray-600 rounded flex-shrink-0 flex items-center justify-center p-1 shadow-inner">
+                   <i class="fa-solid fa-box text-2xl text-gray-500"></i>
+                 </div>
+                 <select id="calcItemType" class="w-full bg-albion-900 border border-gray-600 rounded p-2.5 text-white outline-none focus:border-albion-accent transition-colors custom-scroll">
+                   ${selectOptions}
+                 </select>
+               </div>
             </div>
 
             <div class="flex gap-3">
@@ -609,7 +485,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // UI Elements
     const selType = document.getElementById('calcItemType');
     const selTier = document.getElementById('calcItemTier');
     const selEnchant = document.getElementById('calcItemEnchant');
@@ -618,58 +493,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnFetch = document.getElementById('calcBtnFetch');
     const matsContainer = document.getElementById('calcMatsContainer');
     
-    // State variables
-    let currentMat1Id = '';
-    let currentMat2Id = '';
+    let currentMats = [];
     let currentArtId = '';
     let currentItemId = '';
-    let currentMainQty = 0;
-    let currentSubQty = 0;
+    let currentYield = 1;
 
     async function updateLayout() {
       const typeKey = selType.value;
-      const tier = selTier.value;
-      const ench = selEnchant.value;
-      const recipe = ALL_CRAFT_RECIPES[typeKey];
+      const itemData = ALL_CRAFT_RECIPES[typeKey];
+      if (!itemData) return;
 
-      currentMainQty = recipe.mainQty;
-      currentSubQty = recipe.subQty;
+      const availableTiers = itemData.tiers || [4,5,6,7,8];
+      let tier = parseInt(selTier.value);
+      if (!availableTiers.includes(tier)) {
+         tier = availableTiers[0];
+      }
+      selTier.innerHTML = availableTiers.map(t => `<option value="${t}" ${t===tier?'selected':''}>T${t}</option>`).join('');
+      
+      const ench = parseInt(selEnchant.value);
 
-      currentMat1Id = getMatId(recipe.main, tier, ench);
-      let htmlContent = `
-        <div class="flex items-center justify-between bg-black/40 border border-gray-700 p-3 rounded-lg hover:border-gray-500 transition-colors">
-          <div class="flex items-center gap-4 w-1/2">
-            <div class="w-12 h-12 bg-gray-800 rounded shadow-inner flex items-center justify-center p-1 border border-gray-700">${await window.createItemImage(currentMat1Id, {size: 64})}</div>
-            <div class="flex flex-col">
-              <span class="font-bold text-sm text-gray-300">${MAT_NAMES[recipe.main]} (T${tier}.${ench})</span>
-              <span class="text-xs text-gray-500">Miktar: <span class="text-albion-accent font-bold">${currentMainQty}</span></span>
-            </div>
-          </div>
-          <div class="w-1/3 flex flex-col gap-1 items-end">
-            <div class="flex items-center gap-2 w-full">
-              <input type="number" id="priceMat1" class="calc-input w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white text-right focus:border-albion-accent outline-none" value="0">
-              <i class="fa-solid fa-coins text-yellow-500 text-sm"></i>
-            </div>
-            <span class="text-[10px] text-gray-500">Birim Alış Fiyatı</span>
-          </div>
-        </div>
-      `;
+      const rDef = itemData.recipeDef;
+      const def = rDef[tier] || rDef['default'];
 
-      currentMat2Id = '';
-      if (recipe.sub) {
-        currentMat2Id = getMatId(recipe.sub, tier, ench);
+      if (!def) {
+          matsContainer.innerHTML = `<div class="p-4 text-red-400">Bu tier için reçete bulunamadı.</div>`;
+          return;
+      }
+
+      currentYield = def.yield || 1;
+      currentMats = [];
+      currentItemId = getItemId(typeKey, tier, ench);
+      
+      const previewEl = document.getElementById('calcItemPreview');
+      if (previewEl) {
+         previewEl.innerHTML = await window.createItemImage(currentItemId, {size: 48});
+      }
+      
+      let htmlContent = '';
+
+      for (let i = 0; i < def.mats.length; i++) {
+        const m = def.mats[i];
+        const matId = m.id ? m.id : `T${tier}_${m.r}${ench > 0 && !m.r.includes('FARM') ? '_LEVEL' + ench : ''}`;
+        currentMats.push({ id: matId, q: m.q });
+
         htmlContent += `
           <div class="flex items-center justify-between bg-black/40 border border-gray-700 p-3 rounded-lg hover:border-gray-500 transition-colors">
             <div class="flex items-center gap-4 w-1/2">
-              <div class="w-12 h-12 bg-gray-800 rounded shadow-inner flex items-center justify-center p-1 border border-gray-700">${await window.createItemImage(currentMat2Id, {size: 64})}</div>
+              <div class="w-12 h-12 bg-gray-800 rounded shadow-inner flex items-center justify-center p-1 border border-gray-700">${await window.createItemImage(matId, {size: 64})}</div>
               <div class="flex flex-col">
-                <span class="font-bold text-sm text-gray-300">${MAT_NAMES[recipe.sub]} (T${tier}.${ench})</span>
-                <span class="text-xs text-gray-500">Miktar: <span class="text-albion-accent font-bold">${currentSubQty}</span></span>
+                <span class="font-bold text-sm text-gray-300">${getItemName(matId)} (T${tier}.${ench})</span>
+                <span class="text-xs text-gray-500">Miktar: <span class="text-albion-accent font-bold">${m.q}</span></span>
               </div>
             </div>
             <div class="w-1/3 flex flex-col gap-1 items-end">
               <div class="flex items-center gap-2 w-full">
-                <input type="number" id="priceMat2" class="calc-input w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white text-right focus:border-albion-accent outline-none" value="0">
+                <input type="number" id="priceMat${i}" class="calc-mat-input w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white text-right focus:border-albion-accent outline-none" value="0">
                 <i class="fa-solid fa-coins text-yellow-500 text-sm"></i>
               </div>
               <span class="text-[10px] text-gray-500">Birim Alış Fiyatı</span>
@@ -679,12 +557,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       currentArtId = '';
-      if (recipe.art) {
-        currentArtId = `T${tier}_${recipe.art}`;
-        // Find turkish name for artifact if available
-        let artObj = window.AO_ITEMS.find(i => i.id === recipe.art);
-        let artName = artObj ? (artObj.tr || artObj.en) : "Artifact";
-        let cleanArtName = artName.replace(/^(Beginner's|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's|Tecrübesiz|Acemi|Çırak|Kalfa|Ehil|Uzman|Büyük Usta|Usta|Üstat|Yüce)\s+/i, '').trim();
+      if (itemData.art) {
+        currentArtId = `T${tier}_${itemData.art}`;
+        let cleanArtName = getItemName(currentArtId).replace(/^(Beginner's|Novice's|Journeyman's|Adept's|Expert's|Master's|Grandmaster's|Elder's|Tecrübesiz|Acemi|Çırak|Kalfa|Ehil|Uzman|Büyük Usta|Usta|Üstat|Yüce)\s+/i, '').trim();
 
         htmlContent += `
           <div class="flex items-center justify-between bg-purple-900/20 border border-purple-800/50 p-3 rounded-lg hover:border-purple-500 transition-colors">
@@ -697,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="w-1/3 flex flex-col gap-1 items-end">
               <div class="flex items-center gap-2 w-full">
-                <input type="number" id="priceArt" class="calc-input w-full bg-gray-800 border border-purple-600 rounded px-3 py-1.5 text-sm text-white text-right focus:border-purple-400 outline-none" value="0">
+                <input type="number" id="priceArt" class="calc-art-input w-full bg-gray-800 border border-purple-600 rounded px-3 py-1.5 text-sm text-white text-right focus:border-purple-400 outline-none" value="0">
                 <i class="fa-solid fa-coins text-yellow-500 text-sm"></i>
               </div>
               <span class="text-[10px] text-gray-500">Birim Alış Fiyatı</span>
@@ -706,19 +581,18 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
 
-      currentItemId = getItemId(typeKey, tier, ench);
       htmlContent += `
         <div class="flex items-center justify-between bg-albion-900 border border-albion-700 p-3 rounded-lg mt-4 shadow-lg">
           <div class="flex items-center gap-4 w-1/2">
             <div class="w-14 h-14 bg-black/50 rounded shadow-inner flex items-center justify-center p-1 border border-albion-accent">${await window.createItemImage(currentItemId, {size: 64})}</div>
             <div class="flex flex-col">
-              <span class="font-black text-base text-white">${recipe.name} (T${tier}.${ench})</span>
-              <span class="text-[10px] bg-green-900/40 text-green-400 px-2 py-0.5 rounded border border-green-700/50 w-max mt-1 font-bold">Üretilen Eşya</span>
+              <span class="font-black text-base text-white">${itemData.name} (T${tier}.${ench})</span>
+              <span class="text-[10px] bg-green-900/40 text-green-400 px-2 py-0.5 rounded border border-green-700/50 w-max mt-1 font-bold">Üretilen Eşya (Çıktı: ${currentYield})</span>
             </div>
           </div>
           <div class="w-1/3 flex flex-col gap-1 items-end">
             <div class="flex items-center gap-2 w-full">
-              <input type="number" id="priceItem" class="calc-input w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-base font-bold text-white text-right focus:border-green-400 outline-none" value="0">
+              <input type="number" id="priceItem" class="calc-item-input w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-base font-bold text-white text-right focus:border-green-400 outline-none" value="0">
               <i class="fa-solid fa-coins text-yellow-500 text-sm"></i>
             </div>
             <span class="text-[10px] text-gray-500">Piyasa Satış Fiyatı</span>
@@ -728,33 +602,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
       matsContainer.innerHTML = htmlContent;
 
-      document.querySelectorAll('.calc-input, #calcBatchAmount').forEach(inp => {
+      document.querySelectorAll('.calc-mat-input, .calc-art-input, .calc-item-input, #calcBatchAmount').forEach(inp => {
         inp.addEventListener('input', calculateProfit);
       });
       calculateProfit();
     }
 
     function calculateProfit() {
-      const p1 = parseFloat(document.getElementById('priceMat1')?.value || 0);
-      const p2 = parseFloat(document.getElementById('priceMat2')?.value || 0);
-      const pArt = parseFloat(document.getElementById('priceArt')?.value || 0);
       const pItem = parseFloat(document.getElementById('priceItem')?.value || 0);
+      const pArt = parseFloat(document.getElementById('priceArt')?.value || 0);
       
       const rrr = parseFloat(selBonus.value) / 100;
       const tax = parseFloat(inputTax.value) || 0;
       const batch = parseInt(document.getElementById('calcBatchAmount')?.value || 1);
       const marketTax = 0.065;
 
-      const effectiveMat1 = currentMainQty * (1 - rrr);
-      const effectiveMat2 = currentSubQty * (1 - rrr);
+      let totalMatCostForOne = 0;
+      for (let i = 0; i < currentMats.length; i++) {
+         const matPrice = parseFloat(document.getElementById(`priceMat${i}`)?.value || 0);
+         const effectiveQty = currentMats[i].q * (1 - rrr);
+         totalMatCostForOne += matPrice * effectiveQty;
+      }
       const effectiveArt = currentArtId ? 1 * (1 - rrr) : 0;
+      totalMatCostForOne += pArt * effectiveArt;
 
-      const costMat1 = effectiveMat1 * p1;
-      const costMat2 = effectiveMat2 * p2;
-      const costArt = effectiveArt * pArt;
-      
-      const singleCost = costMat1 + costMat2 + costArt + tax;
-      const singleRev = pItem * (1 - marketTax);
+      const singleCost = totalMatCostForOne + tax;
+      const singleRev = pItem * (1 - marketTax) * currentYield;
       const singleProfit = singleRev - singleCost;
 
       const totalCost = singleCost * batch;
@@ -781,7 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
           itemWeight = window.AOT_DATA.weights[currentItemId] || window.AOT_DATA.weights[cleanId] || 3.5;
       }
       
-      const totalWeight = itemWeight * batch;
+      const totalWeight = itemWeight * batch * currentYield;
       document.getElementById('resTotalWeight').innerText = totalWeight.toFixed(1) + " kg";
       
       const mountEl = document.getElementById('resRecommendedMount');
@@ -808,8 +681,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnFetch.disabled = true;
         
         const server = window.getAppServer ? window.getAppServer() : 'europe';
-        let idsToFetch = [currentMat1Id, currentItemId];
-        if (currentMat2Id) idsToFetch.push(currentMat2Id);
+        let idsToFetch = currentMats.map(m => m.id);
+        idsToFetch.push(currentItemId);
         if (currentArtId) idsToFetch.push(currentArtId);
 
         const url = `https://${server}.albion-online-data.com/api/v2/stats/prices/${idsToFetch.join(',')}`;
@@ -833,15 +706,21 @@ document.addEventListener('DOMContentLoaded', () => {
           return best;
         }
 
-        const p1 = getValidPrice(data, currentMat1Id, true);
-        const p2 = currentMat2Id ? getValidPrice(data, currentMat2Id, true) : 0;
-        const pArt = currentArtId ? getValidPrice(data, currentArtId, true) : 0;
-        const pI = getValidPrice(data, currentItemId, true);
+        for (let i = 0; i < currentMats.length; i++) {
+           const p = getValidPrice(data, currentMats[i].id, true);
+           const el = document.getElementById(`priceMat${i}`);
+           if (el) el.value = p;
+        }
 
-        if (document.getElementById('priceMat1')) document.getElementById('priceMat1').value = p1;
-        if (document.getElementById('priceMat2')) document.getElementById('priceMat2').value = p2;
-        if (document.getElementById('priceArt')) document.getElementById('priceArt').value = pArt;
-        if (document.getElementById('priceItem')) document.getElementById('priceItem').value = pI;
+        if (currentArtId) {
+           const p = getValidPrice(data, currentArtId, true);
+           const el = document.getElementById('priceArt');
+           if (el) el.value = p;
+        }
+
+        const pI = getValidPrice(data, currentItemId, true);
+        const elItem = document.getElementById('priceItem');
+        if (elItem) elItem.value = pI;
 
         document.getElementById('calcUpdateStatus').innerText = "Fiyatlar Güncellendi";
         document.getElementById('calcUpdateStatus').parentElement.className = "text-xs bg-green-900/50 text-green-400 px-3 py-1.5 rounded-md border border-green-700/50 flex items-center shadow-inner";
