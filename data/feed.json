@@ -1,20 +1,12 @@
 {
-  "lastUpdate": "2026-04-27T19:43:22.585Z",
+  "lastUpdate": "2026-04-28T03:53:18.213Z",
   "source": "ai-scanner",
   "items": [
     {
       "title": "Farming Etkinliği",
       "type": "event",
       "summary": "Hafta sonu özel farming etkinliği başlıyor.",
-      "date": "2026-04-27T19:43:22.585Z",
-      "url": "https://albiononline.com/news",
-      "aiGenerated": true
-    },
-    {
-      "title": "Market Dalgalanması",
-      "type": "alert",
-      "summary": "Black Market fiyatlarında anormal artış gözlemlendi.",
-      "date": "2026-04-27T18:43:22.585Z",
+      "date": "2026-04-28T03:53:18.212Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -22,7 +14,15 @@
       "title": "Yeni Patch Yayımlandı",
       "type": "update",
       "summary": "Yeni özellikler ve düzeltmeler içeren güncelleme yayınlandı.",
-      "date": "2026-04-27T17:43:22.585Z",
+      "date": "2026-04-28T02:53:18.212Z",
+      "url": "https://albiononline.com/news",
+      "aiGenerated": true
+    },
+    {
+      "title": "Sezon Ödülleri Açıklandı",
+      "type": "news",
+      "summary": "Crystal League yeni sezon ödülleri belli oldu.",
+      "date": "2026-04-28T01:53:18.212Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
