@@ -1,12 +1,20 @@
 {
-  "lastUpdate": "2026-04-28T03:53:18.213Z",
+  "lastUpdate": "2026-04-28T08:36:09.544Z",
   "source": "ai-scanner",
   "items": [
     {
       "title": "Farming Etkinliği",
       "type": "event",
       "summary": "Hafta sonu özel farming etkinliği başlıyor.",
-      "date": "2026-04-28T03:53:18.212Z",
+      "date": "2026-04-28T08:36:09.544Z",
+      "url": "https://albiononline.com/news",
+      "aiGenerated": true
+    },
+    {
+      "title": "Guild Savaşı Sonuçları",
+      "type": "pvp",
+      "summary": "Dün geceki ZvZ savaşlarında 500M+ fame kazanıldı.",
+      "date": "2026-04-28T07:36:09.544Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -14,15 +22,7 @@
       "title": "Yeni Patch Yayımlandı",
       "type": "update",
       "summary": "Yeni özellikler ve düzeltmeler içeren güncelleme yayınlandı.",
-      "date": "2026-04-28T02:53:18.212Z",
-      "url": "https://albiononline.com/news",
-      "aiGenerated": true
-    },
-    {
-      "title": "Sezon Ödülleri Açıklandı",
-      "type": "news",
-      "summary": "Crystal League yeni sezon ödülleri belli oldu.",
-      "date": "2026-04-28T01:53:18.212Z",
+      "date": "2026-04-28T06:36:09.544Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
