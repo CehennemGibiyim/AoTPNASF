@@ -1,20 +1,12 @@
 {
-  "lastUpdate": "2026-05-02T13:37:51.032Z",
+  "lastUpdate": "2026-05-02T19:11:47.761Z",
   "source": "ai-scanner",
   "items": [
     {
-      "title": "Crafting Bonus Günü",
+      "title": "Farming Etkinliği",
       "type": "event",
-      "summary": "Caerleon crafting return rate %50 arttı.",
-      "date": "2026-05-02T13:37:51.031Z",
-      "url": "https://albiononline.com/news",
-      "aiGenerated": true
-    },
-    {
-      "title": "Yeni Patch Yayımlandı",
-      "type": "update",
-      "summary": "Yeni özellikler ve düzeltmeler içeren güncelleme yayınlandı.",
-      "date": "2026-05-02T12:37:51.031Z",
+      "summary": "Hafta sonu özel farming etkinliği başlıyor.",
+      "date": "2026-05-02T19:11:47.761Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -22,7 +14,15 @@
       "title": "Farming Etkinliği",
       "type": "event",
       "summary": "Hafta sonu özel farming etkinliği başlıyor.",
-      "date": "2026-05-02T11:37:51.031Z",
+      "date": "2026-05-02T18:11:47.761Z",
+      "url": "https://albiononline.com/news",
+      "aiGenerated": true
+    },
+    {
+      "title": "Market Dalgalanması",
+      "type": "alert",
+      "summary": "Black Market fiyatlarında anormal artış gözlemlendi.",
+      "date": "2026-05-02T17:11:47.761Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
