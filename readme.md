@@ -303,6 +303,7 @@ AoTPNASF/
 │       └── pvp-fetcher.yml      # PvP veri çekici
 │
 └── generate-translations.py      # Çeviri oluşturma script'i
+
 ```
 
 ## 🔌 API Entegrasyonları
