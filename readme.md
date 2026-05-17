@@ -215,7 +215,8 @@ http://localhost:8000
 
 ## 📁 Proje Yapısı
 
-````
+```
+
 AoTPNASF/
 ├── index.html                    # Ana HTML dosyası
 ├── styles.css                    # Özel CSS ve tema tanımları
