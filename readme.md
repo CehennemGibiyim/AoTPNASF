@@ -202,11 +202,9 @@ http://localhost:8000
 
 ### Veya Direkt Kullanım
 `index.html` dosyasını doğrudan tarayıcınızda açabilirsiniz.
-```
-## 📁 Proje Yapısı
-```
 
-```
+
+``` ## 📁 Proje Yapısı
 AoTPNASF/
 ├── index.html                             # Ana HTML dosyası
 ├── styles.css                             # Özel CSS ve tema tanımları
