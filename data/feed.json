@@ -1,28 +1,28 @@
 {
-  "lastUpdate": "2026-05-16T19:16:17.748Z",
+  "lastUpdate": "2026-05-17T01:58:52.128Z",
   "source": "ai-scanner",
   "items": [
     {
       "title": "Farming Etkinliği",
       "type": "event",
       "summary": "Hafta sonu özel farming etkinliği başlıyor.",
-      "date": "2026-05-16T19:16:17.748Z",
+      "date": "2026-05-17T01:58:52.128Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
     {
-      "title": "Sezon Ödülleri Açıklandı",
-      "type": "news",
-      "summary": "Crystal League yeni sezon ödülleri belli oldu.",
-      "date": "2026-05-16T18:16:17.748Z",
+      "title": "Market Dalgalanması",
+      "type": "alert",
+      "summary": "Black Market fiyatlarında anormal artış gözlemlendi.",
+      "date": "2026-05-17T00:58:52.128Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
     {
-      "title": "Crafting Bonus Günü",
+      "title": "Farming Etkinliği",
       "type": "event",
-      "summary": "Caerleon crafting return rate %50 arttı.",
-      "date": "2026-05-16T17:16:17.748Z",
+      "summary": "Hafta sonu özel farming etkinliği başlıyor.",
+      "date": "2026-05-16T23:58:52.128Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
