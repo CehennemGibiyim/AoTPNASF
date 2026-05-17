@@ -395,5 +395,3 @@ Bu uygulama Albion Online'ın resmi bir parçası değildir. Sandbox Interactive
 ---
 
 **AoT-PNASF** - Albion Online deneyiminizi bir üst seviyeye taşıyın! 🎮✨
-
-```
