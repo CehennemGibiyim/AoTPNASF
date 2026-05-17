@@ -216,7 +216,6 @@ http://localhost:8000
 ## 📁 Proje Yapısı
 
 ```
-
 AoTPNASF/
 ├── index.html                    # Ana HTML dosyası
 ├── styles.css                    # Özel CSS ve tema tanımları
@@ -364,6 +363,8 @@ Ana Sayfa → Arama çubuğuna oyuncu adı yaz
 AI Rehber sekmesi → Kişisel Set
 → Crystal Sword seç → Çift Set Oluştur
 → PvE ve PvP build'lerini görsel olarak kaydet
+```
+
 ---
 
 ## 🌐 Desteklenen Diller
