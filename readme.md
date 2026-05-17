@@ -214,7 +214,6 @@ http://localhost:8000
 `index.html` dosyasını doğrudan tarayıcınızda açabilirsiniz.
 
 ## 📁 Proje Yapısı
-
 ```
 AoTPNASF/
 ├── index.html                    # Ana HTML dosyası
@@ -303,7 +302,6 @@ AoTPNASF/
 │       └── pvp-fetcher.yml      # PvP veri çekici
 │
 └── generate-translations.py      # Çeviri oluşturma script'i
-
 ```
 
 ## 🔌 API Entegrasyonları
