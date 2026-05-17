@@ -203,8 +203,8 @@ http://localhost:8000
 ### Veya Direkt Kullanım
 `index.html` dosyasını doğrudan tarayıcınızda açabilirsiniz.
 ```
-
 ## 📁 Proje Yapısı
+```
 
 ```
 AoTPNASF/
