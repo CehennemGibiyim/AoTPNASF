@@ -192,7 +192,7 @@
 
 1. **Repository'yi Klonlayın**
 ```bash
-git clone https://github.com/KULLANICI_ADINIZ/AoTPNASF.git
+git clone https://github.com/CehennemGibiyim/AoTPNASF.git
 cd AoTPNASF
 ```
 
@@ -214,7 +214,7 @@ http://localhost:8000
 `index.html` dosyasını doğrudan tarayıcınızda açabilirsiniz.
 
 ## 📁 Proje Yapısı
-```
+```bash
 AoTPNASF/
 ├── index.html                    # Ana HTML dosyası
 ├── styles.css                    # Özel CSS ve tema tanımları
