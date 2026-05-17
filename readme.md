@@ -297,6 +297,7 @@ AoTPNASF/
 
 ## 🔌 API Entegrasyonları
 
+
 ### Albion Online Data API
 - **Piyasa Fiyatları**: `/api/v2/stats/prices/`
 - **Altın Fiyatları**: `/api/v2/stats/gold`
