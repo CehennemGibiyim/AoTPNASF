@@ -167,10 +167,10 @@
 - **AI Entegrasyonu**: MiniApps AI API
 - **Görsel Export**: html2canvas
 - **İkonlar**: Font Awesome 6
-- **Veri Kaynakları**: 
-  - Albion Online Data API (Piyasa verileri)
-  - Albion Online Gameinfo API (Oyuncu istatistikleri)
-  - CORS Proxy'ler (Codetabs, corsproxy.io)
+- **Veri Kaynakları**:
+- Albion Online Data API (Piyasa verileri)
+- Albion Online Gameinfo API (Oyuncu istatistikleri)
+- CORS Proxy'ler (Codetabs, corsproxy.io)
 
 ## 📦 Kurulum
 
