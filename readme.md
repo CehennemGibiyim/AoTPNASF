@@ -38,58 +38,48 @@
 ## ✨ Özellikler
 
 ### 💹 Market & Ekonomi
-```
-✅ Gerçek zamanlı fiyatlar — EU, US, Asia
-✅ 11 lokasyon (7 Royal + Mist + 3 Outlands Rest + Black Market)
-✅ Fiyat geçmişi grafiği (Chart.js — günlük/6sa/saatlik)
-✅ 3 Sunucu karşılaştırma (EU vs US vs Asia yan yana)
-✅ Top Traded Items (en çok işlem, artan, düşen)
-✅ Flip & Arbitraj (Şehirler arası + Black Market + Rest)
-✅ Kalite & Enchant karşılaştırması (+0/+1/+2/+3)
-✅ Gold fiyat grafiği (7/30/90 günlük)
-✅ Transport kâr hesabı
-```
+- ✅ Gerçek zamanlı fiyatlar — EU, US, Asia
+- ✅ 11 lokasyon (7 Royal + Mist + 3 Outlands Rest + Black Market)
+- ✅ Fiyat geçmişi grafiği (Chart.js — günlük/6sa/saatlik)
+- ✅ 3 Sunucu karşılaştırma (EU vs US vs Asia yan yana)
+- ✅ Top Traded Items (en çok işlem, artan, düşen)
+- ✅ Flip & Arbitraj (Şehirler arası + Black Market + Rest)
+- ✅ Kalite & Enchant karşılaştırması (+0/+1/+2/+3)
+- ✅ Gold fiyat grafiği (7/30/90 günlük)
+- ✅ Transport kâr hesabı
 
 ### 🔨 Crafting & Üretim
-```
-✅ Crafting kâr hesabı — gerçek zamanlı fiyatlarla
-✅ Refining hesabı — 5 kaynak türü, bonus şehirler
-✅ Farming hesabı — tarla verimi, günlük gelir
-✅ Journal hesabı — 9 günlük tipi karşılaştırma
-✅ Transport kâr modülü
-✅ Black Market flip modülü
-✅ Return rate & Focus optimizasyonu
-```
+- ✅ Crafting kâr hesabı — gerçek zamanlı fiyatlarla
+- ✅ Refining hesabı — 5 kaynak türü, bonus şehirler
+- ✅ Farming hesabı — tarla verimi, günlük gelir
+- ✅ Journal hesabı — 9 günlük tipi karşılaştırma
+- ✅ Transport kâr modülü
+- ✅ Black Market flip modülü
+- ✅ Return rate & Focus optimizasyonu
 
 ### ⚔️ PvP & İstatistik
-```
-✅ Oyuncu arama & profil (Kill/Death/Fame istatistikleri)
-✅ Guild arama & üye listesi
-✅ Kill Feed — canlı (GitHub Actions her 5 dakikada günceller)
-✅ Battle Board — son ZvZ/GvG muharebeleri
-✅ EU/US/Asia sunucu geçişi
-✅ Ekipman görselleri kill kartlarında
-✅ Resmi Albion Killboard yönlendirmesi
-```
+- ✅ Oyuncu arama & profil (Kill/Death/Fame istatistikleri)
+- ✅ Guild arama & üye listesi
+- ✅ Kill Feed — canlı (GitHub Actions her 5 dakikada günceller)
+- ✅ Battle Board — son ZvZ/GvG muharebeleri
+- ✅ EU/US/Asia sunucu geçişi
+- ✅ Ekipman görselleri kill kartlarında
+- ✅ Resmi Albion Killboard yönlendirmesi
 
 ### 📚 Rehberler
-```
-✅ 14 hazır rehber kategorisi
-✅ Gemini AI dinamik rehber üretimi
-✅ 9 dilde AI yanıt
-✅ YouTube video entegrasyonu
-✅ Sabit AI chat paneli (her an soru sorulabilir)
-✅ Popüler konu hızlı erişim
-```
+- ✅ 14 hazır rehber kategorisi
+- ✅ Gemini AI dinamik rehber üretimi
+- ✅ 9 dilde AI yanıt
+- ✅ YouTube video entegrasyonu
+- ✅ Sabit AI chat paneli (her an soru sorulabilir)
+- ✅ Popüler konu hızlı erişim
 
 ### ⚙️ Ayarlar & Tema
-```
-✅ 8 hazır tema (Obsidian Gold, Void Purple, Blood Moon, Arctic Cyan, Forest Keeper, Amber Fire, Silver Knight, Neon Nexus)
-✅ Özel tema editörü (renk dairesi + parlaklık/doygunluk/yoğunluk)
-✅ 9 dil desteği
-✅ EU/US/Asia sunucu tercihi
-✅ localStorage ile kalıcı tercihler
-```
+- ✅ 8 hazır tema (Obsidian Gold, Void Purple, Blood Moon, Arctic Cyan, Forest Keeper, Amber Fire, Silver Knight, Neon Nexus)
+- ✅ Özel tema editörü (renk dairesi + parlaklık/doygunluk/yoğunluk)
+- ✅ 9 dil desteği
+- ✅ EU/US/Asia sunucu tercihi
+- ✅ localStorage ile kalıcı tercihler
 
 ### 🏠 Ana Sayfa
 - **Canlı Altın Fiyatları**: Gerçek zamanlı piyasa verileri ve grafikler
@@ -192,7 +182,7 @@
 
 1. **Repository'yi Klonlayın**
 ```bash
-git clone https://github.com/CehennemGibiyim/AoTPNASF.git
+git clone https://github.com/KULLANICI_ADINIZ/AoTPNASF.git
 cd AoTPNASF
 ```
 
@@ -214,94 +204,95 @@ http://localhost:8000
 `index.html` dosyasını doğrudan tarayıcınızda açabilirsiniz.
 
 ## 📁 Proje Yapısı
-```bash
+
+```
 AoTPNASF/
-├── index.html                    # Ana HTML dosyası
-├── styles.css                    # Özel CSS ve tema tanımları
-├── readme.md                     # Proje dokümantasyonu
-├── package.json                  # Node.js bağımlılıkları
-├── license                       # MIT lisans dosyası
+├── index.html                             # Ana HTML dosyası
+├── styles.css                             # Özel CSS ve tema tanımları
+├── readme.md                              # Proje dokümantasyonu
+├── package.json                           # Node.js bağımlılıkları
+├── license                                # MIT lisans dosyası
 │
-├── data/                         # Veri dosyaları
-│   ├── items-data.js            # Eşya veritabanı
-│   ├── items-weight.json         # Eşya ağırlıkları
-│   ├── spells-data.json          # Yetenek verileri
-│   ├── world-data.js            # Dünya verileri
-│   ├── zone-bonuses.js          # Bölge bonusları
-│   ├── feed.json                # Haber akışı
-│   ├── pvp-feed.json            # PvP verileri
-│   ├── opportunities.json        # Fırsat verileri
-│   ├── sync-info.json           # Senkronizasyon bilgisi
-│   └── fetch_items.js           # Veri çekme script'i
+├── data/                                  # Veri dosyaları
+│   ├── items-data.js                      # Eşya veritabanı
+│   ├── items-weight.json                  # Eşya ağırlıkları
+│   ├── spells-data.json                   # Yetenek verileri
+│   ├── world-data.js                      # Dünya verileri
+│   ├── zone-bonuses.js                    # Bölge bonusları
+│   ├── feed.json                          # Haber akışı
+│   ├── pvp-feed.json                      # PvP verileri
+│   ├── opportunities.json                 # Fırsat verileri
+│   ├── sync-info.json                     # Senkronizasyon bilgisi
+│   └── fetch_items.js                     # Veri çekme script'i
 │
-├── js/                           # JavaScript modülleri
-│   ├── main.js                  # Ana uygulama mantığı
-│   ├── events.js                # Etkinlik takvimi
-│   ├── crafting.js              # Crafting harita sistemi
-│   ├── crafting-new.js          # Crafting hesaplayıcı
-│   ├── pvp.js                   # PvP istatistikleri
-│   ├── avalon.js                # Avalon Roads haritaları
-│   ├── gathering.js             # Toplayıcılık rehberi
-│   ├── loot.js                  # Loot Logger
-│   ├── arbitrage.js             # Piyasa arbitrajı
-│   ├── ai-build.js              # AI build önerileri
-│   ├── market-new.js            # Market modülü
-│   ├── silver-calculator.js     # Gümüş hesaplayıcı
-│   ├── smart-scanner.js         # Akıllı tarayıcı
-│   ├── sync-button.js           # Senkronizasyon butonu
-│   ├── zipper.js                # ZIP indirme aracı
-│   ├── settings-panel.js        # Ayarlar paneli
-│   ├── settings-lib.js          # Ayarlar kütüphanesi
-│   ├── nav.js                   # Navigasyon
-│   ├── lang.js                  # Dil sistemi
-│   ├── i18n-helper.js           # i18n yardımcısı
-│   └── image-cache.js           # Resim önbelleği
+├── js/                                    # JavaScript modülleri
+│   ├── main.js                            # Ana uygulama mantığı
+│   ├── events.js                          # Etkinlik takvimi
+│   ├── crafting.js                        # Crafting harita sistemi
+│   ├── crafting-new.js                    # Crafting hesaplayıcı
+│   ├── pvp.js                             # PvP istatistikleri
+│   ├── avalon.js                          # Avalon Roads haritaları
+│   ├── gathering.js                       # Toplayıcılık rehberi
+│   ├── loot.js                            # Loot Logger
+│   ├── arbitrage.js                       # Piyasa arbitrajı
+│   ├── ai-build.js                        # AI build önerileri
+│   ├── market-new.js                      # Market modülü
+│   ├── silver-calculator.js               # Gümüş hesaplayıcı
+│   ├── smart-scanner.js                   # Akıllı tarayıcı
+│   ├── sync-button.js                     # Senkronizasyon butonu
+│   ├── zipper.js                          # ZIP indirme aracı
+│   ├── settings-panel.js                  # Ayarlar paneli
+│   ├── settings-lib.js                    # Ayarlar kütüphanesi
+│   ├── nav.js                             # Navigasyon
+│   ├── lang.js                            # Dil sistemi
+│   ├── i18n-helper.js                     # i18n yardımcısı
+│   └── image-cache.js                     # Resim önbelleği
 │
-├── lib/                          # Kütüphane dosyaları
-│   ├── home.js                  # Ana sayfa
-│   ├── market.js                # Market sayfası
-│   ├── crafting.js              # Crafting sayfası
-│   ├── pvp.js                   # PvP sayfası
-│   ├── maps.js                  # Harita sayfası
-│   ├── guides.js                # Rehber sayfası
-│   ├── feed.js                  # Haber akışı
-│   ├── nav.js                   # Navigasyon
-│   ├── lang.js                  # Dil kütüphanesi
-│   ├── settings.js              # Ayarlar
-│   ├── settings-panel.js        # Ayarlar paneli
-│   └── sync-button.js           # Senkronizasyon butonu
+├── lib/                                   # Kütüphane dosyaları
+│   ├── home.js                            # Ana sayfa
+│   ├── market.js                          # Market sayfası
+│   ├── crafting.js                        # Crafting sayfası
+│   ├── pvp.js                             # PvP sayfası
+│   ├── maps.js                            # Harita sayfası
+│   ├── guides.js                          # Rehber sayfası
+│   ├── feed.js                            # Haber akışı
+│   ├── nav.js                             # Navigasyon
+│   ├── lang.js                            # Dil kütüphanesi
+│   ├── settings.js                        # Ayarlar
+│   ├── settings-panel.js                  # Ayarlar paneli
+│   └── sync-button.js                     # Senkronizasyon butonu
 │
-├── pages/                        # Sayfa dosyaları
-│   ├── tools.html               # Araçlar sayfası
-│   ├── pvp.html                 # PvP sayfası
-│   ├── maps.html                # Harita sayfası
-│   ├── guides.html              # Rehber sayfası
-│   ├── crafting.html            # Crafting sayfası
-│   └── market.html              # Market sayfası
+├── pages/                                 # Sayfa dosyaları
+│   ├── tools.html                         # Araçlar sayfası
+│   ├── pvp.html                           # PvP sayfası
+│   ├── maps.html                          # Harita sayfası
+│   ├── guides.html                        # Rehber sayfası
+│   ├── crafting.html                      # Crafting sayfası
+│   └── market.html                        # Market sayfası
 │
-├── styles/                       # CSS dosyaları
-│   ├── main.css                 # Ana stiller
-│   ├── crafting.css             # Crafting stilleri
-│   ├── market.css               # Market stilleri
-│   └── settings.css             # Ayarlar stilleri
+├── styles/                                # CSS dosyaları
+│   ├── main.css                           # Ana stiller
+│   ├── crafting.css                       # Crafting stilleri
+│   ├── market.css                         # Market stilleri
+│   └── settings.css                       # Ayarlar stilleri
 │
-├── locales/                      # Dil dosyaları
-│   ├── tr.json                  # Türkçe çeviriler
-│   └── tr-official.json         # Resmi Türkçe çeviriler
+├── locales/                               # Dil dosyaları
+│   ├── tr.json                            # Türkçe çeviriler
+│   └── tr-official.json                   # Resmi Türkçe çeviriler
 │
-├── scripts/                      # Script dosyaları
-│   ├── ai-scanner.js            # AI tarayıcı
-│   ├── ao-data-extractor.cjs    # Albion veri çıkarıcı
-│   └── pvp-fencher.cjs          # PvP veri çıkarıcı
+├── scripts/                               # Script dosyaları
+│   ├── ai-scanner.js                      # AI tarayıcı
+│   ├── ao-data-extractor.cjs              # Albion veri çıkarıcı
+│   └── pvp-fencher.cjs                    # PvP veri çıkarıcı
 │
-├── .github/                      # GitHub yapılandırması
+├── .github/                               # GitHub yapılandırması
 │   └── workflows/
-│       ├── ai-bot.yml           # AI bot workflow
-│       ├── ao-data-updater.yml  # Veri güncelleyici
-│       ├── deploy.yml           # Dağıtım
-│       └── pvp-fetcher.yml      # PvP veri çekici
+│       ├── ai-bot.yml                     # AI bot workflow
+│       ├── ao-data-updater.yml            # Veri güncelleyici
+│       ├── deploy.yml                     # Dağıtım
+│       └── pvp-fetcher.yml                # PvP veri çekici
 │
-└── generate-translations.py      # Çeviri oluşturma script'i
+└── generate-translations.py               # Çeviri oluşturma script'i
 ```
 
 ## 🔌 API Entegrasyonları
@@ -362,8 +353,6 @@ Ana Sayfa → Arama çubuğuna oyuncu adı yaz
 AI Rehber sekmesi → Kişisel Set
 → Crystal Sword seç → Çift Set Oluştur
 → PvE ve PvP build'lerini görsel olarak kaydet
-```
-
 ---
 
 ## 🌐 Desteklenen Diller
@@ -404,3 +393,5 @@ Bu uygulama Albion Online'ın resmi bir parçası değildir. Sandbox Interactive
 ---
 
 **AoT-PNASF** - Albion Online deneyiminizi bir üst seviyeye taşıyın! 🎮✨
+
+```
