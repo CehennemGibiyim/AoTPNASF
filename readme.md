@@ -167,10 +167,10 @@
 - **AI Entegrasyonu**: MiniApps AI API
 - **Görsel Export**: html2canvas
 - **İkonlar**: Font Awesome 6
-- **Veri Kaynakları**:
-- Albion Online Data API (Piyasa verileri)
-- Albion Online Gameinfo API (Oyuncu istatistikleri)
-- CORS Proxy'ler (Codetabs, corsproxy.io)
+- **Veri Kaynakları**: 
+  - Albion Online Data API (Piyasa verileri)
+  - Albion Online Gameinfo API (Oyuncu istatistikleri)
+  - CORS Proxy'ler (Codetabs, corsproxy.io)
 
 ## 📦 Kurulum
 
@@ -205,7 +205,7 @@ http://localhost:8000
 
 ## 📁 Proje Yapısı
 
-```bash
+```
 AoTPNASF/
 ├── index.html                             # Ana HTML dosyası
 ├── styles.css                             # Özel CSS ve tema tanımları
@@ -297,7 +297,6 @@ AoTPNASF/
 
 ## 🔌 API Entegrasyonları
 
-
 ### Albion Online Data API
 - **Piyasa Fiyatları**: `/api/v2/stats/prices/`
 - **Altın Fiyatları**: `/api/v2/stats/gold`
@@ -354,6 +353,8 @@ Ana Sayfa → Arama çubuğuna oyuncu adı yaz
 AI Rehber sekmesi → Kişisel Set
 → Crystal Sword seç → Çift Set Oluştur
 → PvE ve PvP build'lerini görsel olarak kaydet
+```
+
 ---
 
 ## 🌐 Desteklenen Diller
