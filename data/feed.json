@@ -1,20 +1,20 @@
 {
-  "lastUpdate": "2026-05-31T14:02:06.862Z",
+  "lastUpdate": "2026-05-31T19:27:49.982Z",
   "source": "ai-scanner",
   "items": [
     {
-      "title": "Farming Etkinliği",
-      "type": "event",
-      "summary": "Hafta sonu özel farming etkinliği başlıyor.",
-      "date": "2026-05-31T14:02:06.861Z",
+      "title": "Yeni Patch Yayımlandı",
+      "type": "update",
+      "summary": "Yeni özellikler ve düzeltmeler içeren güncelleme yayınlandı.",
+      "date": "2026-05-31T19:27:49.982Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
     {
-      "title": "Farming Etkinliği",
-      "type": "event",
-      "summary": "Hafta sonu özel farming etkinliği başlıyor.",
-      "date": "2026-05-31T13:02:06.861Z",
+      "title": "Guild Savaşı Sonuçları",
+      "type": "pvp",
+      "summary": "Dün geceki ZvZ savaşlarında 500M+ fame kazanıldı.",
+      "date": "2026-05-31T18:27:49.982Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -22,7 +22,7 @@
       "title": "Crafting Bonus Günü",
       "type": "event",
       "summary": "Caerleon crafting return rate %50 arttı.",
-      "date": "2026-05-31T12:02:06.861Z",
+      "date": "2026-05-31T17:27:49.982Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
