@@ -446,9 +446,9 @@ Bu uygulama Albion Online'ın resmi bir parçası değildir. Sandbox Interactive
 ---
 
 ## 📞 İletişim
-
+CehennemGibiyim@gmail.com
 - **GitHub Issues**: Hata bildirimleri ve özellik talepleri
-- **Discord**: Topluluk sohbeti (yakında)
+- **Discord**: cehennemgibiyim
 
 ---
 
