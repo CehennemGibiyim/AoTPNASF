@@ -211,7 +211,7 @@ https://cehennemgibiyim.github.io/AoTPNASF/
 #### 1. Repository'yi Klonlayın
 
 ```bash
-git clone https://github.com/KULLANICI_ADINIZ/AoTPNASF.git
+git clone https://github.com/CehennemGibiyim/AoTPNASF.git
 cd AoTPNASF
 ```
 
