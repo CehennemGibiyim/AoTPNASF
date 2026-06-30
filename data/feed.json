@@ -1,28 +1,28 @@
 {
-  "lastUpdate": "2026-06-30T09:54:24.063Z",
+  "lastUpdate": "2026-06-30T14:33:54.657Z",
   "source": "ai-scanner",
   "items": [
-    {
-      "title": "Market Dalgalanması",
-      "type": "alert",
-      "summary": "Black Market fiyatlarında anormal artış gözlemlendi.",
-      "date": "2026-06-30T09:54:24.063Z",
-      "url": "https://albiononline.com/news",
-      "aiGenerated": true
-    },
     {
       "title": "Farming Etkinliği",
       "type": "event",
       "summary": "Hafta sonu özel farming etkinliği başlıyor.",
-      "date": "2026-06-30T08:54:24.063Z",
+      "date": "2026-06-30T14:33:54.657Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
     {
-      "title": "Sezon Ödülleri Açıklandı",
-      "type": "news",
-      "summary": "Crystal League yeni sezon ödülleri belli oldu.",
-      "date": "2026-06-30T07:54:24.063Z",
+      "title": "Market Dalgalanması",
+      "type": "alert",
+      "summary": "Black Market fiyatlarında anormal artış gözlemlendi.",
+      "date": "2026-06-30T13:33:54.657Z",
+      "url": "https://albiononline.com/news",
+      "aiGenerated": true
+    },
+    {
+      "title": "Market Dalgalanması",
+      "type": "alert",
+      "summary": "Black Market fiyatlarında anormal artış gözlemlendi.",
+      "date": "2026-06-30T12:33:54.657Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
