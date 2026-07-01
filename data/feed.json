@@ -1,12 +1,12 @@
 {
-  "lastUpdate": "2026-06-30T20:07:36.975Z",
+  "lastUpdate": "2026-07-01T04:42:52.976Z",
   "source": "ai-scanner",
   "items": [
     {
-      "title": "Market Dalgalanması",
-      "type": "alert",
-      "summary": "Black Market fiyatlarında anormal artış gözlemlendi.",
-      "date": "2026-06-30T20:07:36.975Z",
+      "title": "Crafting Bonus Günü",
+      "type": "event",
+      "summary": "Caerleon crafting return rate %50 arttı.",
+      "date": "2026-07-01T04:42:52.976Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -14,7 +14,7 @@
       "title": "Crafting Bonus Günü",
       "type": "event",
       "summary": "Caerleon crafting return rate %50 arttı.",
-      "date": "2026-06-30T19:07:36.975Z",
+      "date": "2026-07-01T03:42:52.976Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -22,7 +22,7 @@
       "title": "Crafting Bonus Günü",
       "type": "event",
       "summary": "Caerleon crafting return rate %50 arttı.",
-      "date": "2026-06-30T18:07:36.975Z",
+      "date": "2026-07-01T02:42:52.976Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
