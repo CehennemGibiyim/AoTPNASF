@@ -1,20 +1,20 @@
 {
-  "lastUpdate": "2026-07-02T04:09:40.132Z",
+  "lastUpdate": "2026-07-02T09:26:03.089Z",
   "source": "ai-scanner",
   "items": [
-    {
-      "title": "Crafting Bonus Günü",
-      "type": "event",
-      "summary": "Caerleon crafting return rate %50 arttı.",
-      "date": "2026-07-02T04:09:40.131Z",
-      "url": "https://albiononline.com/news",
-      "aiGenerated": true
-    },
     {
       "title": "Yeni Patch Yayımlandı",
       "type": "update",
       "summary": "Yeni özellikler ve düzeltmeler içeren güncelleme yayınlandı.",
-      "date": "2026-07-02T03:09:40.131Z",
+      "date": "2026-07-02T09:26:03.088Z",
+      "url": "https://albiononline.com/news",
+      "aiGenerated": true
+    },
+    {
+      "title": "Crafting Bonus Günü",
+      "type": "event",
+      "summary": "Caerleon crafting return rate %50 arttı.",
+      "date": "2026-07-02T08:26:03.089Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -22,7 +22,7 @@
       "title": "Guild Savaşı Sonuçları",
       "type": "pvp",
       "summary": "Dün geceki ZvZ savaşlarında 500M+ fame kazanıldı.",
-      "date": "2026-07-02T02:09:40.131Z",
+      "date": "2026-07-02T07:26:03.089Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
