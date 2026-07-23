@@ -1,12 +1,12 @@
 {
-  "lastUpdate": "2026-07-23T08:40:31.285Z",
+  "lastUpdate": "2026-07-23T14:21:51.708Z",
   "source": "ai-scanner",
   "items": [
     {
-      "title": "Yeni Patch Yayımlandı",
-      "type": "update",
-      "summary": "Yeni özellikler ve düzeltmeler içeren güncelleme yayınlandı.",
-      "date": "2026-07-23T08:40:31.284Z",
+      "title": "Sezon Ödülleri Açıklandı",
+      "type": "news",
+      "summary": "Crystal League yeni sezon ödülleri belli oldu.",
+      "date": "2026-07-23T14:21:51.708Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -14,7 +14,7 @@
       "title": "Sezon Ödülleri Açıklandı",
       "type": "news",
       "summary": "Crystal League yeni sezon ödülleri belli oldu.",
-      "date": "2026-07-23T07:40:31.284Z",
+      "date": "2026-07-23T13:21:51.708Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     },
@@ -22,7 +22,7 @@
       "title": "Crafting Bonus Günü",
       "type": "event",
       "summary": "Caerleon crafting return rate %50 arttı.",
-      "date": "2026-07-23T06:40:31.284Z",
+      "date": "2026-07-23T12:21:51.708Z",
       "url": "https://albiononline.com/news",
       "aiGenerated": true
     }
