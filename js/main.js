@@ -13,12 +13,16 @@
     return managedTranslate(key) || window.__translations?.[key] || fallback;
   };
 
+  const DEFAULT_SCALE = '14px';
+  const AVAILABLE_SCALES = new Set(['9px', '10px', '12px', '13px', '14px', '15px', '16px']);
+
   window.AppConfig = {
     server: 'europe',
     theme: 'custom',
-    scale: '10px',
+    scale: DEFAULT_SCALE,
     customColors: { bg: '#0a0a0a', accent: '#d4af37', text: '#f5f5f5' }
   };
+  document.documentElement.style.fontSize = DEFAULT_SCALE;
 
   // Tüm proje dosyalarının manifest listesi
   window.manifestFiles = [
@@ -201,7 +205,12 @@
       if (!raw) return;
       const saved = JSON.parse(raw);
       window.AppConfig.server = saved.server || window.AppConfig.server;
-      window.AppConfig.scale = saved.scale || window.AppConfig.scale;
+      const savedScale = AVAILABLE_SCALES.has(saved.scale) ? saved.scale : DEFAULT_SCALE;
+      // 10px was the old automatic compact default. Migrate it once while
+      // preserving future choices explicitly saved by the user.
+      window.AppConfig.scale = savedScale === '10px' && saved.scaleExplicit !== true
+        ? DEFAULT_SCALE
+        : savedScale;
       window.AppConfig.customColors = { ...window.AppConfig.customColors, ...(saved.customColors || {}) };
     } catch (error) {
       console.warn('Settings could not be restored.', error);
@@ -365,7 +374,10 @@
       try {
         await applySelectedLocale();
         window.AppConfig.server = serverInput?.value || 'europe';
-        window.AppConfig.scale = scaleSelect?.value || '12px';
+        window.AppConfig.scale = AVAILABLE_SCALES.has(scaleSelect?.value)
+          ? scaleSelect.value
+          : DEFAULT_SCALE;
+        window.AppConfig.scaleExplicit = true;
         window.AppConfig.customColors = {
           bg: colorInputs.bg?.value || '#0a0a0a',
           accent: colorInputs.accent?.value || '#d4af37',
