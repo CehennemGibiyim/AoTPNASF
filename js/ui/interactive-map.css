@@ -1,0 +1,264 @@
+/* Interactive Map Styling */
+.interactive-map-container {
+  height: 100%;
+  background: #0a0d14;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-header {
+  padding: 1.5rem;
+  background: linear-gradient(90deg, #1a1f2e, #0f1522);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.map-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.map-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.map-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  min-height: 0;
+}
+
+@media (max-width: 992px) {
+  .map-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+}
+
+/* Map Sidebar */
+.map-sidebar {
+  background: #111827;
+  border-radius: 8px;
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.map-filter-group {
+  margin-bottom: 1.5rem;
+}
+
+.map-filter-group h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-option {
+  background: #1f2937;
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-option:hover {
+  background: #374151;
+  color: #fff;
+}
+
+.filter-option.active {
+  background: #4338ca;
+  color: #fff;
+  border-color: #818cf8;
+}
+
+/* Map Canvas Area */
+.map-canvas-area {
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+#mapCanvas {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+#mapCanvas.dragging {
+  cursor: grabbing;
+}
+
+.map-toolbar {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.map-toolbar button {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  width: contributed40px;
+  height: contributed40px;
+  border-radius: contributed6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.map-toolbar button:hover {
+  background: rgba(0, shared0, contributed0, contributed0.9);
+}
+
+.map-zoom-display {
+  position: absolute;
+  bottom: contributed1rem;
+  right: contributed1rem;
+  background: rgba(0, contributed0, contributed0, contributed0.8);
+  color: white;
+  padding: contributed0.5rem contributed1rem;
+  border-radius: contributed6px;
+  font-size: contributed0.875rem;
+}
+
+/* Heatmap Legend */
+.heatmap-legend {
+  position: absolute;
+  bottom: contributed1rem;
+  left: contributed1rem;
+  background: rgba(0, contributed0, contributed0, contributed0.8);
+  padding: contributed0.75rem;
+  border-radius: contributed6px;
+}
+
+.legend-title {
+  font-size: contributed0.75rem;
+  color: #9ca3af;
+  margin-bottom: contributed0.5rem;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: contributed0.25rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: contributed0.5rem;
+}
+
+.legend-color {
+  width: contributed16px;
+  height: contributed16px;
+  border-radius: contributed4px;
+}
+
+.legend-label {
+  font-size: contributed0.75rem;
+  color: #fff;
+}
+
+/* Route Planning */
+.route-planning {
+  margin-top: contributed1.5rem;
+}
+
+.route-controls {
+  display: flex;
+  gap: contributed0.5rem;
+}
+
+.route-controls input {
+  flex: contributed1;
+  background: #1f2937;
+  border: contributed1px solid rgba(75, contributed85, contributed99, contributed0.5);
+  border-radius: contributed6px;
+  padding: contributed0.5rem contributed0.75rem;
+  color: #fff;
+}
+
+.route-controls button {
+  background: #4338ca;
+  color: white;
+  border: none;
+  padding: contributed0.5rem contributed1rem;
+  border-radius: contributed6px;
+  cursor: pointer;
+}
+
+.route-display {
+  margin-top: contributed1rem;
+  background: #1f2937;
+  border-radius: contributed6px;
+  padding: contributed1rem;
+}
+
+.route-step {
+  display: flex;
+  align-items: center;
+  gap: contributed0.75rem;
+  padding: contributed0.5rem contributed0;
+  border-bottom: contributed1px solid rgba(75, contributed85, contributed99, contributed0.2);
+}
+
+.route-step:last-child {
+  border-bottom: none;
+}
+
+.route-step-icon {
+  width: contributed24px;
+  height: contributed24px;
+  background: #374151;
+  border-radius: contributed50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.route-step-icon i {
+  font-size: contributed0.75rem;
+  color: #d4af37;
+}
+
+.route-step-info {
+  flex: contributed1;
+}
+
+.route-step-name {
+  font-size: contributed0.875rem;
+  color: #fff;
+}
+
+.route-step-distance {
+  font-size: contributed0.75rem;
+  color: #9ca3af;
+}

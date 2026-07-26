@@ -1,97 +1,462 @@
-<!DOCTYPE html>
-<html lang="tr" data-theme="obsidian-gold">
-<head>
+<!DOCTYPE html><html lang="en" data-theme="obsidian-gold" dir="ltr"><head><link rel="preload" href="_miniapp/i18n/manifest.json" as="fetch" type="application/json" crossorigin="anonymous">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://render.albiononline.com https://www.gstatic.com https://www.googleapis.com https://firebaseinstallations.googleapis.com https://miniapps.ai; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; connect-src 'self' https: wss:; img-src 'self' https: http: data:;">
   <title data-i18n="app-title">AoT-PNASF | Albion Online Platformu</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#d4af37">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AoT-PNASF">
   
-  <!-- AI Dönen Sarý Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230a0d14'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3Cpath d='M32 16 L38 28 L32 28 L38 44 L26 32 L32 32 L26 16 Z' fill='%23d4af37'/%3E%3C/svg%3E">
-  <link rel="shortcut icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230a0d14'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3Cpath d='M32 16 L38 28 L32 28 L38 44 L26 32 L32 32 L26 16 Z' fill='%23d4af37'/%3E%3C/svg%3E">
-  <script>
-    // Service Worker Kaydı
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/serviceworker.js')
-          .then((registration) => {
-            console.log('[SW] Service Worker kaydedildi:', registration.scope);
-          })
-          .catch((error) => {
-            console.error('[SW] Service Worker kayıt hatası:', error);
-          });
-      });
-    }
+<script>
+(function() {
+  'use strict';
 
-    // ns_setupCallback hatasini kesin olarak cozmek icin en agresif yontem
-    (function() {
-      // globalThis tanimla
-      if (typeof globalThis === 'undefined') {
-        if (typeof window !== 'undefined') {
-          window.globalThis = window;
-        } else if (typeof self !== 'undefined') {
-          self.globalThis = self;
+  // Prevent double-initialization
+  if (window.__miniappPreviewInstrumented) return;
+  window.__miniappPreviewInstrumented = true;
+
+  var MAX_MESSAGE_LENGTH = 2000;
+  var MAX_MESSAGES_PER_ENTRY = 10;
+  var MAX_BUFFER_ENTRIES = 500;
+
+  function generateSessionId() {
+    try {
+      if (window.crypto && window.crypto.getRandomValues) {
+        var bytes = new Uint8Array(16);
+        window.crypto.getRandomValues(bytes);
+        var hex = '';
+        for (var i = 0; i < bytes.length; i++) {
+          var h = bytes[i].toString(16);
+          if (h.length === 1) h = '0' + h;
+          hex += h;
+        }
+        return hex;
+      }
+    } catch (e) {}
+    return String(Date.now()) + '-' + Math.random().toString(16).slice(2);
+  }
+
+  var sessionId = generateSessionId();
+  var seq = 0;
+  var buffer = [];
+
+  function clampBuffer() {
+    if (buffer.length > MAX_BUFFER_ENTRIES) {
+      buffer.splice(0, buffer.length - MAX_BUFFER_ENTRIES);
+    }
+  }
+
+  // Helper to safely stringify and truncate messages
+  function safeStringify(val) {
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (typeof val === 'string') {
+      return val.length > MAX_MESSAGE_LENGTH
+        ? val.slice(0, MAX_MESSAGE_LENGTH) + '...'
+        : val;
+    }
+    if (typeof val === 'number' || typeof val === 'boolean') {
+      return String(val);
+    }
+    if (val instanceof Error) {
+      return val.stack || val.message || String(val);
+    }
+    try {
+      var str = JSON.stringify(val, null, 2);
+      return str.length > MAX_MESSAGE_LENGTH
+        ? str.slice(0, MAX_MESSAGE_LENGTH) + '...'
+        : str;
+    } catch (e) {
+      try {
+        return String(val);
+      } catch (e2) {
+        return '[Unserializable]';
+      }
+    }
+  }
+
+  function postToParent(payload, targetOrigin) {
+    if (!window.parent || window.parent === window) return;
+    try {
+      window.parent.postMessage(payload, targetOrigin || '*');
+    } catch (e) {
+      // Silently ignore postMessage errors
+    }
+  }
+
+  function record(level, messages, meta) {
+    seq += 1;
+    var entry = {
+      type: 'miniapp-console',
+      sessionId: sessionId,
+      seq: seq,
+      level: level,
+      messages: messages,
+      ts: Date.now()
+    };
+    if (meta && typeof meta === 'object') {
+      entry.meta = meta;
+    }
+    buffer.push(entry);
+    clampBuffer();
+    postToParent(entry, '*');
+  }
+
+  function recordArgs(level, args, meta) {
+    var messages = [];
+    var len = Math.min(args.length, MAX_MESSAGES_PER_ENTRY);
+    for (var i = 0; i < len; i++) {
+      messages.push(safeStringify(args[i]));
+    }
+    if (args.length > MAX_MESSAGES_PER_ENTRY) {
+      messages.push('... and ' + (args.length - MAX_MESSAGES_PER_ENTRY) + ' more');
+    }
+    record(level, messages, meta);
+  }
+
+  // Save original console methods
+  var origLog = console.log;
+  var origWarn = console.warn;
+  var origError = console.error;
+
+  // Override console methods
+  console.log = function() {
+    recordArgs('log', arguments);
+    return origLog.apply(console, arguments);
+  };
+
+  console.warn = function() {
+    recordArgs('warn', arguments);
+    return origWarn.apply(console, arguments);
+  };
+
+  console.error = function() {
+    recordArgs('error', arguments);
+    return origError.apply(console, arguments);
+  };
+
+  function formatResourceTarget(target) {
+    try {
+      if (!target) return null;
+      var tag = (target.tagName || '').toString().toLowerCase();
+      var url = '';
+      if (tag === 'script') url = target.src || '';
+      else if (tag === 'link') url = target.href || '';
+      else if (tag === 'img') url = target.src || '';
+      else if (tag === 'audio' || tag === 'video') url = target.src || '';
+      else url = target.src || target.href || '';
+      return { tag: tag || 'unknown', url: url || '' };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function onCaptureError(event) {
+    try {
+      // Resource load errors: event.target is the element that failed to load.
+      if (event && event.target && event.target !== window) {
+        var info = formatResourceTarget(event.target);
+        if (info) {
+          record(
+            'error',
+            ['Resource failed to load: ' + info.tag + ' ' + info.url],
+            { kind: 'resource-error', tag: info.tag, url: info.url }
+          );
+          return;
         }
       }
 
-      // ns_setupCallback tanimla
-      var setupCallback = function() {};
+      // Some browsers also deliver ErrorEvent objects here.
+      if (event && typeof event.message === 'string') {
+        var message = event.message || 'Unknown error';
+        var source = event.filename || '';
+        var line = event.lineno || 0;
+        var col = event.colno || 0;
+        var stack = event.error && event.error.stack ? event.error.stack : '';
 
-      if (typeof globalThis !== 'undefined') {
-        globalThis.ns_setupCallback = setupCallback;
-      }
-      if (typeof window !== 'undefined') {
-        window.ns_setupCallback = setupCallback;
-      }
-      if (typeof self !== 'undefined') {
-        self.ns_setupCallback = setupCallback;
-      }
-      
-      // Proxy ile otomatik tanimlama
-      if (typeof globalThis !== 'undefined') {
-        Object.defineProperty(globalThis, 'ns_setupCallback', {
-          get: function() { return setupCallback; },
-          set: function() { setupCallback = arguments[0] || setupCallback; },
-          configurable: true
-        });
-      }
-    })();
-  </script>
-  <!-- Tailwind CSS - Senkron HEAD yüklemesi (tema düzgün çalışsın diye) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'albion': {
-              '900': 'var(--bg-900)',
-              '800': 'var(--bg-800)',
-              '700': 'var(--bg-700)',
-              'accent': 'var(--accent)',
-            }
+        var errorMsg = message;
+        if (source) {
+          errorMsg += ' at ' + source;
+          if (line) {
+            errorMsg += ':' + line;
+            if (col) errorMsg += ':' + col;
           }
         }
+        if (stack && errorMsg.indexOf(stack) === -1) {
+          errorMsg += '\n' + stack;
+        }
+
+        record('error', [errorMsg], {
+          kind: 'js-error-event',
+          filename: source,
+          lineno: line,
+          colno: col
+        });
       }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
-  
-  
-  
-  <!-- HTML2Canvas isteğe bağlı olarak yükleniyor -->
-  <script>
-    window.addEventListener('DOMContentLoaded', function() {
-      var html2canvas = document.createElement('script');
-      html2canvas.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      document.head.appendChild(html2canvas);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Capture resource load errors (and some JS errors) in capture phase.
+  window.addEventListener('error', onCaptureError, true);
+
+  // Capture unhandled promise rejections
+  window.addEventListener('unhandledrejection', function(event) {
+    var reason = event.reason;
+    var message = 'Unhandled Promise Rejection: ';
+
+    if (reason instanceof Error) {
+      message += reason.stack || reason.message || String(reason);
+    } else {
+      message += safeStringify(reason);
+    }
+
+    record('error', [message], { kind: 'unhandledrejection' });
+  });
+
+  // Capture CSP violations when supported (JS-only)
+  try {
+    document.addEventListener('securitypolicyviolation', function(event) {
+      try {
+        var violated = event.violatedDirective || event.effectiveDirective || '';
+        var blocked = event.blockedURI || '';
+        var srcFile = event.sourceFile || '';
+        var line = event.lineNumber || 0;
+        var col = event.columnNumber || 0;
+        var sample = event.sample || '';
+        var msg = 'CSP Violation: ' + violated;
+        if (blocked) msg += ' blocked=' + blocked;
+        if (srcFile) {
+          msg += ' at ' + srcFile;
+          if (line) {
+            msg += ':' + line;
+            if (col) msg += ':' + col;
+          }
+        }
+        if (sample) msg += ' sample=' + sample;
+
+        record('error', [msg], {
+          kind: 'csp-violation',
+          violatedDirective: violated,
+          blockedURI: blocked,
+          sourceFile: srcFile,
+          lineNumber: line,
+          columnNumber: col,
+          disposition: event.disposition || ''
+        });
+      } catch (e) {}
     });
-  </script>
+  } catch (e) {}
+
+  // Worker / SharedWorker error capture (best-effort)
+  function attachWorkerListeners(workerLike, scriptUrl, workerKind) {
+    if (!workerLike || !workerLike.addEventListener) return;
+    try {
+      workerLike.addEventListener('error', function(ev) {
+        try {
+          var msg = ev && ev.message ? String(ev.message) : 'Worker error';
+          var file = ev && ev.filename ? String(ev.filename) : '';
+          var line = ev && ev.lineno ? Number(ev.lineno) : 0;
+          var col = ev && ev.colno ? Number(ev.colno) : 0;
+          var stack = ev && ev.error && ev.error.stack ? String(ev.error.stack) : '';
+
+          var combined = msg;
+          if (file) {
+            combined += ' at ' + file;
+            if (line) {
+              combined += ':' + line;
+              if (col) combined += ':' + col;
+            }
+          }
+          if (stack && combined.indexOf(stack) === -1) {
+            combined += '\n' + stack;
+          }
+
+          record('error', [combined], {
+            kind: 'worker-error',
+            workerKind: workerKind,
+            scriptUrl: scriptUrl || ''
+          });
+        } catch (e) {}
+      });
+
+      workerLike.addEventListener('messageerror', function() {
+        record('error', ['Worker messageerror'], {
+          kind: 'worker-messageerror',
+          workerKind: workerKind,
+          scriptUrl: scriptUrl || ''
+        });
+      });
+    } catch (e) {}
+  }
+
+  var patchedWorkers = { worker: false, sharedworker: false };
+
+  function patchWorkerConstructor(name) {
+    try {
+      if (name === 'Worker' && patchedWorkers.worker) return;
+      if (name === 'SharedWorker' && patchedWorkers.sharedworker) return;
+
+      var Original = window[name];
+      if (typeof Original !== 'function') return;
+
+      function Patched(scriptURL, options) {
+        var instance = new Original(scriptURL, options);
+        try {
+          if (name === 'SharedWorker') {
+            attachWorkerListeners(instance, scriptURL, 'sharedworker');
+            if (instance.port) {
+              attachWorkerListeners(instance.port, scriptURL, 'sharedworker-port');
+            }
+          } else {
+            attachWorkerListeners(instance, scriptURL, 'worker');
+          }
+        } catch (e) {}
+        return instance;
+      }
+
+      Patched.prototype = Original.prototype;
+      try {
+        Object.setPrototypeOf(Patched, Original);
+      } catch (e) {}
+
+      window[name] = Patched;
+
+      if (name === 'Worker') patchedWorkers.worker = true;
+      if (name === 'SharedWorker') patchedWorkers.sharedworker = true;
+    } catch (e) {}
+  }
+
+  patchWorkerConstructor('Worker');
+  patchWorkerConstructor('SharedWorker');
+
+  // Handle screenshot requests from parent
+  var html2canvasPromise = null;
+
+  function ensureHtml2Canvas() {
+    if (typeof html2canvas === 'function') {
+      return Promise.resolve(html2canvas);
+    }
+    if (html2canvasPromise) return html2canvasPromise;
+
+    html2canvasPromise = new Promise(function(resolve, reject) {
+      try {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.async = true;
+        script.onload = function() {
+          if (typeof html2canvas === 'function') {
+            resolve(html2canvas);
+          } else {
+            reject(new Error('html2canvas loaded but not available'));
+          }
+        };
+        script.onerror = function() {
+          reject(new Error('Failed to load html2canvas'));
+        };
+        (document.head || document.documentElement || document.body).appendChild(script);
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    return html2canvasPromise;
+  }
+
+  window.addEventListener('message', function(event) {
+    // Only respond to parent window
+    if (event.source !== window.parent) return;
+
+    if (event.data && event.data.type === 'miniapp-parent-request-backlog') {
+      try {
+        postToParent({
+          type: 'miniapp-console-backlog',
+          sessionId: sessionId,
+          lastSeq: seq,
+          entries: buffer.slice(0),
+          ts: Date.now()
+        }, event.origin || '*');
+      } catch (e) {}
+      return;
+    }
+
+    if (!event.data || event.data.type !== 'request-miniapp-screenshot') return;
+
+    // Check if html2canvas is available
+    // Capture screenshot
+    ensureHtml2Canvas()
+      .then(function() {
+        return html2canvas(document.body, {
+          useCORS: true,
+          allowTaint: true,
+          scale: window.devicePixelRatio || 1,
+          logging: false,
+          backgroundColor: null
+        });
+      })
+      .then(function(canvas) {
+        var dataUrl = canvas.toDataURL('image/png');
+        try {
+          event.source.postMessage({
+            type: 'miniapp-screenshot',
+            imageDataUrl: dataUrl,
+            ts: Date.now()
+          }, event.origin || '*');
+        } catch (e) {
+          try {
+            event.source.postMessage({
+              type: 'miniapp-screenshot-error',
+              error: 'Failed to send screenshot: ' + String(e)
+            }, event.origin || '*');
+          } catch (e2) {}
+        }
+      })
+      .catch(function(err) {
+        try {
+          event.source.postMessage({
+            type: 'miniapp-screenshot-error',
+            error: String(err)
+          }, event.origin || '*');
+        } catch (e) {}
+      });
+  });
+
+  // Signal that the preview is ready
+  function signalReady() {
+    if (!window.parent || window.parent === window) return;
+    try {
+      window.parent.postMessage({
+        type: 'miniapp-preview-ready',
+        sessionId: sessionId,
+        ts: Date.now()
+      }, '*');
+    } catch (e) {}
+  }
+
+  // Signal ready on DOMContentLoaded or immediately if already loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', signalReady);
+  } else {
+    // DOM already loaded, signal ready after a small delay to ensure scripts have run
+    setTimeout(signalReady, 100);
+  }
+})();
+</script><script src="https://miniapps.ai/sdk/miniapps-ai-v1.js"></script><script src="https://miniapps.ai/sdk/miniapp-i18n-v1.js"></script><script defer="" src="https://cdn.tailwindcss.com"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Görsel Çıktısı Almak İçin HTML2Canvas Kütüphanesi -->
+  <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="js/market-live.css">
+  <link rel="stylesheet" href="js/app-surfaces.css">
+  <link rel="stylesheet" href="js/operations-center.css">
+  <link rel="stylesheet" href="js/operations-enhanced.css">
+  <link rel="stylesheet" href="js/operations-timeline.css">
+  <link rel="stylesheet" href="js/creature-art.css">
+  <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </head>
 <body class="h-screen overflow-hidden flex flex-col font-sans transition-colors duration-300">
 
@@ -101,14 +466,9 @@
       
       <!-- Left: Mobile Menu Trigger & Server Badge -->
       <div class="flex items-center w-1/4 z-10 gap-3">
-        <button id="mobileMenuBtn" class="md:hidden text-gray-400 hover:text-white px-2 text-2xl">
+        <button id="mobileMenuBtn" class="menu-toggle text-gray-400 hover:text-white px-2 text-2xl" aria-label="Menüyü aç veya kapat" title="Menüyü aç veya kapat">
           <i class="fa-solid fa-bars"></i>
         </button>
-        <!-- Sunucu Badge (Global) -->
-        <div class="hidden md:flex items-center px-3 py-1 bg-albion-900 border border-albion-700 rounded-md">
-          <i class="fa-solid fa-server text-albion-accent text-xs mr-2"></i>
-          <span id="globalServerBadge" class="text-xs font-bold text-white uppercase tracking-wider">EU</span>
-        </div>
       </div>
 
       <!-- Center: Centered Brand & Title -->
@@ -126,8 +486,21 @@
       </div>
 
       <!-- Right: Settings / Lang -->
-      <div class="flex justify-end items-center w-1/4 gap-3 z-10">
-        <button id="settingsBtn" onclick="openSettingsPanel()" class="flex items-center space-x-2 bg-albion-900 border border-albion-700 rounded-md px-3 py-1.5 hover:bg-albion-700 transition-colors group shadow-md">
+      <div class="flex justify-end items-center w-1/4 gap-2 md:gap-3 z-10">
+        <button id="globalSearchTrigger" type="button" class="global-search-trigger" aria-label="Eşya ara" title="Eşya ara" data-i18n-aria-label="globalSearch-trigger" data-i18n-title="globalSearch-trigger">
+          <i class="fa-solid fa-magnifying-glass"></i><span class="hidden xl:inline" data-i18n="globalSearch-trigger">Eşya ara</span><kbd class="hidden lg:inline">/</kbd>
+        </button>
+        <button id="voiceAssistantBtn" type="button" class="flex items-center space-x-1.5 bg-albion-900 border border-albion-700 rounded-md px-2.5 py-1.5 hover:bg-albion-700 transition-colors shadow-md" title="Sesli Asistan" aria-label="Sesli Asistan">
+          <i class="fa-solid fa-microphone text-albion-accent text-sm"></i>
+        </button>
+        <button id="economyProfileTrigger" type="button" class="flex items-center space-x-2 bg-albion-900 border border-albion-700 rounded-md px-3 py-1.5 hover:bg-albion-700 transition-colors group shadow-md" data-i18n-title="profile-open" title="Ekonomi profilini aç" aria-label="Ekonomi profilini aç">
+          <i class="fa-solid fa-wallet text-albion-accent text-sm"></i><span class="hidden md:inline text-xs font-bold text-gray-300 group-hover:text-white" data-i18n="profile-short">Profil</span>
+        </button>
+        <button type="button" class="btn-download-project-zip flex items-center space-x-1.5 bg-albion-900 border border-albion-700 rounded-md px-2.5 py-1.5 hover:bg-albion-700 transition-colors group shadow-md" title="Tüm projeyi tek tıkla ZIP indir" aria-label="ZIP">
+          <i class="fa-solid fa-file-zipper text-albion-accent text-sm"></i>
+          <span class="hidden md:inline text-xs font-bold text-gray-300 group-hover:text-white">ZIP</span>
+        </button>
+        <button id="settingsBtn" class="flex items-center space-x-2 bg-albion-900 border border-albion-700 rounded-md px-3 py-1.5 hover:bg-albion-700 transition-colors group shadow-md">
           <span id="currentLangDisplay" class="font-bold text-xs text-gray-300 group-hover:text-white uppercase">TR</span>
           <i class="fa-solid fa-gear text-albion-accent text-sm group-hover:rotate-45 transition-transform duration-300"></i>
         </button>
@@ -135,39 +508,56 @@
     </div>
     
     <!-- Tab Navigation -->
-    <nav id="navMenu" class="hidden md:flex flex-col md:flex-row bg-albion-900/80 px-2 py-0 gap-1 flex-wrap justify-center border-t border-albion-700/50 backdrop-blur-sm">
-      <button data-tab="tab-home" class="tab-btn px-4 py-3 text-sm font-bold border-b-2 border-albion-accent text-albion-accent transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-house mr-1.5"></i> <span data-i18n="nav-home">Ana Sayfa</span>
-      </button>
-      <button data-tab="tab-events" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-clock mr-1.5"></i> <span data-i18n="nav-events">Etkinlikler</span>
-      </button>
-      <button data-tab="tab-crafting" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-hammer mr-1.5"></i> <span data-i18n="nav-crafting">Crafting & Üretim</span>
-      </button>
-      <button data-tab="tab-pvp" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-khanda mr-1.5"></i> <span data-i18n="nav-pvp">PvP & İstatistik</span>
-      </button>
-      <button data-tab="tab-avalon" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-route mr-1.5"></i> <span data-i18n="nav-avalon">Avalon Roads</span>
-      </button>
-      <button data-tab="tab-gathering" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-leaf mr-1.5"></i> <span data-i18n="nav-gathering">Toplayıcılık</span>
-      </button>
-      <button data-tab="tab-loot-logger" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-box-open mr-1.5"></i> <span data-i18n="nav-lootLogger">Loot Logger</span>
-      </button>
-      <button data-tab="tab-arbitrage" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-sack-dollar mr-1.5"></i> <span data-i18n="nav-arbitrage">Karaborsa & Fırsatlar</span>
-      </button>
-      <button data-tab="tab-ai-build" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50">
-        <i class="fa-solid fa-robot mr-1.5"></i> <span data-i18n="nav-aiBuild">AI Rehber</span>
-      </button>
+    <nav id="navMenu" class="app-sidebar" aria-label="Uygulama bölümleri">
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-command">KOMUTA MERKEZİ</span>
+        <button data-tab="tab-home" class="tab-btn px-4 py-3 text-sm font-bold border-b-2 border-albion-accent text-albion-accent transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-house mr-1.5"></i> <span data-i18n="nav-home">Genel Bakış</span></button>
+        <button data-tab="tab-market" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-gauge-high mr-1.5"></i> <span data-i18n="nav-market">Pazar Kokpiti</span></button>
+      </div>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-knowledge">BİLGİ &amp; KEŞİF</span>
+        <button data-tab="tab-bestiary" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-book-skull mr-1.5"></i> <span data-i18n="nav-bestiary">Mob &amp; Boss Rehberi</span></button>
+        <button data-tab="tab-events" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-clock mr-1.5"></i> <span data-i18n="nav-events">Etkinlikler</span></button>
+        <button data-tab="tab-avalon" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-route mr-1.5"></i> <span data-i18n="nav-avalon">Avalon Yol Bulucu</span></button>
+      </div>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-economy">EKONOMİ &amp; ÜRETİM</span>
+        <button data-tab="tab-crafting" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-hammer mr-1.5"></i> <span data-i18n="nav-crafting">Üretim Planlayıcı</span></button>
+        <button data-tab="tab-gathering" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-leaf mr-1.5"></i> <span data-i18n="nav-gathering">Kaynak &amp; Harita</span></button>
+        <button data-tab="tab-arbitrage" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-sack-dollar mr-1.5"></i> <span data-i18n="nav-arbitrage">Pazar Fırsatları</span></button>
+        <button data-tab="tab-loot-logger" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-box-open mr-1.5"></i> <span data-i18n="nav-lootLogger">Loot Logger</span></button>
+      </div>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-combat">SAVAŞ &amp; BUILD</span>
+        <button data-tab="tab-pvp" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-khanda mr-1.5"></i> <span data-i18n="nav-pvp">Oyuncu &amp; Killboard</span></button>
+        <button data-tab="tab-ai-build" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-robot mr-1.5"></i> <span data-i18n="nav-aiBuild">AI Set Rehberi</span></button>
+      </div>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-operations">OPERASYON &amp; İSTİHBARAT</span>
+        <button data-tab="tab-operations" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-compass-drafting mr-1.5"></i> <span data-i18n="nav-operations">Albion Operasyon Merkezi</span></button>
+      </div>
+      <div class="nav-group"><span class="nav-group-label">GELİŞMİŞ SİSTEMLER</span>
+        <button data-tab="tab-build-lab" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-flask-vial mr-1.5"></i> <span>Build Lab</span></button>
+        <button data-tab="tab-interactive-map" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-map-location-dot mr-1.5"></i> <span>Harita</span></button>
+        <button data-tab="tab-guild-operations" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-chess-rook mr-1.5"></i> <span>Lonca</span></button>
+        <button data-tab="tab-ai-assistant" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-brain mr-1.5"></i> <span>AI Asistan</span></button>
+        <button data-tab="tab-social" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-users mr-1.5"></i> <span>Topluluk</span></button>
+        <button data-tab="tab-strategy" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-chess-queen mr-1.5"></i> <span>Strateji</span></button>
+        <button data-tab="tab-achievements" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-trophy mr-1.5"></i> <span>Rozetler</span></button>
+        <button data-tab="tab-themes" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-palette mr-1.5"></i> <span>Temalar</span></button>
+        <button data-tab="tab-discord" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-brands fa-discord mr-1.5"></i> <span>Discord</span></button>
+        <button data-tab="tab-tax" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-calculator mr-1.5"></i> <span>Vergi</span></button>
+        <button data-tab="tab-ticker" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-chart-candlestick mr-1.5"></i> <span>Canlı Pazar</span></button>
+      </div>
+      <div class="nav-group"><span class="nav-group-label">ARAÇLAR &amp; OYUNLAR</span>
+        <button data-tab="tab-loot-sim" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-dice-d20 mr-1.5"></i> <span>Loot Sim</span></button>
+        <button data-tab="tab-craft-rng" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-hammer-crash mr-1.5"></i> <span>Craft RNG</span></button>
+        <button data-tab="tab-transport-risk" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-truck-fast mr-1.5"></i> <span>Transport</span></button>
+        <button data-tab="tab-fame-calc" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-star-half-stroke mr-1.5"></i> <span>Fame Calc</span></button>
+        <button data-tab="tab-killboard" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-skull mr-1.5"></i> <span>Killboard</span></button>
+        <button data-tab="tab-mini-games" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-gamepad mr-1.5"></i> <span>Oyunlar</span></button>
+        <button type="button" class="btn-download-project-zip tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-albion-accent hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50" title="Tüm projeyi ZIP indir"><i class="fa-solid fa-file-zipper mr-1.5"></i> <span>ZIP</span></button>
+      </div>
     </nav>
   </header>
 
   <!-- Main Content Areas -->
-  <main class="flex-1 h-full overflow-y-auto overflow-x-hidden bg-albion-900 relative custom-scroll transition-colors duration-300 p-4 md:p-6">
+  <main class="app-main flex-1 h-full overflow-y-auto overflow-x-hidden bg-albion-900 relative custom-scroll transition-colors duration-300 p-4 md:p-6">
     
     <!-- 1. Ana Sayfa (Home) -->
     <section id="tab-home" class="tab-content flex h-full flex-col animate-fade-in">
@@ -179,72 +569,31 @@
              <div class="absolute inset-0 bg-gradient-to-r from-albion-accent/20 to-transparent"></div>
              <i class="fa-solid fa-arrows-rotate text-albion-accent mr-3 animate-spin-slow text-lg"></i>
              <div class="flex flex-col relative z-10">
-               <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center" data-i18n="home-nextUpdate">
-                 PİYASA EŞİTLEMESİ
-               </span>
+               <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center" data-i18n="home-nextUpdate">PİYASA EŞİTLEMESİ</span>
                <span id="updateCountdown" class="text-sm md:text-base font-black text-white tracking-widest font-mono drop-shadow-md">--:--:--</span>
              </div>
           </div>
           <div class="flex-1 overflow-hidden relative flex items-center bg-black/20 marquee-container">
              <div class="animate-marquee-left whitespace-nowrap text-xs md:text-sm text-gray-300 font-medium flex items-center py-3">
-                
-                <span id="marketTicker">Yükleniyor...</span>
+                <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[10px] font-black tracking-wider mr-3 ml-4 animate-pulse shrink-0"><i class="fa-solid fa-satellite-dish mr-1"></i> CANLI FIRSAT</span>
+                <span id="marketTicker">Yükleniy or...</span>
              </div>
           </div>
         </div>
 
-        <!-- Canlı İstatistik Çubuğu -->
-        <div id="liveStatsBarlAnchor"></div>
-
-        <!-- ⚡ Silver Kazanç Hesaplayıcı -->
-        <div id="silverCalcAnchor"></div>
-
-        <!-- Market / Üretim Sekme Başlıkları ve Top PKer -->
-        <div class="flex flex-col w-full gap-6 mt-6">
-          <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 bg-[#0d1117] border border-gray-800 rounded-xl p-1.5 w-full md:w-max shadow-lg mx-auto md:mx-0">
-            <button id="dashTabGold" onclick="switchDashTab('gold')" class="flex-1 md:flex-none px-6 py-2.5 text-sm font-black rounded-lg bg-albion-accent text-black transition-all flex items-center justify-center gap-2">
-              <i class="fa-solid fa-coins text-xs"></i> Gold & İstatistik
-            </button>
-            <button id="dashTabKillboard" onclick="switchDashTab('killboard')" class="flex-1 md:flex-none px-6 py-2.5 text-sm font-black rounded-lg text-gray-400 hover:text-white transition-all flex items-center justify-center gap-2">
-              <i class="fa-solid fa-skull-crossbones text-xs"></i> Killboard
-            </button>
-          </div>
-
-          <!-- ── PANEL 1: Gold İstatistikleri (varsayılan) ── -->
-        <div id="dashPanelGold" class="w-full pb-10 flex flex-col items-center justify-start transition-all">
+        <!-- Dashboard Grid -->
+        <div class="flex-1 min-h-0 pb-10 flex justify-center">
            <div class="w-full max-w-5xl bg-albion-800 border border-gray-700 rounded-2xl shadow-lg flex flex-col overflow-hidden transition-colors">
               <div class="p-5 border-b border-gray-700 bg-albion-900/50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                  <div class="flex flex-col">
+                 <div class="flex flex-col">
                    <h3 class="font-bold text-white flex items-center text-sm md:text-base mb-1">
                       <i class="fa-solid fa-chart-line text-albion-accent mr-2"></i> <span data-i18n="home-goldTitle">Altın İstatistikleri</span>
                    </h3>
-                   <div class="flex flex-col mt-1">
-                      <span class="text-yellow-400 font-black text-xl drop-shadow-md" id="staticGoldPrice"><i class="fa-solid fa-coins mr-1 text-yellow-500"></i>--</span>
-                      <div class="flex items-center space-x-2 mt-1">
-                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-green-900/20 text-green-400 border border-green-500/30" id="staticGoldBuy">Alış: --</span>
-                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-red-900/20 text-red-400 border border-red-500/30" id="staticGoldSell">Satış: --</span>
-                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-gray-800 border border-gray-700 ml-1" id="staticGoldChange">--</span>
-                      </div>
+                   <div class="flex items-center space-x-3">
+                      <span class="text-yellow-400 font-black text-xl drop-shadow-md" id="staticGoldPrice"><i class="fa-solid fa-coins mr-1"></i>--</span>
+                      <span class="text-sm font-bold px-2 py-0.5 rounded bg-gray-800 border border-gray-700" id="staticGoldChange">--</span>
                    </div>
                  </div>
-
-                 <!-- OYUNDA AKTİF OYUNCU (Orta Kısım) -->
-                 <div class="flex flex-row items-stretch justify-center gap-2">
-                   <!-- Global Oyuncu -->
-                   <div class="flex flex-col items-center justify-center bg-black/40 border border-albion-700/50 rounded-xl px-5 py-2 shadow-inner group cursor-default transition-all hover:border-albion-accent/50">
-                      <div class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1 flex items-center">
-                        <i class="fa-solid fa-earth-americas mr-1.5 text-gray-500 group-hover:text-albion-accent transition-colors"></i> <span data-i18n="home-onlinePlayers">Aktif Oyuncu</span>
-                      </div>
-                      <div class="flex items-center">
-                         <span class="relative flex h-2.5 w-2.5 mr-2.5">
-                           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                           <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500 shadow-[0_0_8px_#22c55e]"></span>
-                         </span>
-                         <span id="gameActivePlayers" class="text-white font-black text-xl md:text-2xl tracking-wider font-mono drop-shadow-lg">Yükleniyor..</span>
-                      </div>
-                   </div>
-                 </div>
-
                  <div class="flex space-x-1 bg-albion-900 rounded-lg p-1 border border-gray-700" id="chartTimeframe">
                     <button class="px-3 py-1.5 text-xs font-bold rounded bg-albion-accent text-white" data-tf="daily">Günlük</button>
                     <button class="px-3 py-1.5 text-xs font-bold rounded text-gray-400 hover:text-white" data-tf="weekly">Haftalık</button>
@@ -257,30 +606,38 @@
            </div>
         </div>
 
-        <!-- ── PANEL 2: Killboard Iframe ── -->
-        <div id="dashPanelKillboard" class="hidden w-full min-h-0 pb-4" style="min-height:700px">
-          <div class="w-full h-full rounded-2xl overflow-hidden border border-gray-700 shadow-xl" style="min-height:700px">
-            <iframe id="killboardIframe"
-              src=""
-              style="width:100%;height:100%;min-height:700px;border:none;background:#0d1117;display:block"
-              loading="lazy"
-              title="Killboard">
-            </iframe>
-          </div>
-        </div>
-
       </div>
     </section>
 
+    <section id="tab-market" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="marketApp"></div></section>
     <section id="tab-events" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="eventsApp"></div></section>
+    <section id="tab-bestiary" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="bestiaryApp"></div></section>
     <section id="tab-crafting" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="craftingApp"></div></section>
     <section id="tab-pvp" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="pvpApp"></div></section>
     <section id="tab-avalon" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="avalonApp"></div></section>
     <section id="tab-gathering" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="gatheringApp"></div></section>
     <section id="tab-loot-logger" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="lootApp"></div></section>
     <section id="tab-arbitrage" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="arbitrageApp"></div></section>
+    <section id="tab-operations" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="operationsApp"></div></section>
 
     <!-- 8. Guides / AI Build -->
+    <section id="tab-build-lab" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="buildLabApp"></div></section>
+    <section id="tab-interactive-map" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="interactiveMapApp"></div></section>
+    <section id="tab-guild-operations" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="guildOperationsApp"></div></section>
+    <section id="tab-ai-assistant" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="aiAssistantApp"></div></section>
+    <section id="tab-social" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="socialApp"></div></section>
+    <section id="tab-strategy" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="strategyApp"></div></section>
+    <section id="tab-achievements" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="achievementsApp"></div></section>
+    <section id="tab-themes" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="themesApp"></div></section>
+    <section id="tab-discord" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="discordApp"></div></section>
+    <section id="tab-tax" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="taxApp"></div></section>
+    <section id="tab-ticker" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="tickerApp"></div></section>
+    <section id="tab-loot-sim" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="lootSimApp"></div></section>
+    <section id="tab-craft-rng" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="craftRngApp"></div></section>
+    <section id="tab-transport-risk" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="transportRiskApp"></div></section>
+    <section id="tab-fame-calc" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="fameCalcApp"></div></section>
+    <section id="tab-killboard" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="killboardApp"></div></section>
+    <section id="tab-mini-games" class="tab-content hidden h-full flex-col animate-fade-in"><div class="w-full h-full" id="miniGamesApp"></div></section>
     <section id="tab-ai-build" class="tab-content hidden h-full flex-col animate-fade-in">
       <div class="max-w-6xl mx-auto w-full h-full flex flex-col pb-6 pt-2">
         
@@ -299,7 +656,7 @@
           <!-- View 1: Personal AI Build Form -->
           <div id="aiViewPersonal" class="animate-fade-in max-w-5xl mx-auto">
             <div class="mb-6">
-              <h2 class="text-2xl font-bold text-white mb-1" data-i18n="aiBuild-title">Kişisel Set (PvE & PvP)</h2>
+              <h2 class="text-2xl font-bold text-white mb-1" data-i18n="aiBuild-title">Yapay Zeka Set Önericisi</h2>
               <p class="text-gray-400">Oyun içi orijinal görünümlü silahlardan birini seçin. Yapay zeka size bu silah için hem <strong>PvE</strong> hem de <strong>PvP</strong> olmak üzere iki ayrı Meta build (Q1, W1, E, P1 formatında) sunacaktır.</p>
             </div>
             
@@ -307,7 +664,7 @@
               <div id="aiPersonalForm" class="space-y-4">
                 
                 <div class="mb-2">
-                   <div class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider"><i class="fa-solid fa-khanda mr-1"></i> Eşya Sınıfı Seçin</div>
+                   <div class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider"><i class="fa-solid fa-khanda mr-1"></i> Silah Sınıfı Seçin</div>
                    <div id="weaponCategories" class="flex overflow-x-auto gap-2 pb-2 custom-scroll">
                       <!-- JS Dolduracak -->
                    </div>
@@ -328,8 +685,8 @@
                          <i class="fa-solid fa-gavel text-2xl text-gray-600"></i>
                       </div>
                       <div>
-                         <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-0.5">Hedef Eşya</div>
-                         <div id="selectedWeaponText" class="text-white font-bold text-sm">Lütfen Yukarıdan Bir Eşya Seçin</div>
+                         <div class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-0.5">Hedef Silah</div>
+                         <div id="selectedWeaponText" class="text-white font-bold text-sm">Lütfen Yukarıdan Silah Seçin</div>
                       </div>
                    </div>
                 </div>
@@ -339,8 +696,8 @@
                   <input type="text" id="buildExtra" placeholder="Örn: Ucuz olsun, hareket hızı yüksek olsun" class="w-full bg-albion-900 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-albion-accent outline-none transition-colors">
                 </div>
                 
-                <button type="button" id="btnPersonalSubmit" disabled class="w-full bg-gray-600 text-gray-400 cursor-not-allowed font-black py-4 px-4 rounded-xl transition-transform flex justify-center items-center mt-4 shadow-lg uppercase tracking-wider text-lg">
-                  <i class="fa-solid fa-robot mr-2"></i> Çift Set Olarak Oluştur (PvE & PvP)
+                <button type="button" id="btnPersonalSubmit" disabled="" class="w-full bg-gray-600 text-gray-400 cursor-not-allowed font-black py-4 px-4 rounded-xl transition-transform flex justify-center items-center mt-4 shadow-lg uppercase tracking-wider text-lg">
+                  <i class="fa-solid fa-robot mr-2"></i> Çift Set Olarak Oluştur (PvE &amp; PvP)
                 </button>
               </div>
             </div>
@@ -349,7 +706,7 @@
           <!-- View 2: Group Content Build Form -->
           <div id="aiViewGroup" class="hidden animate-fade-in max-w-4xl mx-auto">
             <div class="mb-6">
-              <h2 class="text-2xl font-bold text-white mb-1">Content Build (Grup & Meta)</h2>
+              <h2 class="text-2xl font-bold text-white mb-1">Content Build (Grup &amp; Meta)</h2>
               <p class="text-gray-400">En popüler grup içeriklerine özel, AI destekli meta kompozisyonları (Tank, Healer, DPS dağılımları ve detaylı taktikler).</p>
             </div>
             
@@ -361,7 +718,7 @@
                     <option value="Group Dungeon (5 Core + 2 Flex)">Grup Zindanı (Group Dungeon 5+2)</option>
                     <option value="Group Camp (4 Core + 3 Flex)">Grup Kampı (Group Camp 4+3)</option>
                     <option value="Avalon Gold (Pure PvE - 7 Kişi)">Avalon Altın Sandık (Sadece PvE - 7 Kişi)</option>
-                    <option value="Avalon Gold & Dive (PvPvE - 7 Kişi)">Avalon Altın & Dive (PvP+PvE Meta - 7 Kişi)</option>
+                    <option value="Avalon Gold &amp; Dive (PvPvE - 7 Kişi)">Avalon Altın &amp; Dive (PvP+PvE Meta - 7 Kişi)</option>
                     <option value="Avalon Dungeon (10 Core Roles)">Avalon Zindanı (10+10 Core Meta)</option>
                     <option value="HCE (Hardcore Expeditions 5 Core)">HCE (Hardcore Expeditions)</option>
                     <option value="Ganking (Grup)">Ganking (Grup Yakalama)</option>
@@ -393,70 +750,198 @@
 
   </main>
 
-  <script src="data/items-data.js"></script>
-  <script src="js/image-cache.js"></script>
-  <script src="js/settings-panel.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/i18n-helper.js"></script>
-  <script src="js/events.js"></script>
-  <script src="js/crafting-new.js"></script>
-  <script src="js/crafting.js"></script>
-  <script src="js/pvp.js"></script>
-  <script src="js/avalon.js"></script>
-  <script src="js/gathering.js"></script>
-  <script src="js/loot.js"></script>
-  <script src="js/arbitrage.js"></script>
-  <script src="js/ai-build.js"></script>
-  <script src="js/smart-scanner.js"></script>
-  <script src="js/silver-calculator.js"></script>
-  <script>
-    function switchDashTab(tab) {
-      const panels = {
-        gold:   document.getElementById('dashPanelGold'),
-        killboard: document.getElementById('dashPanelKillboard'),
-      };
-      const btns = {
-        gold:   document.getElementById('dashTabGold'),
-        killboard: document.getElementById('dashTabKillboard'),
-      };
+  <!-- GLOBAL SETTINGS MODAL -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/80 z-[100] hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-albion-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] animate-fade-in">
+      <!-- Header -->
+      <div class="bg-albion-900 border-b border-gray-700 p-5 flex justify-between items-center">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-lg bg-albion-accent/20 border border-albion-accent/50 flex items-center justify-center mr-3">
+            <i class="fa-solid fa-gear text-xl text-albion-accent"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-black text-white" data-i18n="settings-title">AoT-PNASF Ayarları</h3>
+            <p class="text-xs text-gray-400 mt-0.5" data-i18n="settings-subtitle">Uygulama Tercihlerinizi Yapılandırın</p>
+          </div>
+        </div>
+        <button id="settingsClose" class="text-gray-500 hover:text-white bg-black/30 hover:bg-black/50 p-2 rounded-lg transition-colors">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+      
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-albion-800 to-albion-900 space-y-6 custom-scroll">
+        
+        <!-- Language Setting -->
+        <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
+          <label class="block text-sm font-bold text-gray-300 mb-2">
+            <i class="fa-solid fa-language mr-2 text-albion-accent"></i><span data-i18n="settings-language">Sistem Dili</span>
+          </label>
+          <select id="settingsLang" class="w-full bg-albion-900 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-albion-accent outline-none transition-colors cursor-pointer">
+            <!-- JS will populate this -->
+          </select>
+        </div>
 
-      const activeClass   = 'flex-1 md:flex-none px-6 py-2.5 text-sm font-black rounded-lg bg-albion-accent text-black transition-all flex items-center justify-center gap-2';
-      const inactiveClass = 'flex-1 md:flex-none px-6 py-2.5 text-sm font-black rounded-lg text-gray-400 hover:text-white transition-all flex items-center justify-center gap-2';
+        <!-- Server Setting -->
+        <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
+          <label class="block text-sm font-bold text-gray-300 mb-3">
+            <i class="fa-solid fa-server mr-2 text-albion-accent"></i><span data-i18n="settings-server">Global Sunucu</span>
+          </label>
+          <input type="hidden" id="settingsServer" value="europe">
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" class="server-btn bg-albion-900 border border-albion-accent text-white px-4 py-2.5 rounded-lg font-bold transition-colors text-sm" data-val="europe">EU</button>
+            <button type="button" class="server-btn bg-albion-900 border border-gray-700 text-gray-300 px-4 py-2.5 rounded-lg font-bold transition-colors text-sm" data-val="americas">NA</button>
+            <button type="button" class="server-btn bg-albion-900 border border-gray-700 text-gray-300 px-4 py-2.5 rounded-lg font-bold transition-colors text-sm" data-val="asia">ASIA</button>
+          </div>
+        </div>
 
-      Object.keys(panels).forEach(k => {
-        if(panels[k]) panels[k].classList.add('hidden');
-        if(btns[k]) btns[k].className = inactiveClass;
-      });
+        <!-- Scale Setting -->
+        <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
+          <label class="block text-sm font-bold text-gray-300 mb-2">
+            <i class="fa-solid fa-text-height mr-2 text-albion-accent"></i><span data-i18n="settings-scale">Boyut (Scale)</span>
+          </label>
+          <select id="settingsScale" class="w-full bg-albion-900 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-albion-accent outline-none transition-colors cursor-pointer">
+            <option value="9px">Mini / %50 (9px)</option>
+            <option value="10px" selected="">Kompakt / %60 (10px)</option>
+            <option value="12px">Küçük / %75 (12px)</option>
+            <option value="13px">Normal (13px)</option>
+            <option value="14px">Varsayılan (14px)</option>
+            <option value="15px">Büyük (15px)</option>
+            <option value="16px">Çok Büyük (16px)</option>
+          </select>
+        </div>
 
-      if(panels[tab]) panels[tab].classList.remove('hidden');
-      if(btns[tab]) btns[tab].className = activeClass;
+        <!-- AI Theme Generator -->
+        <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
+          <label class="block text-sm font-bold text-gray-300 mb-2">
+            <i class="fa-solid fa-wand-magic-sparkles mr-2 text-purple-400"></i>AI Tema Üreticisi
+          </label>
+          <div class="flex gap-2 mb-3">
+            <input type="text" id="aiThemePrompt" placeholder="Örn: 'Koyu mor ve neon yeşil tonları'" class="flex-1 bg-albion-900 border border-gray-600 rounded-lg p-2.5 text-white text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-colors">
+            <button type="button" id="aiThemeBtn" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-lg font-bold transition-colors text-sm shrink-0">
+              <i class="fa-solid fa-robot"></i>
+            </button>
+          </div>
+          <div id="aiThemeLoading" class="hidden text-xs text-purple-400 mb-2 font-bold">
+            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Yapay Zeka renkleri analiz ediyor...
+          </div>
+        </div>
 
-      if (tab === 'killboard') {
-         const iframe = document.getElementById('killboardIframe');
-         if (!iframe.src || iframe.src === window.location.href || iframe.getAttribute('data-loaded') !== '1') {
-           iframe.src = 'https://killboard-1.com/eu';
-           iframe.setAttribute('data-loaded', '1');
-           const cont = document.getElementById('dashPanelKillboard');
-           iframe.style.height = Math.max(700, window.innerHeight - 300) + 'px';
-           cont.style.minHeight = iframe.style.height;
-         }
-      }
-    }
+        <!-- Color Pickers -->
+        <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
+          <label class="block text-sm font-bold text-gray-300 mb-3">
+            <i class="fa-solid fa-palette mr-2 text-albion-accent"></i><span data-i18n="settings-customColors">Özel Renkler</span>
+          </label>
+          <div class="grid grid-cols-3 gap-3 mb-3">
+            <div class="flex flex-col items-center">
+              <label class="text-[10px] text-gray-400 mb-1 font-bold uppercase">Arka Plan</label>
+              <input type="color" id="pickerBg" value="#0a0a0a" class="w-full h-12 rounded-lg border-2 border-gray-600 cursor-pointer bg-transparent">
+            </div>
+            <div class="flex flex-col items-center">
+              <label class="text-[10px] text-gray-400 mb-1 font-bold uppercase">Vurgu</label>
+              <input type="color" id="pickerAccent" value="#d4af37" class="w-full h-12 rounded-lg border-2 border-gray-600 cursor-pointer bg-transparent">
+            </div>
+            <div class="flex flex-col items-center">
+              <label class="text-[10px] text-gray-400 mb-1 font-bold uppercase">Metin</label>
+              <input type="color" id="pickerText" value="#f5f5f5" class="w-full h-12 rounded-lg border-2 border-gray-600 cursor-pointer bg-transparent">
+            </div>
+          </div>
+          
+          <!-- Mini Preview -->
+          <div id="miniPreview" class="bg-[#0a0a0a] border-2 border-[#d4af37] rounded-lg p-3">
+            <div id="miniPreviewTitle" class="text-sm font-bold text-[#d4af37] mb-1">Önizleme</div>
+            <div id="miniPreviewText" class="text-xs text-[#f5f5f5] mb-2">Bu renk kombinasyonu uygulamanın genel görünümünü belirleyecektir.</div>
+            <button id="miniPreviewBtn" class="bg-[#d4af37] text-[#0a0a0a] text-xs font-bold px-3 py-1 rounded">Tamam</button>
+          </div>
+        </div>
+      </div>
 
-    window.addEventListener('resize', () => {
-      const el = document.getElementById('killboardIframe');
-      if (el && el.getAttribute('data-loaded') === '1') {
-        el.style.height = Math.max(700, window.innerHeight - 300) + 'px';
-      }
-    });
-  </script>
+      <!-- Footer -->
+      <div class="bg-albion-900 border-t border-gray-700 p-4 flex justify-between items-center gap-3">
+        <button type="button" class="btn-download-project-zip bg-green-700 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold transition-colors text-xs flex items-center shadow-lg">
+          <i class="fa-solid fa-file-zipper mr-1.5"></i>ZIP
+        </button>
+        <button type="button" id="settingsClose" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2.5 rounded-lg font-bold transition-colors">
+          <i class="fa-solid fa-xmark mr-2"></i>İptal
+        </button>
+        <button type="button" id="settingsSave" class="bg-albion-accent hover:bg-albion-accent_hover text-black px-6 py-2.5 rounded-lg font-bold transition-colors shadow-lg">
+          <i class="fa-solid fa-check mr-2"></i>Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <!-- ZIP INDIRICI WIDGET -->
-  <button onclick="downloadProjectAsZip()" class="fixed bottom-4 left-4 z-[9999] bg-albion-accent hover:bg-albion-accent_hover text-black px-4 py-3 rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.4)] flex items-center gap-2 font-black transition-all hover:scale-105 border border-yellow-300">
-    <i class="fa-solid fa-file-zipper text-xl"></i>
-    <span class="text-sm">Projeyi İndir (ZIP)</span>
-  </button>
-  <script src="js/zipper.js"></script>
+  <script defer="" src="js/main.js"></script>
+  <script defer="" src="js/market-runtime.js"></script>
+  <script defer="" src="js/i18n-helper.js"></script>
+  <script defer="" src="js/i18n-legacy.js"></script>
+  <script defer="" src="js/event.js"></script>
+  <script defer="" src="js/event-market-bridge.js"></script>
+  <script defer="" src="js/bestiary-data.js"></script>
+  <script defer="" src="js/creature-art.js"></script>
+  <script defer="" src="js/bestiary.js"></script>
+  <script defer="" src="js/crafting.js"></script>
+  <script defer="" src="js/crafting-planner.js"></script>
+  <script defer="" src="js/pvp.js"></script>
+  <script defer="" src="js/avalon.js"></script>
+  <script defer="" src="js/gathering.js"></script>
+  <script defer="" src="js/loot.js"></script>
+  <script defer="" src="js/arbitrage-filters.js"></script>
+  <script defer="" src="js/arbitrage.js"></script>
+  <script defer="" src="js/ai-builds.js"></script>
+  <script defer="" src="js/market-items.js"></script>
+  <script defer="" src="js/item-card.js"></script>
+  <script defer="" src="js/favorites.js"></script>
+  <script defer="" src="js/market-dock.js"></script>
+  <script defer="" src="js/item-inspector.js"></script>
+  <script defer="" src="js/market-alerts.js"></script>
+  <script defer="" src="js/favorite-actions.js"></script>
+  <script defer="" src="js/performance-ux.js"></script>
+  <script defer="" src="js/market-live.js"></script>
+  <script defer="" src="js/market-center.js"></script>
+  <script defer="" src="js/home-dashboard.js"></script>
+  <script defer="" src="js/global-item-search.js"></script>
+  <script defer="" src="js/economy-profile.js"></script>
+  <script defer="" src="js/economy-planner.js"></script>
+  <script defer="" src="js/operations-data.js"></script>
+  <script defer="" src="js/operations-intelligence-data.js"></script>
+  <script defer="" src="js/operations-market.js"></script>
+  <script defer="" src="js/operations-center.js"></script>
+  <script defer="" src="js/operations-spawn.js"></script>
+  <script defer="" src="js/operations-bestiary.js"></script>
+  <script defer="" src="js/operations-combat.js"></script>
+  <script defer="" src="js/operations-profit.js"></script>
+  <script defer="" src="js/operations-risk.js"></script>
+  <script defer="" src="js/operations-build.js"></script>
+  <script defer="" src="js/operations-planning.js"></script>
+  <script defer="" src="js/operations-gathering.js"></script>
+  <script defer="" src="js/operations-reference.js"></script>
+  <script defer="" src="js/operations-pvp.js"></script>
+  <script defer="" src="js/operations-intelligence.js"></script>
+  <script defer="" src="js/operations-records.js"></script>
+  
+  <!-- YENİ: Bildirim, Sesli Asistan, Veri Görselleştirme, Sosyal -->
+  <script defer="" src="js/ui/toast-notifications.js"></script>
+  <script defer="" src="js/ui/voice-assistant.js"></script>
+  <script defer="" src="js/ui/data-viz.js"></script>
+  <script defer="" src="js/ui/social-features.js"></script>
+  
+  <!-- YENİ 2: Vergi, Başarı, Discord, Tema, Strateji, Canlı Pazar -->
+  <script defer="" src="js/ui/tax-calculator.js"></script>
+  <script defer="" src="js/ui/achievements.js"></script>
+  <script defer="" src="js/ui/discord-bridge.js"></script>
+  <script defer="" src="js/ui/theme-store.js"></script>
+  <script defer="" src="js/ui/ai-strategy-coach.js"></script>
+  <script defer="" src="js/ui/market-simulator.js"></script>
+  
+  <!-- YENİ 3: Loot Sim, Craft RNG, Transport Risk, Fame Calc, Killboard, Mini Games -->
+  <script defer="" src="js/ui/loot-simulator.js"></script>
+  <script defer="" src="js/ui/crafting-rng.js"></script>
+  <script defer="" src="js/ui/transport-risk.js"></script>
+  <script defer="" src="js/ui/fame-calculator.js"></script>
+  <script defer="" src="js/ui/killboard.js"></script>
+  <script defer="" src="js/ui/mini-games.js"></script>
+  <script defer="" src="js/zip-exporter.js"></script>
 
-</body>
-</html>
+
+</body></html>

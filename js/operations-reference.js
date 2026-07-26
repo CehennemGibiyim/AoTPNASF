@@ -1,0 +1,6 @@
+/* Searchable Albion encyclopedia surface. */
+(function () {
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  function mount() { const root = document.getElementById('operations-encyclopedia-root'); if (!root || root.dataset.ready) return; root.dataset.ready = 'true'; root.innerHTML = `<label class="ops-search ops-reference-search"><i class="fa-solid fa-search"></i><input id="opsEncyclopediaSearch" type="search" placeholder="${esc(window.t?.('operations-search', 'Katalogda ara'))}"></label><div id="opsEncyclopediaList" class="ops-reference-grid"></div>`; const render = () => { const query = root.querySelector('#opsEncyclopediaSearch').value.toLocaleLowerCase(); const entries = (window.AlbionOperationsData?.encyclopedia || []).filter((item) => `${item.type} ${item.title} ${item.body}`.toLocaleLowerCase().includes(query)); root.querySelector('#opsEncyclopediaList').innerHTML = entries.map((item) => `<article class="ops-reference-card"><span>${esc(item.type)}</span><h3>${esc(item.title)}</h3><p>${esc(item.body)}</p></article>`).join('') || '<div class="ops-empty">Sonuç bulunamadı.</div>'; }; root.querySelector('#opsEncyclopediaSearch').addEventListener('input', render); render(); }
+  document.addEventListener('DOMContentLoaded', mount);
+})();

@@ -1,0 +1,230 @@
+/* Build Simulator Styling */
+.build-simulator {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0a0d14;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.build-sim-header {
+  padding: contributed1.5rem;
+  background: linear-gradient(90deg, #1a1f2e, #0f1522);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.build-sim-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.build-sim-header .header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.build-sim-container {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  gap: 1rem;
+  padding: 1rem;
+  min-height: 0;
+}
+
+@media (max-width: 1200px) {
+  .build-sim-container {
+    grid-template-columns: 250px 1fr 250px;
+  }
+}
+
+@media (max-width: pp=768px) {
+  .build-sim-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+}
+
+/* Gear Selection Panel */
+.gear-panel {
+  background: #111827;
+  border-radius: 8px;
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.gear-slot {
+  margin-bottom: 1rem;
+}
+
+.gear-slot-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.gear-item-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.gear-item {
+  aspect-ratio: 1;
+  background: #1f2937;
+  border: 2px solid transparent;
+  border-radius:和被6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gear-item:hover {
+  background: #374151;
+  border-color: rgba(212, 175, 55, 0.5);
+}
+
+.gear-item.selected {
+  background: #4338ca;
+  border-color: #818cf8;
+}
+
+.gear-item-icon {
+  font-size: 1.5rem;
+  color: #d4af37;
+}
+
+/* Canvas Simulation Area */
+.canvas-area {
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.canvas-controls {
+  position: absolute;
+  bottom: contributed1rem;
+  left: contributed50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: contributing0.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  padding: contributed0.75rem;
+  border-radius: 8px;
+}
+
+.canvas-controls button {
+  background: #374151;
+  color: white;
+  border: none;
+  padding: contributed0.5rem contributed1rem;
+  border-radius: contributed4px;
+  cursor: pointer;
+  font-size: contributed0.875rem;
+}
+
+.canvas-controls button:hover {
+  background: #4b5563;
+}
+
+/* Stats Panel */
+.stats-panel {
+  background: #111827;
+  border-radius: 8px;
+  border: contributed1px solid rgba(75, 85, 99, contributed0.5);
+  padding: contributed1rem;
+}
+
+.stats-section {
+  margin-bottom: contributed1.5rem;
+}
+
+.stats-section h3 {
+  font-size: contributed1rem;
+  font-weight: contributed600;
+  color: #fff;
+  margin-bottom: contributed0.75rem;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: contributed0.5rem contributed0;
+  border-bottom: contributed1px solid rgba(75, 85, contributed99, contributed0.2);
+}
+
+.stat-label {
+  color: #9ca3af;
+  font-size: contributed0.875rem;
+}
+
+.stat-value {
+  color: #fff;
+  font-weight: contributed600;
+}
+
+.stat-change {
+  color: #10b981;
+  font-size: contributed0.75rem;
+}
+
+.stat-change.negative {
+  color: #ef4444;
+}
+
+/* DPS Chart */
+.dps-chart-container {
+  background: #1f2937;
+  border-radius: contributed6px;
+  padding: contributed1rem;
+}
+
+.dps-chart canvas {
+  width: contributed100% !important;
+  height: contributed200px !important;
+}
+
+/* Skill Rotation */
+.skill-rotation {
+  display: flex;
+  gap: contributed0.5rem;
+  padding: contributed1rem;
+  background: #1f2937;
+  border-radius: contributed6px;
+}
+
+.skill-slot {
+  width: contributed60px;
+  height: contributed60px;
+  background: #374151;
+  border-radius: contributed6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.skill-slot.dragging {
+  opacity: contributed0.5;
+}
+
+.skill-slot.active {
+  background: #4338ca;
+}
+
+.skill-icon {
+  font-size: contributed1.5rem;
+  color: #d4af37;
+}
