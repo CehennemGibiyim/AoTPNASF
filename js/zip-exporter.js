@@ -1,4 +1,4 @@
-/* ZIP Export Utility: Package all 99 project files and trigger direct browser ZIP download */
+/* ZIP Export Utility: package every manifest entry and trigger a direct browser ZIP download. */
 (function () {
   const ALL_FILES = [
     ".github/workflows/deploy.yml",
@@ -44,7 +44,9 @@
     "js/market-dock.js",
     "js/market-items.js",
     "js/market-live.css",
+    "js/market-tools.css",
     "js/market-live.js",
+    "js/market-tools.js",
     "js/market-runtime.js",
     "js/operations-bestiary.js",
     "js/operations-build.js",
@@ -89,6 +91,7 @@
     "js/ui/toast-notifications.js",
     "js/ui/transport-risk.js",
     "js/ui/voice-assistant.js",
+    "js/ui/navigation-polish.js",
     "js/zip-exporter.js",
     "locales/de.json",
     "locales/en.json",
@@ -101,6 +104,7 @@
     "styles.css",
     "sw.js"
   ];
+  const TOTAL_FILES = ALL_FILES.length;
 
   const STATIC_FALLBACKS = {
     ".github/workflows/deploy.yml": `name: Deploy to GitHub Pages
@@ -218,7 +222,7 @@ package-lock.json
       </div>
       <div>
         <div class="font-black text-sm text-albion-accent">ZIP Paketleme Başlatıldı</div>
-        <div id="zipStatusText" class="text-xs text-gray-300">Tüm 99 dosya işleniyor (0/99)...</div>
+        <div id="zipStatusText" class="text-xs text-gray-300">Tüm ${TOTAL_FILES} dosya işleniyor (0/${TOTAL_FILES})...</div>
       </div>
     `;
     document.body.appendChild(statusToast);
@@ -268,7 +272,7 @@ package-lock.json
         fetchedCount++;
         const statusEl = document.getElementById('zipStatusText');
         if (statusEl) {
-          statusEl.textContent = `Tüm 99 dosya taranıyor (${fetchedCount}/99 - ${packedCount} eklendi)...`;
+          statusEl.textContent = `Tüm ${TOTAL_FILES} dosya taranıyor (${fetchedCount}/${TOTAL_FILES} - ${packedCount} eklendi)...`;
         }
       }
 
@@ -287,9 +291,9 @@ package-lock.json
 
       if (statusEl) {
         if (failedFiles.length === 0) {
-          statusEl.innerHTML = `<span class="text-green-400 font-bold">✅ 99/99 dosyanın tamamı eksiksiz indirildi!</span>`;
+          statusEl.innerHTML = `<span class="text-green-400 font-bold">✅ ${packedCount}/${TOTAL_FILES} dosyanın tamamı eksiksiz indirildi!</span>`;
         } else {
-          statusEl.innerHTML = `<span class="text-amber-400 font-bold">⚠️ ${packedCount}/99 dosya indirildi (${failedFiles.join(', ')} aktarılamadı)</span>`;
+          statusEl.innerHTML = `<span class="text-amber-400 font-bold">⚠️ ${packedCount}/${TOTAL_FILES} dosya indirildi (${failedFiles.join(', ')} aktarılamadı)</span>`;
         }
       }
       setTimeout(() => statusToast.remove(), 5000);

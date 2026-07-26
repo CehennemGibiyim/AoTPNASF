@@ -20,7 +20,7 @@
     customColors: { bg: '#0a0a0a', accent: '#d4af37', text: '#f5f5f5' }
   };
 
-  // Tüm proje dosyalarının manifest listesi (98 dosya)
+  // Tüm proje dosyalarının manifest listesi
   window.manifestFiles = [
     '.github/workflows/deploy.yml',
     '.gitignore',
@@ -57,6 +57,7 @@
     'js/performance-ux.js',
     'js/market-live.js',
     'js/market-center.js',
+    'js/market-tools.js',
     'js/home-dashboard.js',
     'js/global-item-search.js',
     'js/economy-profile.js',
@@ -79,6 +80,7 @@
     'js/operations-records.js',
     'js/ui/toast-notifications.js',
     'js/ui/voice-assistant.js',
+    'js/ui/navigation-polish.js',
     'js/ui/data-viz.js',
     'js/ui/social-features.js',
     'js/ui/tax-calculator.js',
@@ -105,6 +107,7 @@
     'js/ai/search.js',
     'js/ai/weapon-db.js',
     'js/market-live.css',
+    'js/market-tools.css',
     'js/app-surfaces.css',
     'js/operations-center.css',
     'js/operations-enhanced.css',
@@ -485,8 +488,10 @@
         window._miniGamesLoaded = true;
         window.MiniGames.render(document.getElementById('miniGamesApp'));
       }
-      document.body.classList.remove('sidebar-expanded');
-      document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        document.body.classList.remove('sidebar-expanded');
+        document.getElementById('mobileMenuBtn')?.setAttribute('aria-expanded', 'false');
+      }
     }));
 
     const mobileMenu = document.getElementById('mobileMenuBtn');
@@ -495,25 +500,11 @@
       const expanded = document.body.classList.toggle('sidebar-expanded');
       mobileMenu.setAttribute('aria-expanded', String(expanded));
     });
-    // Keep the navigation discoverable on first desktop load. After a section
-    // is chosen the existing click handler collapses it back to the icon rail.
-    if (window.matchMedia('(min-width: 721px)').matches) {
-      document.body.classList.add('sidebar-expanded');
-      mobileMenu?.setAttribute('aria-expanded', 'true');
-      setTimeout(() => {
-        const anyTabClick = () => {
-          document.body.classList.remove('sidebar-expanded');
-          mobileMenu?.setAttribute('aria-expanded', 'false');
-          document.removeEventListener('click', anyTabClick);
-        };
-        document.addEventListener('click', anyTabClick);
-      }, 100);
-    }
     // Collapse sidebar when clicking outside the navigation on mobile.
     document.addEventListener('click', (event) => {
       if (!document.body.classList.contains('sidebar-expanded')) return;
       if (event.target.closest('#navMenu, #mobileMenuBtn')) return;
-      if (window.matchMedia('(max-width: 720px)').matches) {
+      if (window.matchMedia('(max-width: 768px)').matches) {
         document.body.classList.remove('sidebar-expanded');
         mobileMenu?.setAttribute('aria-expanded', 'false');
       }

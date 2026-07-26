@@ -451,6 +451,7 @@
   
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="js/market-live.css">
+  <link rel="stylesheet" href="js/market-tools.css">
   <link rel="stylesheet" href="js/app-surfaces.css">
   <link rel="stylesheet" href="js/operations-center.css">
   <link rel="stylesheet" href="js/operations-enhanced.css">
@@ -506,55 +507,57 @@
         </button>
       </div>
     </div>
-    
+  </header>
+  
+  <!-- App Body: Left Sidebar + Main Content -->
+  <div class="app-body flex flex-1 overflow-hidden relative">
     <!-- Tab Navigation -->
     <nav id="navMenu" class="app-sidebar" aria-label="Uygulama bölümleri">
       <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-command">KOMUTA MERKEZİ</span>
-        <button data-tab="tab-home" class="tab-btn px-4 py-3 text-sm font-bold border-b-2 border-albion-accent text-albion-accent transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-house mr-1.5"></i> <span data-i18n="nav-home">Genel Bakış</span></button>
-        <button data-tab="tab-market" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-gauge-high mr-1.5"></i> <span data-i18n="nav-market">Pazar Kokpiti</span></button>
+        <button data-tab="tab-home" class="tab-btn border-albion-accent"><i class="fa-solid fa-house"></i> <span data-i18n="nav-home">Genel Bakış</span></button>
+        <button data-tab="tab-market" class="tab-btn"><i class="fa-solid fa-gauge-high"></i> <span data-i18n="nav-market">Pazar Kokpiti</span></button>
       </div>
       <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-knowledge">BİLGİ &amp; KEŞİF</span>
-        <button data-tab="tab-bestiary" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-book-skull mr-1.5"></i> <span data-i18n="nav-bestiary">Mob &amp; Boss Rehberi</span></button>
-        <button data-tab="tab-events" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-clock mr-1.5"></i> <span data-i18n="nav-events">Etkinlikler</span></button>
-        <button data-tab="tab-avalon" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-route mr-1.5"></i> <span data-i18n="nav-avalon">Avalon Yol Bulucu</span></button>
+        <button data-tab="tab-bestiary" class="tab-btn"><i class="fa-solid fa-book-skull"></i> <span data-i18n="nav-bestiary">Mob &amp; Boss Rehberi</span></button>
+        <button data-tab="tab-events" class="tab-btn"><i class="fa-solid fa-clock"></i> <span data-i18n="nav-events">Etkinlikler</span></button>
+        <button data-tab="tab-avalon" class="tab-btn"><i class="fa-solid fa-route"></i> <span data-i18n="nav-avalon">Avalon Yol Bulucu</span></button>
       </div>
       <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-economy">EKONOMİ &amp; ÜRETİM</span>
-        <button data-tab="tab-crafting" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-hammer mr-1.5"></i> <span data-i18n="nav-crafting">Üretim Planlayıcı</span></button>
-        <button data-tab="tab-gathering" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-leaf mr-1.5"></i> <span data-i18n="nav-gathering">Kaynak &amp; Harita</span></button>
-        <button data-tab="tab-arbitrage" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-sack-dollar mr-1.5"></i> <span data-i18n="nav-arbitrage">Pazar Fırsatları</span></button>
-        <button data-tab="tab-loot-logger" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-box-open mr-1.5"></i> <span data-i18n="nav-lootLogger">Loot Logger</span></button>
+        <button data-tab="tab-crafting" class="tab-btn"><i class="fa-solid fa-hammer"></i> <span data-i18n="nav-crafting">Üretim Planlayıcı</span></button>
+        <button data-tab="tab-gathering" class="tab-btn"><i class="fa-solid fa-leaf"></i> <span data-i18n="nav-gathering">Kaynak &amp; Harita</span></button>
+        <button data-tab="tab-arbitrage" class="tab-btn"><i class="fa-solid fa-sack-dollar"></i> <span data-i18n="nav-arbitrage">Pazar Fırsatları</span></button>
+        <button data-tab="tab-loot-logger" class="tab-btn"><i class="fa-solid fa-box-open"></i> <span data-i18n="nav-lootLogger">Loot Logger</span></button>
       </div>
       <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-combat">SAVAŞ &amp; BUILD</span>
-        <button data-tab="tab-pvp" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-khanda mr-1.5"></i> <span data-i18n="nav-pvp">Oyuncu &amp; Killboard</span></button>
-        <button data-tab="tab-ai-build" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-robot mr-1.5"></i> <span data-i18n="nav-aiBuild">AI Set Rehberi</span></button>
+        <button data-tab="tab-pvp" class="tab-btn"><i class="fa-solid fa-khanda"></i> <span data-i18n="nav-pvp">Oyuncu &amp; Killboard</span></button>
+        <button data-tab="tab-ai-build" class="tab-btn"><i class="fa-solid fa-robot"></i> <span data-i18n="nav-aiBuild">AI Set Rehberi</span></button>
       </div>
       <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-operations">OPERASYON &amp; İSTİHBARAT</span>
-        <button data-tab="tab-operations" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-compass-drafting mr-1.5"></i> <span data-i18n="nav-operations">Albion Operasyon Merkezi</span></button>
+        <button data-tab="tab-operations" class="tab-btn"><i class="fa-solid fa-compass-drafting"></i> <span data-i18n="nav-operations">Albion Operasyon Merkezi</span></button>
       </div>
       <div class="nav-group"><span class="nav-group-label">GELİŞMİŞ SİSTEMLER</span>
-        <button data-tab="tab-build-lab" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-flask-vial mr-1.5"></i> <span>Build Lab</span></button>
-        <button data-tab="tab-interactive-map" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-map-location-dot mr-1.5"></i> <span>Harita</span></button>
-        <button data-tab="tab-guild-operations" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-chess-rook mr-1.5"></i> <span>Lonca</span></button>
-        <button data-tab="tab-ai-assistant" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-brain mr-1.5"></i> <span>AI Asistan</span></button>
-        <button data-tab="tab-social" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-users mr-1.5"></i> <span>Topluluk</span></button>
-        <button data-tab="tab-strategy" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-chess-queen mr-1.5"></i> <span>Strateji</span></button>
-        <button data-tab="tab-achievements" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-trophy mr-1.5"></i> <span>Rozetler</span></button>
-        <button data-tab="tab-themes" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-palette mr-1.5"></i> <span>Temalar</span></button>
-        <button data-tab="tab-discord" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-brands fa-discord mr-1.5"></i> <span>Discord</span></button>
-        <button data-tab="tab-tax" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-calculator mr-1.5"></i> <span>Vergi</span></button>
-        <button data-tab="tab-ticker" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-chart-candlestick mr-1.5"></i> <span>Canlı Pazar</span></button>
+        <button data-tab="tab-build-lab" class="tab-btn"><i class="fa-solid fa-flask-vial"></i> <span>Build Lab</span></button>
+        <button data-tab="tab-interactive-map" class="tab-btn"><i class="fa-solid fa-map-location-dot"></i> <span>Harita</span></button>
+        <button data-tab="tab-guild-operations" class="tab-btn"><i class="fa-solid fa-chess-rook"></i> <span>Lonca</span></button>
+        <button data-tab="tab-ai-assistant" class="tab-btn"><i class="fa-solid fa-brain"></i> <span>AI Asistan</span></button>
+        <button data-tab="tab-social" class="tab-btn"><i class="fa-solid fa-users"></i> <span>Topluluk</span></button>
+        <button data-tab="tab-strategy" class="tab-btn"><i class="fa-solid fa-chess-queen"></i> <span>Strateji</span></button>
+        <button data-tab="tab-achievements" class="tab-btn"><i class="fa-solid fa-trophy"></i> <span>Rozetler</span></button>
+        <button data-tab="tab-themes" class="tab-btn"><i class="fa-solid fa-palette"></i> <span>Temalar</span></button>
+        <button data-tab="tab-discord" class="tab-btn"><i class="fa-brands fa-discord"></i> <span>Discord</span></button>
+        <button data-tab="tab-tax" class="tab-btn"><i class="fa-solid fa-calculator"></i> <span>Vergi</span></button>
+        <button data-tab="tab-ticker" class="tab-btn"><i class="fa-solid fa-chart-candlestick"></i> <span>Canlı Pazar</span></button>
       </div>
       <div class="nav-group"><span class="nav-group-label">ARAÇLAR &amp; OYUNLAR</span>
-        <button data-tab="tab-loot-sim" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-dice-d20 mr-1.5"></i> <span>Loot Sim</span></button>
-        <button data-tab="tab-craft-rng" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-hammer-crash mr-1.5"></i> <span>Craft RNG</span></button>
-        <button data-tab="tab-transport-risk" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-truck-fast mr-1.5"></i> <span>Transport</span></button>
-        <button data-tab="tab-fame-calc" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-star-half-stroke mr-1.5"></i> <span>Fame Calc</span></button>
-        <button data-tab="tab-killboard" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-skull mr-1.5"></i> <span>Killboard</span></button>
-        <button data-tab="tab-mini-games" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50"><i class="fa-solid fa-gamepad mr-1.5"></i> <span>Oyunlar</span></button>
-        <button type="button" class="btn-download-project-zip tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-albion-accent hover:text-white transition-colors flex-1 md:flex-none text-center hover:bg-albion-800/50" title="Tüm projeyi ZIP indir"><i class="fa-solid fa-file-zipper mr-1.5"></i> <span>ZIP</span></button>
+        <button data-tab="tab-loot-sim" class="tab-btn"><i class="fa-solid fa-dice-d20"></i> <span>Loot Sim</span></button>
+        <button data-tab="tab-craft-rng" class="tab-btn"><i class="fa-solid fa-hammer-crash"></i> <span>Craft RNG</span></button>
+        <button data-tab="tab-transport-risk" class="tab-btn"><i class="fa-solid fa-truck-fast"></i> <span>Transport</span></button>
+        <button data-tab="tab-fame-calc" class="tab-btn"><i class="fa-solid fa-star-half-stroke"></i> <span>Fame Calc</span></button>
+        <button data-tab="tab-killboard" class="tab-btn"><i class="fa-solid fa-skull"></i> <span>Killboard</span></button>
+        <button data-tab="tab-mini-games" class="tab-btn"><i class="fa-solid fa-gamepad"></i> <span>Oyunlar</span></button>
+        <button type="button" class="btn-download-project-zip tab-btn text-albion-accent" title="Tüm projeyi ZIP indir"><i class="fa-solid fa-file-zipper"></i> <span>ZIP</span></button>
       </div>
     </nav>
-  </header>
 
   <!-- Main Content Areas -->
   <main class="app-main flex-1 h-full overflow-y-auto overflow-x-hidden bg-albion-900 relative custom-scroll transition-colors duration-300 p-4 md:p-6">
@@ -749,6 +752,7 @@
     </section>
 
   </main>
+  </div>
 
   <!-- GLOBAL SETTINGS MODAL -->
   <div id="settingsModal" class="fixed inset-0 bg-black/80 z-[100] hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
@@ -899,6 +903,7 @@
   <script defer="" src="js/performance-ux.js"></script>
   <script defer="" src="js/market-live.js"></script>
   <script defer="" src="js/market-center.js"></script>
+  <script defer="" src="js/market-tools.js"></script>
   <script defer="" src="js/home-dashboard.js"></script>
   <script defer="" src="js/global-item-search.js"></script>
   <script defer="" src="js/economy-profile.js"></script>
@@ -942,6 +947,7 @@
   <script defer="" src="js/ui/killboard.js"></script>
   <script defer="" src="js/ui/mini-games.js"></script>
   <script defer="" src="js/zip-exporter.js"></script>
+  <script defer="" src="js/ui/navigation-polish.js"></script>
 
 
 </body></html>

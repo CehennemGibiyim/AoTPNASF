@@ -1,5 +1,5 @@
 /* Service Worker - AoT-PNASF Offline & Cache */
-const CACHE_NAME = 'aot-pnasf-v2';
+const CACHE_NAME = 'aot-pnasf-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -10,6 +10,9 @@ const ASSETS_TO_CACHE = [
   '/js/i18n-legacy.js',
   '/js/market-live.js',
   '/js/market-live.css',
+  '/js/market-tools.js',
+  '/js/market-tools.css',
+  '/js/ui/navigation-polish.js',
   '/js/app-surfaces.css',
   '/js/operations-center.css',
   '/js/operations-enhanced.css',
