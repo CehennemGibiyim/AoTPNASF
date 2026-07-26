@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en" data-theme="obsidian-gold" dir="ltr"><head><link rel="preload" href="_miniapp/i18n/manifest.json" as="fetch" type="application/json" crossorigin="anonymous">
+<!DOCTYPE html>
+<html lang="tr" data-theme="obsidian-gold" style="font-size: 14px;">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="app-title">AoT-PNASF | Albion Online Platformu</title>
@@ -7,447 +9,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AoT-PNASF">
-  
-<script>
-(function() {
-  'use strict';
-
-  // Prevent double-initialization
-  if (window.__miniappPreviewInstrumented) return;
-  window.__miniappPreviewInstrumented = true;
-
-  var MAX_MESSAGE_LENGTH = 2000;
-  var MAX_MESSAGES_PER_ENTRY = 10;
-  var MAX_BUFFER_ENTRIES = 500;
-
-  function generateSessionId() {
-    try {
-      if (window.crypto && window.crypto.getRandomValues) {
-        var bytes = new Uint8Array(16);
-        window.crypto.getRandomValues(bytes);
-        var hex = '';
-        for (var i = 0; i < bytes.length; i++) {
-          var h = bytes[i].toString(16);
-          if (h.length === 1) h = '0' + h;
-          hex += h;
-        }
-        return hex;
-      }
-    } catch (e) {}
-    return String(Date.now()) + '-' + Math.random().toString(16).slice(2);
-  }
-
-  var sessionId = generateSessionId();
-  var seq = 0;
-  var buffer = [];
-
-  function clampBuffer() {
-    if (buffer.length > MAX_BUFFER_ENTRIES) {
-      buffer.splice(0, buffer.length - MAX_BUFFER_ENTRIES);
-    }
-  }
-
-  // Helper to safely stringify and truncate messages
-  function safeStringify(val) {
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (typeof val === 'string') {
-      return val.length > MAX_MESSAGE_LENGTH
-        ? val.slice(0, MAX_MESSAGE_LENGTH) + '...'
-        : val;
-    }
-    if (typeof val === 'number' || typeof val === 'boolean') {
-      return String(val);
-    }
-    if (val instanceof Error) {
-      return val.stack || val.message || String(val);
-    }
-    try {
-      var str = JSON.stringify(val, null, 2);
-      return str.length > MAX_MESSAGE_LENGTH
-        ? str.slice(0, MAX_MESSAGE_LENGTH) + '...'
-        : str;
-    } catch (e) {
-      try {
-        return String(val);
-      } catch (e2) {
-        return '[Unserializable]';
-      }
-    }
-  }
-
-  function postToParent(payload, targetOrigin) {
-    if (!window.parent || window.parent === window) return;
-    try {
-      window.parent.postMessage(payload, targetOrigin || '*');
-    } catch (e) {
-      // Silently ignore postMessage errors
-    }
-  }
-
-  function record(level, messages, meta) {
-    seq += 1;
-    var entry = {
-      type: 'miniapp-console',
-      sessionId: sessionId,
-      seq: seq,
-      level: level,
-      messages: messages,
-      ts: Date.now()
-    };
-    if (meta && typeof meta === 'object') {
-      entry.meta = meta;
-    }
-    buffer.push(entry);
-    clampBuffer();
-    postToParent(entry, '*');
-  }
-
-  function recordArgs(level, args, meta) {
-    var messages = [];
-    var len = Math.min(args.length, MAX_MESSAGES_PER_ENTRY);
-    for (var i = 0; i < len; i++) {
-      messages.push(safeStringify(args[i]));
-    }
-    if (args.length > MAX_MESSAGES_PER_ENTRY) {
-      messages.push('... and ' + (args.length - MAX_MESSAGES_PER_ENTRY) + ' more');
-    }
-    record(level, messages, meta);
-  }
-
-  // Save original console methods
-  var origLog = console.log;
-  var origWarn = console.warn;
-  var origError = console.error;
-
-  // Override console methods
-  console.log = function() {
-    recordArgs('log', arguments);
-    return origLog.apply(console, arguments);
-  };
-
-  console.warn = function() {
-    recordArgs('warn', arguments);
-    return origWarn.apply(console, arguments);
-  };
-
-  console.error = function() {
-    recordArgs('error', arguments);
-    return origError.apply(console, arguments);
-  };
-
-  function formatResourceTarget(target) {
-    try {
-      if (!target) return null;
-      var tag = (target.tagName || '').toString().toLowerCase();
-      var url = '';
-      if (tag === 'script') url = target.src || '';
-      else if (tag === 'link') url = target.href || '';
-      else if (tag === 'img') url = target.src || '';
-      else if (tag === 'audio' || tag === 'video') url = target.src || '';
-      else url = target.src || target.href || '';
-      return { tag: tag || 'unknown', url: url || '' };
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function onCaptureError(event) {
-    try {
-      // Resource load errors: event.target is the element that failed to load.
-      if (event && event.target && event.target !== window) {
-        var info = formatResourceTarget(event.target);
-        if (info) {
-          record(
-            'error',
-            ['Resource failed to load: ' + info.tag + ' ' + info.url],
-            { kind: 'resource-error', tag: info.tag, url: info.url }
-          );
-          return;
-        }
-      }
-
-      // Some browsers also deliver ErrorEvent objects here.
-      if (event && typeof event.message === 'string') {
-        var message = event.message || 'Unknown error';
-        var source = event.filename || '';
-        var line = event.lineno || 0;
-        var col = event.colno || 0;
-        var stack = event.error && event.error.stack ? event.error.stack : '';
-
-        var errorMsg = message;
-        if (source) {
-          errorMsg += ' at ' + source;
-          if (line) {
-            errorMsg += ':' + line;
-            if (col) errorMsg += ':' + col;
-          }
-        }
-        if (stack && errorMsg.indexOf(stack) === -1) {
-          errorMsg += '\n' + stack;
-        }
-
-        record('error', [errorMsg], {
-          kind: 'js-error-event',
-          filename: source,
-          lineno: line,
-          colno: col
-        });
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  // Capture resource load errors (and some JS errors) in capture phase.
-  window.addEventListener('error', onCaptureError, true);
-
-  // Capture unhandled promise rejections
-  window.addEventListener('unhandledrejection', function(event) {
-    var reason = event.reason;
-    var message = 'Unhandled Promise Rejection: ';
-
-    if (reason instanceof Error) {
-      message += reason.stack || reason.message || String(reason);
-    } else {
-      message += safeStringify(reason);
-    }
-
-    record('error', [message], { kind: 'unhandledrejection' });
-  });
-
-  // Capture CSP violations when supported (JS-only)
-  try {
-    document.addEventListener('securitypolicyviolation', function(event) {
-      try {
-        var violated = event.violatedDirective || event.effectiveDirective || '';
-        var blocked = event.blockedURI || '';
-        var srcFile = event.sourceFile || '';
-        var line = event.lineNumber || 0;
-        var col = event.columnNumber || 0;
-        var sample = event.sample || '';
-        var msg = 'CSP Violation: ' + violated;
-        if (blocked) msg += ' blocked=' + blocked;
-        if (srcFile) {
-          msg += ' at ' + srcFile;
-          if (line) {
-            msg += ':' + line;
-            if (col) msg += ':' + col;
-          }
-        }
-        if (sample) msg += ' sample=' + sample;
-
-        record('error', [msg], {
-          kind: 'csp-violation',
-          violatedDirective: violated,
-          blockedURI: blocked,
-          sourceFile: srcFile,
-          lineNumber: line,
-          columnNumber: col,
-          disposition: event.disposition || ''
-        });
-      } catch (e) {}
-    });
-  } catch (e) {}
-
-  // Worker / SharedWorker error capture (best-effort)
-  function attachWorkerListeners(workerLike, scriptUrl, workerKind) {
-    if (!workerLike || !workerLike.addEventListener) return;
-    try {
-      workerLike.addEventListener('error', function(ev) {
-        try {
-          var msg = ev && ev.message ? String(ev.message) : 'Worker error';
-          var file = ev && ev.filename ? String(ev.filename) : '';
-          var line = ev && ev.lineno ? Number(ev.lineno) : 0;
-          var col = ev && ev.colno ? Number(ev.colno) : 0;
-          var stack = ev && ev.error && ev.error.stack ? String(ev.error.stack) : '';
-
-          var combined = msg;
-          if (file) {
-            combined += ' at ' + file;
-            if (line) {
-              combined += ':' + line;
-              if (col) combined += ':' + col;
-            }
-          }
-          if (stack && combined.indexOf(stack) === -1) {
-            combined += '\n' + stack;
-          }
-
-          record('error', [combined], {
-            kind: 'worker-error',
-            workerKind: workerKind,
-            scriptUrl: scriptUrl || ''
-          });
-        } catch (e) {}
-      });
-
-      workerLike.addEventListener('messageerror', function() {
-        record('error', ['Worker messageerror'], {
-          kind: 'worker-messageerror',
-          workerKind: workerKind,
-          scriptUrl: scriptUrl || ''
-        });
-      });
-    } catch (e) {}
-  }
-
-  var patchedWorkers = { worker: false, sharedworker: false };
-
-  function patchWorkerConstructor(name) {
-    try {
-      if (name === 'Worker' && patchedWorkers.worker) return;
-      if (name === 'SharedWorker' && patchedWorkers.sharedworker) return;
-
-      var Original = window[name];
-      if (typeof Original !== 'function') return;
-
-      function Patched(scriptURL, options) {
-        var instance = new Original(scriptURL, options);
-        try {
-          if (name === 'SharedWorker') {
-            attachWorkerListeners(instance, scriptURL, 'sharedworker');
-            if (instance.port) {
-              attachWorkerListeners(instance.port, scriptURL, 'sharedworker-port');
-            }
-          } else {
-            attachWorkerListeners(instance, scriptURL, 'worker');
-          }
-        } catch (e) {}
-        return instance;
-      }
-
-      Patched.prototype = Original.prototype;
-      try {
-        Object.setPrototypeOf(Patched, Original);
-      } catch (e) {}
-
-      window[name] = Patched;
-
-      if (name === 'Worker') patchedWorkers.worker = true;
-      if (name === 'SharedWorker') patchedWorkers.sharedworker = true;
-    } catch (e) {}
-  }
-
-  patchWorkerConstructor('Worker');
-  patchWorkerConstructor('SharedWorker');
-
-  // Handle screenshot requests from parent
-  var html2canvasPromise = null;
-
-  function ensureHtml2Canvas() {
-    if (typeof html2canvas === 'function') {
-      return Promise.resolve(html2canvas);
-    }
-    if (html2canvasPromise) return html2canvasPromise;
-
-    html2canvasPromise = new Promise(function(resolve, reject) {
-      try {
-        var script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-        script.async = true;
-        script.onload = function() {
-          if (typeof html2canvas === 'function') {
-            resolve(html2canvas);
-          } else {
-            reject(new Error('html2canvas loaded but not available'));
-          }
-        };
-        script.onerror = function() {
-          reject(new Error('Failed to load html2canvas'));
-        };
-        (document.head || document.documentElement || document.body).appendChild(script);
-      } catch (e) {
-        reject(e);
-      }
-    });
-
-    return html2canvasPromise;
-  }
-
-  window.addEventListener('message', function(event) {
-    // Only respond to parent window
-    if (event.source !== window.parent) return;
-
-    if (event.data && event.data.type === 'miniapp-parent-request-backlog') {
-      try {
-        postToParent({
-          type: 'miniapp-console-backlog',
-          sessionId: sessionId,
-          lastSeq: seq,
-          entries: buffer.slice(0),
-          ts: Date.now()
-        }, event.origin || '*');
-      } catch (e) {}
-      return;
-    }
-
-    if (!event.data || event.data.type !== 'request-miniapp-screenshot') return;
-
-    // Check if html2canvas is available
-    // Capture screenshot
-    ensureHtml2Canvas()
-      .then(function() {
-        return html2canvas(document.body, {
-          useCORS: true,
-          allowTaint: true,
-          scale: window.devicePixelRatio || 1,
-          logging: false,
-          backgroundColor: null
-        });
-      })
-      .then(function(canvas) {
-        var dataUrl = canvas.toDataURL('image/png');
-        try {
-          event.source.postMessage({
-            type: 'miniapp-screenshot',
-            imageDataUrl: dataUrl,
-            ts: Date.now()
-          }, event.origin || '*');
-        } catch (e) {
-          try {
-            event.source.postMessage({
-              type: 'miniapp-screenshot-error',
-              error: 'Failed to send screenshot: ' + String(e)
-            }, event.origin || '*');
-          } catch (e2) {}
-        }
-      })
-      .catch(function(err) {
-        try {
-          event.source.postMessage({
-            type: 'miniapp-screenshot-error',
-            error: String(err)
-          }, event.origin || '*');
-        } catch (e) {}
-      });
-  });
-
-  // Signal that the preview is ready
-  function signalReady() {
-    if (!window.parent || window.parent === window) return;
-    try {
-      window.parent.postMessage({
-        type: 'miniapp-preview-ready',
-        sessionId: sessionId,
-        ts: Date.now()
-      }, '*');
-    } catch (e) {}
-  }
-
-  // Signal ready on DOMContentLoaded or immediately if already loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', signalReady);
-  } else {
-    // DOM already loaded, signal ready after a small delay to ensure scripts have run
-    setTimeout(signalReady, 100);
-  }
-})();
-</script><script src="https://miniapps.ai/sdk/miniapps-ai-v1.js"></script><script src="https://miniapps.ai/sdk/miniapp-i18n-v1.js"></script><script defer="" src="https://cdn.tailwindcss.com"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Görsel Çıktısı Almak İçin HTML2Canvas Kütüphanesi -->
-  <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="js/market-live.css">
@@ -457,7 +23,7 @@
   <link rel="stylesheet" href="js/operations-enhanced.css">
   <link rel="stylesheet" href="js/operations-timeline.css">
   <link rel="stylesheet" href="js/creature-art.css">
-  <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </head>
 <body class="h-screen overflow-hidden flex flex-col font-sans transition-colors duration-300">
 
@@ -514,25 +80,25 @@
     <!-- Tab Navigation -->
     <nav id="navMenu" class="app-sidebar" aria-label="Uygulama bölümleri">
       <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-command">KOMUTA MERKEZİ</span>
-        <button data-tab="tab-home" class="tab-btn border-albion-accent"><i class="fa-solid fa-house"></i> <span data-i18n="nav-home">Genel Bakış</span></button>
+        <button data-tab="tab-home" class="tab-btn border-albion-accent"><i class="fa-solid fa-house"></i> <span data-i18n="nav-home">Ana Sayfa</span></button>
         <button data-tab="tab-market" class="tab-btn"><i class="fa-solid fa-gauge-high"></i> <span data-i18n="nav-market">Pazar Kokpiti</span></button>
       </div>
-      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-knowledge">BİLGİ &amp; KEŞİF</span>
-        <button data-tab="tab-bestiary" class="tab-btn"><i class="fa-solid fa-book-skull"></i> <span data-i18n="nav-bestiary">Mob &amp; Boss Rehberi</span></button>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-knowledge">BİLGİ & KEŞİF</span>
+        <button data-tab="tab-bestiary" class="tab-btn"><i class="fa-solid fa-book-skull"></i> <span data-i18n="nav-bestiary">Mob & Boss Rehberi</span></button>
         <button data-tab="tab-events" class="tab-btn"><i class="fa-solid fa-clock"></i> <span data-i18n="nav-events">Etkinlikler</span></button>
-        <button data-tab="tab-avalon" class="tab-btn"><i class="fa-solid fa-route"></i> <span data-i18n="nav-avalon">Avalon Yol Bulucu</span></button>
+        <button data-tab="tab-avalon" class="tab-btn"><i class="fa-solid fa-route"></i> <span data-i18n="nav-avalon">Avalon Roads</span></button>
       </div>
-      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-economy">EKONOMİ &amp; ÜRETİM</span>
-        <button data-tab="tab-crafting" class="tab-btn"><i class="fa-solid fa-hammer"></i> <span data-i18n="nav-crafting">Üretim Planlayıcı</span></button>
-        <button data-tab="tab-gathering" class="tab-btn"><i class="fa-solid fa-leaf"></i> <span data-i18n="nav-gathering">Kaynak &amp; Harita</span></button>
-        <button data-tab="tab-arbitrage" class="tab-btn"><i class="fa-solid fa-sack-dollar"></i> <span data-i18n="nav-arbitrage">Pazar Fırsatları</span></button>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-economy">EKONOMİ & ÜRETİM</span>
+        <button data-tab="tab-crafting" class="tab-btn"><i class="fa-solid fa-hammer"></i> <span data-i18n="nav-crafting">Crafting & Üretim</span></button>
+        <button data-tab="tab-gathering" class="tab-btn"><i class="fa-solid fa-leaf"></i> <span data-i18n="nav-gathering">Toplayıcılık</span></button>
+        <button data-tab="tab-arbitrage" class="tab-btn"><i class="fa-solid fa-sack-dollar"></i> <span data-i18n="nav-arbitrage">Karaborsa & Fırsatlar</span></button>
         <button data-tab="tab-loot-logger" class="tab-btn"><i class="fa-solid fa-box-open"></i> <span data-i18n="nav-lootLogger">Loot Logger</span></button>
       </div>
-      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-combat">SAVAŞ &amp; BUILD</span>
-        <button data-tab="tab-pvp" class="tab-btn"><i class="fa-solid fa-khanda"></i> <span data-i18n="nav-pvp">Oyuncu &amp; Killboard</span></button>
-        <button data-tab="tab-ai-build" class="tab-btn"><i class="fa-solid fa-robot"></i> <span data-i18n="nav-aiBuild">AI Set Rehberi</span></button>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-combat">SAVAŞ & BUILD</span>
+        <button data-tab="tab-pvp" class="tab-btn"><i class="fa-solid fa-khanda"></i> <span data-i18n="nav-pvp">PvP & İstatistik</span></button>
+        <button data-tab="tab-ai-build" class="tab-btn"><i class="fa-solid fa-robot"></i> <span data-i18n="nav-aiBuild">AI Rehber</span></button>
       </div>
-      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-operations">OPERASYON &amp; İSTİHBARAT</span>
+      <div class="nav-group"><span class="nav-group-label" data-i18n="nav-group-operations">OPERASYON & İSTİHBARAT</span>
         <button data-tab="tab-operations" class="tab-btn"><i class="fa-solid fa-compass-drafting"></i> <span data-i18n="nav-operations">Albion Operasyon Merkezi</span></button>
       </div>
       <div class="nav-group"><span class="nav-group-label">GELİŞMİŞ SİSTEMLER</span>
@@ -548,7 +114,7 @@
         <button data-tab="tab-tax" class="tab-btn"><i class="fa-solid fa-calculator"></i> <span>Vergi</span></button>
         <button data-tab="tab-ticker" class="tab-btn"><i class="fa-solid fa-chart-candlestick"></i> <span>Canlı Pazar</span></button>
       </div>
-      <div class="nav-group"><span class="nav-group-label">ARAÇLAR &amp; OYUNLAR</span>
+      <div class="nav-group"><span class="nav-group-label">ARAÇLAR & OYUNLAR</span>
         <button data-tab="tab-loot-sim" class="tab-btn"><i class="fa-solid fa-dice-d20"></i> <span>Loot Sim</span></button>
         <button data-tab="tab-craft-rng" class="tab-btn"><i class="fa-solid fa-hammer-crash"></i> <span>Craft RNG</span></button>
         <button data-tab="tab-transport-risk" class="tab-btn"><i class="fa-solid fa-truck-fast"></i> <span>Transport</span></button>
@@ -572,7 +138,9 @@
              <div class="absolute inset-0 bg-gradient-to-r from-albion-accent/20 to-transparent"></div>
              <i class="fa-solid fa-arrows-rotate text-albion-accent mr-3 animate-spin-slow text-lg"></i>
              <div class="flex flex-col relative z-10">
-               <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center" data-i18n="home-nextUpdate">PİYASA EŞİTLEMESİ</span>
+               <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center" data-i18n="home-nextUpdate">
+                 PİYASA EŞİTLEMESİ
+               </span>
                <span id="updateCountdown" class="text-sm md:text-base font-black text-white tracking-widest font-mono drop-shadow-md">--:--:--</span>
              </div>
           </div>
@@ -659,7 +227,7 @@
           <!-- View 1: Personal AI Build Form -->
           <div id="aiViewPersonal" class="animate-fade-in max-w-5xl mx-auto">
             <div class="mb-6">
-              <h2 class="text-2xl font-bold text-white mb-1" data-i18n="aiBuild-title">Yapay Zeka Set Önericisi</h2>
+              <h2 class="text-2xl font-bold text-white mb-1" data-i18n="aiBuild-title">Kişisel Set (PvE & PvP)</h2>
               <p class="text-gray-400">Oyun içi orijinal görünümlü silahlardan birini seçin. Yapay zeka size bu silah için hem <strong>PvE</strong> hem de <strong>PvP</strong> olmak üzere iki ayrı Meta build (Q1, W1, E, P1 formatında) sunacaktır.</p>
             </div>
             
@@ -699,8 +267,8 @@
                   <input type="text" id="buildExtra" placeholder="Örn: Ucuz olsun, hareket hızı yüksek olsun" class="w-full bg-albion-900 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-albion-accent outline-none transition-colors">
                 </div>
                 
-                <button type="button" id="btnPersonalSubmit" disabled="" class="w-full bg-gray-600 text-gray-400 cursor-not-allowed font-black py-4 px-4 rounded-xl transition-transform flex justify-center items-center mt-4 shadow-lg uppercase tracking-wider text-lg">
-                  <i class="fa-solid fa-robot mr-2"></i> Çift Set Olarak Oluştur (PvE &amp; PvP)
+                <button type="button" id="btnPersonalSubmit" disabled class="w-full bg-gray-600 text-gray-400 cursor-not-allowed font-black py-4 px-4 rounded-xl transition-transform flex justify-center items-center mt-4 shadow-lg uppercase tracking-wider text-lg">
+                  <i class="fa-solid fa-robot mr-2"></i> Çift Set Olarak Oluştur (PvE & PvP)
                 </button>
               </div>
             </div>
@@ -709,7 +277,7 @@
           <!-- View 2: Group Content Build Form -->
           <div id="aiViewGroup" class="hidden animate-fade-in max-w-4xl mx-auto">
             <div class="mb-6">
-              <h2 class="text-2xl font-bold text-white mb-1">Content Build (Grup &amp; Meta)</h2>
+              <h2 class="text-2xl font-bold text-white mb-1">Content Build (Grup & Meta)</h2>
               <p class="text-gray-400">En popüler grup içeriklerine özel, AI destekli meta kompozisyonları (Tank, Healer, DPS dağılımları ve detaylı taktikler).</p>
             </div>
             
@@ -721,7 +289,7 @@
                     <option value="Group Dungeon (5 Core + 2 Flex)">Grup Zindanı (Group Dungeon 5+2)</option>
                     <option value="Group Camp (4 Core + 3 Flex)">Grup Kampı (Group Camp 4+3)</option>
                     <option value="Avalon Gold (Pure PvE - 7 Kişi)">Avalon Altın Sandık (Sadece PvE - 7 Kişi)</option>
-                    <option value="Avalon Gold &amp; Dive (PvPvE - 7 Kişi)">Avalon Altın &amp; Dive (PvP+PvE Meta - 7 Kişi)</option>
+                    <option value="Avalon Gold & Dive (PvPvE - 7 Kişi)">Avalon Altın & Dive (PvP+PvE Meta - 7 Kişi)</option>
                     <option value="Avalon Dungeon (10 Core Roles)">Avalon Zindanı (10+10 Core Meta)</option>
                     <option value="HCE (Hardcore Expeditions 5 Core)">HCE (Hardcore Expeditions)</option>
                     <option value="Ganking (Grup)">Ganking (Grup Yakalama)</option>
@@ -764,7 +332,7 @@
             <i class="fa-solid fa-gear text-xl text-albion-accent"></i>
           </div>
           <div>
-            <h3 class="text-xl font-black text-white" data-i18n="settings-title">AoT-PNASF Ayarları</h3>
+            <h3 class="text-xl font-black text-white" data-i18n="settings-title">Ayarlar</h3>
             <p class="text-xs text-gray-400 mt-0.5" data-i18n="settings-subtitle">Uygulama Tercihlerinizi Yapılandırın</p>
           </div>
         </div>
@@ -779,7 +347,7 @@
         <!-- Language Setting -->
         <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
           <label class="block text-sm font-bold text-gray-300 mb-2">
-            <i class="fa-solid fa-language mr-2 text-albion-accent"></i><span data-i18n="settings-language">Sistem Dili</span>
+            <i class="fa-solid fa-language mr-2 text-albion-accent"></i><span data-i18n="settings-language">Dil (Language)</span>
           </label>
           <select id="settingsLang" class="w-full bg-albion-900 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-albion-accent outline-none transition-colors cursor-pointer">
             <!-- JS will populate this -->
@@ -789,7 +357,7 @@
         <!-- Server Setting -->
         <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
           <label class="block text-sm font-bold text-gray-300 mb-3">
-            <i class="fa-solid fa-server mr-2 text-albion-accent"></i><span data-i18n="settings-server">Global Sunucu</span>
+            <i class="fa-solid fa-server mr-2 text-albion-accent"></i><span data-i18n="settings-server">Oyun Sunucusu</span>
           </label>
           <input type="hidden" id="settingsServer" value="europe">
           <div class="grid grid-cols-3 gap-2">
@@ -802,14 +370,14 @@
         <!-- Scale Setting -->
         <div class="bg-black/20 p-4 rounded-xl border border-gray-700/50">
           <label class="block text-sm font-bold text-gray-300 mb-2">
-            <i class="fa-solid fa-text-height mr-2 text-albion-accent"></i><span data-i18n="settings-scale">Boyut (Scale)</span>
+            <i class="fa-solid fa-text-height mr-2 text-albion-accent"></i><span data-i18n="settings-scale">Metin Boyutu</span>
           </label>
           <select id="settingsScale" class="w-full bg-albion-900 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-albion-accent outline-none transition-colors cursor-pointer">
             <option value="9px">Mini / %50 (9px)</option>
-            <option value="10px" selected="">Kompakt / %60 (10px)</option>
+            <option value="10px" selected>Kompakt / %60 (10px)</option>
             <option value="12px">Küçük / %75 (12px)</option>
             <option value="13px">Normal (13px)</option>
-            <option value="14px">Varsayılan (14px)</option>
+            <option value="14px" selected>Varsayılan (14px)</option>
             <option value="15px">Büyük (15px)</option>
             <option value="16px">Çok Büyük (16px)</option>
           </select>
@@ -821,7 +389,8 @@
             <i class="fa-solid fa-wand-magic-sparkles mr-2 text-purple-400"></i>AI Tema Üreticisi
           </label>
           <div class="flex gap-2 mb-3">
-            <input type="text" id="aiThemePrompt" placeholder="Örn: 'Koyu mor ve neon yeşil tonları'" class="flex-1 bg-albion-900 border border-gray-600 rounded-lg p-2.5 text-white text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-colors">
+            <input type="text" id="aiThemePrompt" placeholder="Örn: 'Koyu mor ve neon yeşil tonları'" 
+              class="flex-1 bg-albion-900 border border-gray-600 rounded-lg p-2.5 text-white text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-colors">
             <button type="button" id="aiThemeBtn" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-lg font-bold transition-colors text-sm shrink-0">
               <i class="fa-solid fa-robot"></i>
             </button>
@@ -875,79 +444,79 @@
     </div>
   </div>
 
-  <script defer="" src="js/main.js"></script>
-  <script defer="" src="js/market-runtime.js"></script>
-  <script defer="" src="js/i18n-helper.js"></script>
-  <script defer="" src="js/i18n-legacy.js"></script>
-  <script defer="" src="js/event.js"></script>
-  <script defer="" src="js/event-market-bridge.js"></script>
-  <script defer="" src="js/bestiary-data.js"></script>
-  <script defer="" src="js/creature-art.js"></script>
-  <script defer="" src="js/bestiary.js"></script>
-  <script defer="" src="js/crafting.js"></script>
-  <script defer="" src="js/crafting-planner.js"></script>
-  <script defer="" src="js/pvp.js"></script>
-  <script defer="" src="js/avalon.js"></script>
-  <script defer="" src="js/gathering.js"></script>
-  <script defer="" src="js/loot.js"></script>
-  <script defer="" src="js/arbitrage-filters.js"></script>
-  <script defer="" src="js/arbitrage.js"></script>
-  <script defer="" src="js/ai-builds.js"></script>
-  <script defer="" src="js/market-items.js"></script>
-  <script defer="" src="js/item-card.js"></script>
-  <script defer="" src="js/favorites.js"></script>
-  <script defer="" src="js/market-dock.js"></script>
-  <script defer="" src="js/item-inspector.js"></script>
-  <script defer="" src="js/market-alerts.js"></script>
-  <script defer="" src="js/favorite-actions.js"></script>
-  <script defer="" src="js/performance-ux.js"></script>
-  <script defer="" src="js/market-live.js"></script>
-  <script defer="" src="js/market-center.js"></script>
-  <script defer="" src="js/market-tools.js"></script>
-  <script defer="" src="js/home-dashboard.js"></script>
-  <script defer="" src="js/global-item-search.js"></script>
-  <script defer="" src="js/economy-profile.js"></script>
-  <script defer="" src="js/economy-planner.js"></script>
-  <script defer="" src="js/operations-data.js"></script>
-  <script defer="" src="js/operations-intelligence-data.js"></script>
-  <script defer="" src="js/operations-market.js"></script>
-  <script defer="" src="js/operations-center.js"></script>
-  <script defer="" src="js/operations-spawn.js"></script>
-  <script defer="" src="js/operations-bestiary.js"></script>
-  <script defer="" src="js/operations-combat.js"></script>
-  <script defer="" src="js/operations-profit.js"></script>
-  <script defer="" src="js/operations-risk.js"></script>
-  <script defer="" src="js/operations-build.js"></script>
-  <script defer="" src="js/operations-planning.js"></script>
-  <script defer="" src="js/operations-gathering.js"></script>
-  <script defer="" src="js/operations-reference.js"></script>
-  <script defer="" src="js/operations-pvp.js"></script>
-  <script defer="" src="js/operations-intelligence.js"></script>
-  <script defer="" src="js/operations-records.js"></script>
+  <script defer src="js/main.js"></script>
+  <script defer src="js/market-runtime.js"></script>
+  <script defer src="js/i18n-helper.js"></script>
+  <script defer src="js/i18n-legacy.js"></script>
+  <script defer src="js/event.js"></script>
+  <script defer src="js/event-market-bridge.js"></script>
+  <script defer src="js/bestiary-data.js"></script>
+  <script defer src="js/creature-art.js"></script>
+  <script defer src="js/bestiary.js"></script>
+  <script defer src="js/crafting.js"></script>
+  <script defer src="js/crafting-planner.js"></script>
+  <script defer src="js/pvp.js"></script>
+  <script defer src="js/avalon.js"></script>
+  <script defer src="js/gathering.js"></script>
+  <script defer src="js/loot.js"></script>
+  <script defer src="js/arbitrage-filters.js"></script>
+  <script defer src="js/arbitrage.js"></script>
+  <script defer src="js/ai-builds.js"></script>
+  <script defer src="js/market-items.js"></script>
+  <script defer src="js/item-card.js"></script>
+  <script defer src="js/favorites.js"></script>
+  <script defer src="js/market-dock.js"></script>
+  <script defer src="js/item-inspector.js"></script>
+  <script defer src="js/market-alerts.js"></script>
+  <script defer src="js/favorite-actions.js"></script>
+  <script defer src="js/performance-ux.js"></script>
+  <script defer src="js/market-live.js"></script>
+  <script defer src="js/market-center.js"></script>
+  <script defer src="js/market-tools.js"></script>
+  <script defer src="js/home-dashboard.js"></script>
+  <script defer src="js/global-item-search.js"></script>
+  <script defer src="js/economy-profile.js"></script>
+  <script defer src="js/economy-planner.js"></script>
+  <script defer src="js/operations-data.js"></script>
+  <script defer src="js/operations-intelligence-data.js"></script>
+  <script defer src="js/operations-market.js"></script>
+  <script defer src="js/operations-center.js"></script>
+  <script defer src="js/operations-spawn.js"></script>
+  <script defer src="js/operations-bestiary.js"></script>
+  <script defer src="js/operations-combat.js"></script>
+  <script defer src="js/operations-profit.js"></script>
+  <script defer src="js/operations-risk.js"></script>
+  <script defer src="js/operations-build.js"></script>
+  <script defer src="js/operations-planning.js"></script>
+  <script defer src="js/operations-gathering.js"></script>
+  <script defer src="js/operations-reference.js"></script>
+  <script defer src="js/operations-pvp.js"></script>
+  <script defer src="js/operations-intelligence.js"></script>
+  <script defer src="js/operations-records.js"></script>
   
   <!-- YENİ: Bildirim, Sesli Asistan, Veri Görselleştirme, Sosyal -->
-  <script defer="" src="js/ui/toast-notifications.js"></script>
-  <script defer="" src="js/ui/voice-assistant.js"></script>
-  <script defer="" src="js/ui/data-viz.js"></script>
-  <script defer="" src="js/ui/social-features.js"></script>
+  <script defer src="js/ui/toast-notifications.js"></script>
+  <script defer src="js/ui/voice-assistant.js"></script>
+  <script defer src="js/ui/data-viz.js"></script>
+  <script defer src="js/ui/social-features.js"></script>
   
   <!-- YENİ 2: Vergi, Başarı, Discord, Tema, Strateji, Canlı Pazar -->
-  <script defer="" src="js/ui/tax-calculator.js"></script>
-  <script defer="" src="js/ui/achievements.js"></script>
-  <script defer="" src="js/ui/discord-bridge.js"></script>
-  <script defer="" src="js/ui/theme-store.js"></script>
-  <script defer="" src="js/ui/ai-strategy-coach.js"></script>
-  <script defer="" src="js/ui/market-simulator.js"></script>
+  <script defer src="js/ui/tax-calculator.js"></script>
+  <script defer src="js/ui/achievements.js"></script>
+  <script defer src="js/ui/discord-bridge.js"></script>
+  <script defer src="js/ui/theme-store.js"></script>
+  <script defer src="js/ui/ai-strategy-coach.js"></script>
+  <script defer src="js/ui/market-simulator.js"></script>
   
   <!-- YENİ 3: Loot Sim, Craft RNG, Transport Risk, Fame Calc, Killboard, Mini Games -->
-  <script defer="" src="js/ui/loot-simulator.js"></script>
-  <script defer="" src="js/ui/crafting-rng.js"></script>
-  <script defer="" src="js/ui/transport-risk.js"></script>
-  <script defer="" src="js/ui/fame-calculator.js"></script>
-  <script defer="" src="js/ui/killboard.js"></script>
-  <script defer="" src="js/ui/mini-games.js"></script>
-  <script defer="" src="js/zip-exporter.js"></script>
-  <script defer="" src="js/ui/navigation-polish.js"></script>
+  <script defer src="js/ui/loot-simulator.js"></script>
+  <script defer src="js/ui/crafting-rng.js"></script>
+  <script defer src="js/ui/transport-risk.js"></script>
+  <script defer src="js/ui/fame-calculator.js"></script>
+  <script defer src="js/ui/killboard.js"></script>
+  <script defer src="js/ui/mini-games.js"></script>
+  <script defer src="js/zip-exporter.js"></script>
+  <script defer src="js/ui/navigation-polish.js"></script>
 
-
-</body></html>
+</body>
+</html>
